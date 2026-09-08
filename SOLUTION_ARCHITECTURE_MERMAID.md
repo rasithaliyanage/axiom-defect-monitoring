@@ -1,223 +1,261 @@
-# Solution Architecture - Mermaid Diagram
+﻿# Board Defect Inspection - Solution Architecture
 
-## AI-Native Manufacturing QC with Calibrated Probabilistic Decisions
+Based on [Business Requirements Document.docx](<Business Requirements Document.docx>), discovery version 1.0, particularly sections 11-32 and 40-41.
+
+This proposed architecture uses traditional software development technologies: Angular, Java/Spring Boot, REST APIs, PostgreSQL, RabbitMQ and managed Linux virtual machines. A dedicated computer-vision service fulfills the BRD's AI inspection requirements; generative AI and autonomous agents are not required. The model family and camera hardware remain subject to feasibility testing.
+
+The BRD contains discovery questions and illustrative business rules. The technology choices and topology below are design proposals, not approved requirements. Throughput, latency, quality thresholds, retention and availability targets remain TBD.
+
+## Enterprise architecture
+
+Solid arrows represent runtime data flows. Dashed arrows represent identity, configuration, deployment or monitoring relationships. The local inspection path can continue during a central outage while approved configuration, equipment and local storage remain available.
 
 ```mermaid
-graph TD
-    subgraph DataSources["📊 Data Sources & Ingestion"]
-        Camera["🎥 Production Line<br/>Cameras"]
-        Sensors["📡 Sensor Data<br/>Temperature, Vibration"]
-        Metadata["📋 Production<br/>Metadata"]
-        History["📚 Historical<br/>Images & Labels"]
+flowchart TB
+    subgraph USERS["Users"]
+        Operator["Operator / Quality inspector"]
+        Manager["Quality manager / Business analyst"]
+        Admin["Quality approver / ML engineer / IT administrator"]
     end
 
-    subgraph ModelLayer["🧠 Model Intelligence Layer"]
-        PreProc["Data Preprocessing<br/>Resize, Normalize"]
-        
-        subgraph YOLOCore["YOLO v8 Supervised Detector"]
-            Backbone["Backbone<br/>Feature Extraction"]
-            Neck["Neck<br/>Multi-Scale Features"]
-            Head["Detection Head<br/>Class + Box Predictions"]
+    subgraph OT["Factory OT network - repeat per production line"]
+        Camera["Industrial cameras and lighting"]
+        Board["Board identity source<br/>Barcode, type, revision and batch"]
+        PLC["PLC / Line controller - optional<br/>Physical routing and equipment interlocks"]
+        subgraph EDGE["Industrial inspection computer"]
+            Capture["Camera SDK adapter<br/>Capture, board correlation and image quality"]
+            Coordinator["Java / Spring Boot inspection coordinator<br/>Required views, deadlines and inspection state"]
+            Vision["Python / ONNX Runtime vision service<br/>Defect classes, locations and confidence"]
+            Rules["QC decision module<br/>Versioned severity and tolerance rules<br/>PASS / FAIL / REVIEW"]
+            Local[("Local PostgreSQL and image spool<br/>Results, evidence, commands and outbox")]
+            Control["Line control adapter<br/>Command IDs, acknowledgements and reconciliation"]
+            Sync["Synchronization worker<br/>Retry, deduplication and capacity limits"]
+            Package["Approved model and recipe package<br/>Version, checksum and rollback copy"]
         end
-        
-        ConfCalib["⚖️ Confidence Calibration<br/>Temperature Scaling<br/>Platt Scaling<br/>Isotonic Regression<br/>---<br/>⚠️ YOLO scores ≠ Business Prob<br/>Must validate before use"]
-        
-        Validation["📊 Score Validation<br/>Check if confidence<br/>meets business threshold<br/>Mark uncertainty regions"]
     end
 
-    subgraph Decision["🔀 Probabilistic Decision Routing"]
-        HighConf["✅ HIGH CONFIDENCE<br/>Defect Probability > 85%<br/>---<br/>Action: AUTO REJECT<br/>Confidence: Trusted"]
-        
-        LowConf["⚠️ LOW CONFIDENCE<br/>Defect Probability 50-85%<br/>---<br/>⚡ UNCERTAINTY ≠ FAILURE<br/>Action: HUMAN REVIEW<br/>or RE-IMAGE at 90°"]
-        
-        NoDefect["✓ NO DEFECT DETECTED<br/>Class Confidence < 50%<br/>---<br/>Action: AUTO PASS<br/>Note: Unseen defects<br/>structurally invisible"]
-        
-        FailThreshold["🛑 FAILURE THRESHOLD<br/>Multiple HIGH CONF defects<br/>within tolerance zone<br/>---<br/>Grade DOWN to QC Hold<br/>Do NOT ship<br/>Quality preserved"]
+    subgraph DMZ["Industrial DMZ - controlled OT / IT boundary"]
+        Gateway["NGINX integration gateway<br/>Allowlisted HTTPS endpoints and mutual TLS<br/>Factory-initiated uploads and command polling"]
     end
 
-    subgraph HumanLoop["👤 Human-in-Loop Learning<br/>(⚠️ Error Prone)"]
-        HumanReview["Human Reviewer<br/>Validates Uncertain Cases"]
-        
-        CorrectLabel["✓ Correct Label"]
-        WrongLabel["❌ WRONG LABEL<br/>⚠️ Risk: Model learns<br/>incorrect patterns<br/>→ Future false negatives<br/>→ Defects shipped"]
-        
-        Feedback["Label + Confidence<br/>+ Review Time"]
+    subgraph IT["Enterprise IT application tier"]
+        UI["Angular web application<br/>Evidence, review, history and dashboards"]
+        LB["NGINX reverse proxy / Load balancer<br/>HTTPS and health checks"]
+        SSO["Enterprise identity provider<br/>OIDC single sign-on and privileged-user MFA"]
+        subgraph APP["Spring Boot modular application - replicated instances"]
+            Ingest["Inspection ingestion API<br/>Validation and idempotent synchronization"]
+            Review["Review and override module<br/>Assignment, authorization and concurrency checks"]
+            Config["Configuration and governance module<br/>Defect catalogue, recipes and approved releases"]
+            Reports["History and reporting module<br/>Quality trends and defect distribution"]
+            Publisher["Transactional outbox publisher"]
+        end
+        MQ["RabbitMQ durable queues<br/>Retries and dead-letter queue"]
+        Worker["Background integration workers<br/>Delivery status and controlled replay"]
+        MES["Existing MES / Quality system - optional<br/>REST or agreed legacy interface"]
+        Notify["Enterprise notification service<br/>Review escalations and operational alerts"]
     end
 
-    subgraph SecurityGov["🔐 Security & Governance Layer"]
-        AccessCtrl["Access Control<br/>Role-Based Permissions"]
-        AuditLog["Audit Logging<br/>All decisions & labels"]
-        DataProt["Data Protection<br/>Encryption, Retention"]
-        ModelVers["Model Versioning<br/>Approved versions only"]
-        CompReview["Compliance Review<br/>Bias, fairness checks"]
+    subgraph DATA["Protected enterprise data tier"]
+        DB[("PostgreSQL primary and standby<br/>Inspections, defects, reviews, rules and outbox")]
+        Objects[("S3-compatible object storage<br/>Images, annotations and model artifacts")]
+        Replica[("Reporting replica / Reporting views")]
+        Audit[("Restricted append-only audit archive")]
+        Backup[("Encrypted backup repository<br/>Database recovery and object backup")]
     end
 
-    subgraph ActiveLearn["🔄 Active Learning & Retraining"]
-        SelectCases["Select high-impact<br/>uncertain cases"]
-        Retrain["Fine-tune YOLO<br/>on new labels"]
-        Validate_v2["Validate on holdout<br/>test set"]
-        CompareMetrics["Compare: Accuracy<br/>Precision, Recall"]
+    subgraph DELIVERY["Separate development and validation environment"]
+        Curate["Quality-controlled dataset curation<br/>Verified labels and versioned datasets"]
+        Train["Python model development and evaluation<br/>Independent test set and per-defect metrics"]
+        Approve["Quality approval and artifact registry<br/>Compatible model, preprocessing and recipe"]
+        CI["Git and Jenkins pipeline<br/>Build, test, scan, staged release and rollback"]
     end
 
-    subgraph Observability["📈 Observability & Drift Detection"]
-        ModelMonitor["🔍 Model Performance<br/>Real-time accuracy metrics<br/>Precision, Recall drift<br/>Confusion matrix tracking"]
-        
-        DriftDetect["📊 Drift Detection<br/>Input distribution shift<br/>Covariate drift check<br/>Label shift detection<br/>---<br/>Trigger: Retrain when<br/>Accuracy drops > 5%"]
-        
-        PerfMetrics["⏱️ Performance Metrics<br/>Inference latency<br/>Throughput (boards/min)<br/>GPU utilization<br/>Model cache hits"]
-        
-        Alerts["🚨 Alerting<br/>Drift detected → Retrain<br/>Latency spike → Scale<br/>Accuracy drop → Review"]
+    subgraph OPS["Operations and platform controls"]
+        Monitor["OpenTelemetry, Prometheus and Grafana<br/>Health, latency, queues, storage and model quality"]
+        Logs["Central logs and security monitoring"]
+        Secrets["Enterprise secrets and certificate store"]
     end
 
-    subgraph Anomaly["❌ No Anomaly Detection<br/>Everything Routes Through<br/>Supervised Classifier"]
-        AnomalyNote["⚠️ Limitation:<br/>Unseen defect types<br/>structurally invisible<br/>---<br/>Mitigation:<br/>Continuous re-labeling<br/>of human-reviewed cases"]
-    end
+    Operator --> UI
+    Manager --> UI
+    Admin --> UI
+    UI -->|"HTTPS / REST"| LB
+    UI -.->|"Sign-in"| SSO
+    SSO -.->|"Validated identity and role claims"| APP
+    LB --> Review
+    LB --> Config
+    LB --> Reports
+    Camera --> Capture
+    Board --> Capture
+    PLC -->|"Trigger and position if integrated"| Capture
+    Capture --> Coordinator
+    Coordinator -->|"Local inference request"| Vision
+    Vision -->|"Predictions or explicit failure"| Coordinator
+    Coordinator --> Rules
+    Package -.-> Vision
+    Package -.-> Rules
+    Rules -->|"Persist before dispatch"| Local
+    Local -->|"Pending command"| Control
+    Control -->|"Agreed industrial protocol"| PLC
+    PLC -->|"Acknowledgement and state"| Control
+    Control -->|"Delivery status"| Local
+    Local --> Sync
+    Sync -->|"Upload results and evidence; poll commands"| Gateway
+    Gateway --> Ingest
+    Gateway -->|"Poll approved releases"| Config
+    Gateway -->|"Poll review dispositions"| Review
+    Gateway -->|"Poll responses"| Sync
+    Sync -->|"Verified installation"| Package
+    Sync -->|"Authorized disposition; check current board state"| Coordinator
+    Sync -->|"Synchronization checkpoints"| Local
+    Ingest --> DB
+    Ingest --> Objects
+    Review --> DB
+    Review -->|"Authorized evidence access"| Objects
+    Config --> DB
+    DB --> Publisher
+    Publisher --> MQ
+    MQ --> Worker
+    Worker --> MES
+    Worker --> Notify
+    Worker --> Audit
+    DB --> Replica
+    Reports --> Replica
+    Reports --> Objects
+    DB --> Backup
+    Objects --> Backup
+    Objects -->|"Authorized retained samples"| Curate
+    DB -->|"Verified reviews and provenance"| Curate
+    Curate --> Train
+    Train --> Approve
+    Admin -.->|"Separate approval role"| Approve
+    Approve --> Objects
+    Approve -->|"Approved release manifest"| Config
+    CI -.->|"Application releases"| APP
+    CI -.->|"Controlled software releases"| EDGE
+    EDGE -.->|"Telemetry through controlled gateway"| Monitor
+    APP -.-> Monitor
+    MQ -.-> Monitor
+    DB -.-> Monitor
+    Monitor --> Notify
+    APP -.-> Logs
+    Gateway -.-> Logs
+    Secrets -.-> APP
+    Secrets -.-> Gateway
 
-    subgraph Output["📤 Applications & Outputs"]
-        RealTimeUI["Real-time Inspection UI<br/>Bounding boxes<br/>Confidence heatmaps"]
-        Alerts_Out["🔔 Alerts & Notifications<br/>Auto-reject summary<br/>QC hold escalations"]
-        Reports["📊 Reports & Analytics<br/>Defect trends<br/>Pareto analysis<br/>OEE impact"]
-        Traceability["🔗 Traceability<br/>Full decision history<br/>Label audit trail<br/>Model version used"]
-    end
-
-    subgraph QCSystem["🏭 Quality Control System"]
-        QCDecision["QC Decision Engine<br/>Single point of truth<br/>for pass/fail/hold/grade"]
-    end
-
-    %% Connections
-    Camera --> PreProc
-    Sensors --> PreProc
-    Metadata --> PreProc
-    History --> Validation
-    
-    PreProc --> Backbone
-    Backbone --> Neck
-    Neck --> Head
-    
-    Head --> ConfCalib
-    ConfCalib --> Validation
-    
-    Validation --> HighConf
-    Validation --> LowConf
-    Validation --> NoDefect
-    
-    HighConf --> FailThreshold
-    LowConf --> HumanReview
-    NoDefect --> FailThreshold
-    
-    FailThreshold --> QCDecision
-    
-    HumanReview --> CorrectLabel
-    HumanReview --> WrongLabel
-    
-    CorrectLabel --> Feedback
-    WrongLabel --> Feedback
-    
-    Feedback --> ActiveLearn
-    QCDecision --> Observability
-    
-    ModelMonitor --> DriftDetect
-    DriftDetect --> Alerts
-    PerfMetrics --> Alerts
-    
-    Alerts --> Retrain
-    Retrain --> Validate_v2
-    Validate_v2 --> CompareMetrics
-    CompareMetrics --> ModelVers
-    
-    HighConf --> RealTimeUI
-    LowConf --> RealTimeUI
-    QCDecision --> Alerts_Out
-    QCDecision --> Reports
-    QCDecision --> Traceability
-    
-    SecurityGov -.->|Protects| ModelLayer
-    SecurityGov -.->|Governs| HumanLoop
-    SecurityGov -.->|Audits| QCDecision
-    SecurityGov -.->|Tracks| Feedback
-    
-    Anomaly -.->|Constraint| ModelLayer
-    
-    style ConfCalib fill:#fff3cd
-    style LowConf fill:#e7d4f5
-    style FailThreshold fill:#f8d7da
-    style WrongLabel fill:#f8d7da
-    style DriftDetect fill:#d1ecf1
-    style Anomaly fill:#f8d7da
-    style SecurityGov fill:#e2e3e5
+    classDef physical fill:#fff1d6,stroke:#a66a00,color:#17202a;
+    classDef service fill:#e8f1ff,stroke:#3267a8,color:#17202a;
+    classDef data fill:#e8f5e9,stroke:#38804a,color:#17202a;
+    classDef governance fill:#f0e9fa,stroke:#7954a1,color:#17202a;
+    class Camera,Board,PLC physical;
+    class Capture,Coordinator,Vision,Rules,Control,Sync,UI,LB,Ingest,Review,Config,Reports,Publisher,Worker service;
+    class Local,DB,Objects,Replica,Audit,Backup data;
+    class Gateway,SSO,Package,MQ,Curate,Train,Approve,CI,Monitor,Logs,Secrets governance;
 ```
 
-## Key Architectural Principles
+## Inspection and human-review flow
 
-### 1. **Confidence Calibration is Critical**
-- Raw YOLO scores are model confidence, not business probability
-- Requires temperature scaling, Platt scaling, or isotonic regression
-- Must be validated against labeled test sets before deployment
-- Recalibrate when new defect types are introduced
+REVIEW is an inspection disposition. Physical hold, manual inspection and stopping the line are separate operational actions that Manufacturing must approve before automatic control is enabled.
 
-### 2. **Uncertainty ≠ Failure**
-- **High Confidence (>85%)**: Auto-reject with trust
-- **Low Confidence (50-85%)**: Escalate to human or re-image
-- **No Defect (<50%)**: Auto-pass (but note: unseen types invisible)
-- Graceful degradation preserves quality
+```mermaid
+flowchart TD
+    Start["Board arrives: create unique inspection ID<br/>Correlate available board ID, recipe and required views"]
+    Ready{"Supported board, complete usable images,<br/>approved model and recipe, and service healthy?"}
+    Infer["Run vision service<br/>Collect defects, locations and confidence"]
+    Valid{"Inference valid and completed within deadline?"}
+    Evaluate["Apply approved board-level quality rules<br/>Severity, tolerance, complete views and review conditions"]
+    Decision{"Quality-rule outcome"}
+    Pass["PASS"]
+    Fail["FAIL"]
+    ReviewState["REVIEW"]
+    Fallback["Record unavailable or incomplete inspection<br/>Apply approved manual inspection / hold / stop procedure"]
+    Persist["Commit evidence references, predictions, disposition,<br/>model and rule versions, audit event and pending actions"]
+    Dispatch["Deliver line action if integrated<br/>Record acknowledgement and reconcile failures"]
+    Upload["Synchronize centrally using stable event ID<br/>Retain local evidence until upload is confirmed"]
+    Human["Authorized inspector reviews original images and overlays<br/>Record decision, reason and prior record version"]
+    Override["Append human disposition and audit event<br/>Queue factory command"]
+    Check["Validate board location and current state<br/>Apply once or escalate stale command"]
 
-### 3. **No Anomaly Detection Branch**
-- Everything is a supervised classification problem
-- **Structural Limitation**: Unseen defect types are invisible
-- **Mitigation**: Continuously re-label human-reviewed cases to expand training set
-- Consider periodic manual "expert sweeps" to catch new defect patterns
+    Start --> Ready
+    Ready -->|"Yes"| Infer
+    Ready -->|"No"| Fallback
+    Infer --> Valid
+    Valid -->|"Yes"| Evaluate
+    Valid -->|"No"| Fallback
+    Evaluate --> Decision
+    Decision --> Pass
+    Decision --> Fail
+    Decision --> ReviewState
+    Pass --> Persist
+    Fail --> Persist
+    ReviewState --> Persist
+    Fallback --> Persist
+    Persist --> Dispatch
+    Persist --> Upload
+    Upload -->|"Review required"| Human
+    Human --> Override
+    Override --> Check
+    Check -->|"Valid authorized disposition"| Persist
+```
 
-### 4. **Quality Grading (Not Binary Fail)**
-- Failure Threshold = multiple defects within tolerance
-- Grade DOWN to QC Hold (preserve quality)
-- Do NOT ship; do NOT fail entire production
-- Balances cost vs. quality tradeoff
+Low detector confidence alone does not establish that a board is acceptable. PASS requires the complete inspection to satisfy approved quality rules. Evaluate confidence thresholds against labelled data; raw scores are not validated business probabilities. This design does not assume the old diagram's 50%/85% thresholds or a fixed inspection latency.
 
-### 5. **Human Review Has Risk**
-- Humans make labeling mistakes
-- Wrong labels teach the model incorrect patterns
-- **Risk**: Future false negatives (defects shipped)
-- **Mitigation**: 
-  - Double-blind review for uncertain cases
-  - Random spot-check of human labels
-  - Track reviewer accuracy over time
-  - Flag reviewers with high error rates
+## Technology and deployment
 
-### 6. **Security & Governance Across Layers**
-- **Access Control**: Role-based permissions (inspectors, QC engineers, data scientists)
-- **Audit Logging**: All model decisions, labels, and changes
-- **Model Versioning**: Only approved versions deployed
-- **Compliance**: Bias detection, fairness validation
-- **Data Protection**: Encryption, retention policies
+| Layer | Proposed technology | Responsibility |
+| --- | --- | --- |
+| User interface | Angular / TypeScript | Inspection evidence, overlays, review, administration and reports. |
+| Business application | Java / Spring Boot modular application | REST APIs, explicit business rules, role checks and transactional workflows. |
+| Local inspection | Java coordinator, camera SDK adapter, Python / ONNX Runtime | Hardware acquisition and dedicated computer vision; validate model export compatibility. |
+| Data | PostgreSQL and S3-compatible object storage | Relational traceability and image/artifact persistence. |
+| Background work | RabbitMQ and application workers | Durable integration and notification delivery outside the inspection deadline. |
+| Access | NGINX, enterprise OIDC provider and TLS | User identity, service authentication and controlled network access. |
+| Operations | OpenTelemetry, Prometheus, Grafana and central logs | Correlated application, infrastructure and inspection monitoring. |
+| Delivery | Git, Jenkins and managed Linux VMs | Conventional build, test, deployment and rollback with separate environments. |
 
-### 7. **Drift Detection is Essential**
-- Monitor real-time accuracy metrics
-- Detect input distribution shift (covariate drift)
-- Detect label shift (defect rates changing)
-- **Trigger**: Auto-retrain when accuracy drops >5%
+Deploy central application instances on at least two VMs behind a redundant load-balancer endpoint, subject to the agreed availability target. Use PostgreSQL primary/standby with monitored failover and replicated RabbitMQ queues across separate failure domains. Gateway and object-storage redundancy must match the same target. These are proposed controls, not a claim of a specific uptime guarantee.
 
-### 8. **Performance Monitoring**
-- Inference latency (must stay <100ms per board)
-- Throughput (boards/min matching production speed)
-- GPU utilization and model cache efficiency
-- Alert on bottlenecks
+Size each industrial inspection computer using representative camera workloads, including preprocessing and line-control latency. CPU versus GPU is a benchmark decision. Provide a tested standby or replacement procedure according to allowable downtime. Central outages can be buffered locally; an edge outage requires the approved production fallback. Scale by adding line-specific edge capacity and central application/worker instances. Kubernetes and cloud services are not prerequisites.
 
-### 9. **Continuous Feedback Loop**
-- Collect human labels from review queue
-- Use active learning to select high-impact cases
-- Retrain on curated dataset
-- Validate against holdout set before deployment
-- Version control models (approved versions only)
+## Enterprise controls and failure handling
 
-## Deployment Checklist
+- **Traceability:** assign an inspection ID even without a board ID. Store available board identity, type/revision, batch, line, camera/view, timestamps, image hashes/references, defect predictions, confidence, model/preprocessing/rule versions, initial outcome, human decisions and control acknowledgements. Reinspection creates a linked attempt instead of overwriting history.
+- **Delivery consistency:** commit each business change and its outbox event in one database transaction. Use at-least-once delivery, stable event IDs and idempotent consumers. Retry transient failures and expose dead-letter events for controlled replay. For physical commands, verify acknowledgement and current board state; message delivery alone cannot guarantee exactly-once actuation.
+- **Evidence durability:** persist images locally before recording their references. Confirm central checksums before marking evidence complete. Track partial uploads and retain local copies until synchronization is acknowledged and retention permits deletion. Alert before the bounded spool fills; apply the approved fallback if durable recording becomes impossible.
+- **Human review:** show original evidence, defect overlays and previous outcomes. Enforce role-based overrides, required reasons, optimistic concurrency checks, review deadlines and escalation. Preserve initial AI and authoritative human decisions. Central review outages require the agreed manual procedure.
+- **Security:** authorize image access, history, overrides, configuration and deployments in the backend. Separate approval and deployment permissions. Encrypt data and backups at rest and traffic in transit; rotate service credentials and certificates. Restrict OT/IT communication to approved gateway routes; browsers cannot directly access databases or PLCs.
+- **Audit and retention:** commit business audit events with state changes and archive through the outbox. Restrict update/delete permissions and use retention-locked storage where required. Define separate retention periods for images, results, datasets, models and audit records, including backup lifecycle and authorized deletion.
+- **Recovery:** monitor replication and failover, back up databases and objects, and rehearse restoration of linked results and evidence. Manufacturing/IT must define recovery time and recovery point objectives. Reports display replica freshness; review writes use the authoritative primary.
+- **Monitoring:** measure end-to-end latency, throughput, camera and inference failures, command acknowledgement errors, queue age, review backlog, local capacity and synchronization lag. Calculate precision, recall and false-positive/negative rates from verified ground truth; prediction-rate changes alone only trigger investigation.
+- **Model governance:** verify corrections before training, version datasets, and prevent related board/image leakage into independent tests. Validate per-defect and board-level metrics, calibration where applicable, and target-hardware latency. Require Quality approval, staged deployment, integrity checks and rollback of a compatible model/preprocessing/recipe package. Monitoring does not automatically authorize retraining deployment.
 
-✅ Confidence calibration validated on production-like data  
-✅ Failure threshold set with business stakeholders  
-✅ Human reviewer error rates measured & tracked  
-✅ Security governance policies documented & enforced  
-✅ Drift detection thresholds calibrated  
-✅ Audit logging enabled for compliance  
-✅ Fallback procedures for model failures  
-✅ Feedback loop integrated into QC workflow  
-✅ Performance baselines established  
-✅ Regular anomaly/new defect type detection (manual sweeps)
+## BRD traceability
+
+| Requirement | Architecture coverage |
+| --- | --- |
+| FR-001, FR-002 | Camera acquisition, board correlation and inspection identity. |
+| FR-003, FR-005 through FR-008 | Defect detection, classification, localization, confidence and multiple detections. |
+| FR-004; proposed BR-001 and BR-002 | Versioned PASS/FAIL/REVIEW rules, severity and uncertainty handling. |
+| FR-009, FR-010; proposed BR-003 | Authorized review/override, decision history and controlled disposition delivery. |
+| FR-011, FR-012; sections 26-28 | Evidence retention, history, reporting and audit archive. |
+| AI-001 through AI-005, AI-007 | Independent model evaluation, per-defect acceptance and approved confidence handling. |
+| AI-006; proposed BR-004 | Approved model packages, per-inspection version, deployment history and rollback. |
+| Sections 21-23 and 31 | Local deadline-sensitive processing, buffering, monitoring and approved fallback. |
+| Section 25 | Optional PLC/MES/quality adapters with confirmed contracts. |
+| Sections 29-30 | Access controls, network segmentation and governed model lifecycle. |
+| AC-001 through AC-008 | Detection, critical recall, false positives, throughput, latency, traceability, review and approved-model acceptance checks. |
+
+## Decisions required before detailed design
+
+| Decision | Owner | Impact |
+| --- | --- | --- |
+| Board variants, views, inspection points and defect taxonomy | Manufacturing / Quality | Camera setup, recipes and training scope. |
+| Per-defect recall, false-positive/negative limits and review thresholds | Quality | Model feasibility, quality rules and release acceptance. |
+| Peak boards/minute and end-to-end decision deadline | Manufacturing / Automation | Edge sizing, capture timing and line-control handshake. |
+| Failure action, REVIEW handling and override process | Manufacturing / Quality | Physical hold/manual inspection/stop behavior and escalation. |
+| Board identity and PLC/MES/quality interfaces | Automation / IT | Protocols, correlation and acknowledgement semantics. |
+| Availability, recovery objectives and maximum offline duration | Manufacturing / IT | Redundancy, local storage and recovery procedures. |
+| Image/result/audit retention and access restrictions | Quality / Compliance / Security | Storage, archival, deletion and evidence protection. |
+| Labelled data, ground-truth ownership and model approval | Quality / Data / ML team | Feasibility, independent evaluation and governed releases. |
+
+Production acceptance must exercise representative images and board variants, peak load, camera/inference failures, lost PLC acknowledgements, central disconnection, storage exhaustion, duplicate events, concurrent overrides, backup restoration and model rollback. Numeric targets remain TBD until the BRD discovery decisions are resolved.
