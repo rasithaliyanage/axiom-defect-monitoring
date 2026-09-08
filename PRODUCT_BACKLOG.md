@@ -1,2822 +1,1237 @@
-# AI-Native Manufacturing QC System
-## Product Backlog with Epics, Features, User Stories & Task Breakdown
-
----
-
-## 📊 PRODUCT ROADMAP OVERVIEW
-
-### Phase 1: Foundation & MVP (Months 1-3)
-- Core YOLO model integration
-- Confidence calibration 
-- Basic QC decision engine
-- Single production line pilot
-
-### Phase 2: Enhanced Intelligence (Months 4-6)
-- Human-in-loop learning system
-- Active learning & retraining pipeline
-- Advanced observability & drift detection
-- Multi-line support
-
-### Phase 3: Production Hardening (Months 7-9)
-- Security & governance implementation
-- Full MLOps infrastructure
-- Failure handling & fallback procedures
-- Performance optimization
-
-### Phase 4: Continuous Excellence (Months 10+)
-- Advanced analytics & reporting
-- Organizational scaling
-- Anomaly detection considerations
-- Optimization & cost reduction
-
----
-
-# 📋 CONSOLIDATED BACKLOG TASKS
-
-## Quick Navigation by Epic
-- [EPIC 1: Model Intelligence & Detection Engine](#epic-1-tasks)
-- [EPIC 2: Human-in-Loop Learning & Feedback System](#epic-2-tasks)
-- [EPIC 3: Observability, Monitoring & Drift Detection](#epic-3-tasks)
-- [EPIC 4: Security, Governance & Compliance](#epic-4-tasks)
-- [EPIC 5: Data Management & Quality](#epic-5-tasks)
-- [EPIC 6: Real-time UI & Inspector Dashboard](#epic-6-tasks)
-- [EPIC 7: Reporting, Analytics & Business Intelligence](#epic-7-tasks)
-- [EPIC 8: Training, Documentation & Deployment](#epic-8-tasks)
-
----
-
-## 🎯 EPIC 1: Model Intelligence & Detection Engine {#epic-1-tasks}
-
-### Feature 1.1: YOLO v8 Integration & Inference
-
-**User Story 1.1.1 Tasks:**
-- [ ] Acquire YOLOv8 pre-trained weights (COCO or custom)
-- [ ] Set up model loading pipeline with error handling
-- [ ] Implement batching logic for multi-board inference
-- [ ] Add GPU/CPU device management
-- [ ] Profile model inference time on target hardware
-- [ ] Implement model caching strategy
-- [ ] Create inference API wrapper
-- [ ] Add logging for model loading failures
-- [ ] Document model architecture and hyperparameters
-- [ ] Set up model versioning in registry
-
-**User Story 1.1.2 Tasks:**
-- [ ] Define dataset format (image + YOLO annotation format)
-- [ ] Implement dataset loader with augmentation pipeline
-- [ ] Configure transfer learning parameters (freeze layers, learning rate)
-- [ ] Set up training loop with validation split (80/10/10)
-- [ ] Implement early stopping based on validation mAP
-- [ ] Create training metrics dashboard (TensorBoard/Weights&Biases)
-- [ ] Document training procedures and best practices
-- [ ] Set up cross-validation for small datasets
-- [ ] Implement learning rate scheduling
-- [ ] Create model comparison report template
-
-### Feature 1.2: Confidence Calibration & Validation
-
-**User Story 1.2.1 Tasks:**
-- [ ] Implement temperature scaling method
-- [ ] Implement Platt scaling method
-- [ ] Implement isotonic regression method
-- [ ] Create calibration evaluation suite (ECE, MCE, Brier score)
-- [ ] Generate calibration curves (reliability diagrams)
-- [ ] Establish baseline calibration on validation set
-- [ ] Create calibration validation dashboard
-- [ ] Document calibration methodology
-- [ ] Set up automated calibration testing pipeline
-- [ ] Create calibration report template for stakeholders
-
-**User Story 1.2.2 Tasks:**
-- [ ] Define acceptance criteria for each metric (precision, recall, F1)
-- [ ] Create validation test suite on holdout data
-- [ ] Implement confusion matrix generation
-- [ ] Build per-class performance analytics
-- [ ] Identify and document edge cases
-- [ ] Create uncertainty visualization tools
-- [ ] Implement automated validation checks
-- [ ] Generate executive summary report
-- [ ] Set up model approval workflow (QC, Eng, DS)
-- [ ] Create deployment readiness checklist
-
-### Feature 1.3: Probabilistic Decision Routing
-
-**User Story 1.3.1 Tasks:**
-- [ ] Define configurable confidence thresholds per defect class
-- [ ] Implement decision logic (if confidence >= threshold → reject)
-- [ ] Create rejection decision record format
-- [ ] Add defect class and bounding box to rejection payload
-- [ ] Implement audit logging for all auto-reject decisions
-- [ ] Add timestamp and model version metadata
-- [ ] Create rejection summary dashboard
-- [ ] Implement manual override capability with traceability
-- [ ] Add alerting for high reject rates
-- [ ] Create QC hold instruction for rejected boards
-
-**User Story 1.3.2 Tasks:**
-- [ ] Implement uncertainty detection logic (50-85% range)
-- [ ] Create review queue management system
-- [ ] Build inspector dashboard with flagged items
-- [ ] Implement voting/consensus mechanism for tie-breaking
-- [ ] Add re-imaging request workflow
-- [ ] Create camera angle management (rotate 90°)
-- [ ] Track review duration per board and inspector
-- [ ] Implement decision recording (approve/reject/re-image)
-- [ ] Add escalation routing for conflicts
-- [ ] Generate reviewer performance metrics
-
-**User Story 1.3.3 Tasks:**
-- [ ] Implement auto-pass logic (if confidence < 50%)
-- [ ] Create pass decision record
-- [ ] Add model confidence to pass record
-- [ ] Implement automatic downstream workflow trigger
-- [ ] Create audit log entry for each pass
-- [ ] Build pass rate dashboard
-- [ ] Implement manual hold capability (with justification)
-- [ ] Add alert for unusual pass rates
-- [ ] Create compliance report for auto-pass audit
-- [ ] Document "unseen defects structurally invisible" limitation
-
-**User Story 1.3.4 Tasks:**
-- [ ] Define failure threshold (number of defects, tolerance zone)
-- [ ] Implement quality grading logic (pass/hold/fail)
-- [ ] Create QC Hold status in workflow
-- [ ] Add defect clustering by location
-- [ ] Implement tolerance zone detection (critical vs. non-critical areas)
-- [ ] Build grading decision dashboard
-- [ ] Create QC hold queue management
-- [ ] Implement root cause analysis workflow
-- [ ] Add business decision capture (rework/sort/scrap)
-- [ ] Create quality trending reports
-
----
-
-## 🧠 EPIC 2: Human-in-Loop Learning & Feedback System {#epic-2-tasks}
-
-### Feature 2.1: Human Review & Labeling
-
-**User Story 2.1.1 Tasks:**
-- [ ] Design review UI/UX (image viewer, annotation tools)
-- [ ] Implement zoom/pan/rotate image functionality
-- [ ] Create review decision options (correct/incorrect/unsure)
-- [ ] Build annotation editor for missing defects
-- [ ] Implement review timer tracking
-- [ ] Add comment/note field with rich text
-- [ ] Create review database schema
-- [ ] Implement review persistence and versioning
-- [ ] Build inspector performance dashboard
-- [ ] Add quality assurance checks for consistent reviews
-
-**User Story 2.1.2 Tasks:**
-- [ ] Implement conflict detection logic (model vs. human labels)
-- [ ] Create reviewer accuracy metrics
-- [ ] Build accuracy trending dashboard
-- [ ] Implement double-blind review workflow
-- [ ] Set up spot-check selection algorithm (random 5%)
-- [ ] Create spot-check assignment queue
-- [ ] Build confidence score vs. label review heatmap
-- [ ] Implement alert system for low accuracy
-- [ ] Create expert review queue for conflicts
-- [ ] Generate reviewer performance report card
-
-**User Story 2.1.3 Tasks:**
-- [ ] Define metadata schema (time, inspector, confidence, etc.)
-- [ ] Implement metadata capture in review interface
-- [ ] Add UI interaction tracking (zoom, pan, rotate)
-- [ ] Record assessment change events
-- [ ] Implement metadata persistence
-- [ ] Create metadata validation checks
-- [ ] Build metadata analytics dashboard
-- [ ] Implement data export for ML pipeline
-- [ ] Create metadata quality report
-- [ ] Document metadata usage guidelines
-
-### Feature 2.2: Active Learning & Data Selection
-
-**User Story 2.2.1 Tasks:**
-- [ ] Implement uncertainty sampling algorithm (entropy-based)
-- [ ] Implement query-by-committee (ensemble disagreement)
-- [ ] Add diversity sampling to avoid duplicates
-- [ ] Create rare class detection and prioritization
-- [ ] Build active learning scoring function
-- [ ] Implement case ranking and queuing
-- [ ] Create selection metrics dashboard
-- [ ] Track labeling impact on model metrics
-- [ ] Implement feedback loop effectiveness analysis
-- [ ] Document active learning strategy
-
-**User Story 2.2.2 Tasks:**
-- [ ] Implement label export pipeline from review database
-- [ ] Create dataset versioning schema
-- [ ] Implement class balance analysis
-- [ ] Add quality validation checks before import
-- [ ] Create data curation workflow (approve/reject labels)
-- [ ] Build dataset statistics dashboard
-- [ ] Implement incremental update mechanism
-- [ ] Create training data audit trail
-- [ ] Generate dataset change notification
-- [ ] Document data management procedures
-
-### Feature 2.3: Model Retraining & Continuous Improvement
-
-**User Story 2.3.1 Tasks:**
-- [ ] Implement retraining trigger logic (label count threshold)
-- [ ] Set up training pipeline (data loading, augmentation, training)
-- [ ] Implement learning rate annealing for fine-tuning
-- [ ] Add catastrophic forgetting prevention (regularization)
-- [ ] Create model comparison metrics
-- [ ] Implement holdout validation suite
-- [ ] Build retraining monitoring dashboard
-- [ ] Create rollback mechanism if model degrades
-- [ ] Implement hyperparameter logging and tracking
-- [ ] Generate retraining report with before/after metrics
-
-**User Story 2.3.2 Tasks:**
-- [ ] Define acceptance criteria thresholds (per defect type)
-- [ ] Implement validation test suite
-- [ ] Create per-defect-type performance reporting
-- [ ] Build comparison report (new vs. current model)
-- [ ] Implement automated approval workflow
-- [ ] Add manual override capability (with justification)
-- [ ] Create validation dashboard
-- [ ] Generate compliance report
-- [ ] Implement version comparison tools
-- [ ] Document sign-off procedures
-
-**User Story 2.3.3 Tasks:**
-- [ ] Implement model registry and versioning
-- [ ] Create staging environment with production-like data
-- [ ] Build shadow comparison runner
-- [ ] Implement metric monitoring dashboard
-- [ ] Set up auto-rollback logic and triggers
-- [ ] Create canary deployment workflow
-- [ ] Build deployment approval queue
-- [ ] Implement deployment audit logging
-- [ ] Add Slack/email notifications for deployments
-- [ ] Create deployment runbook
-
----
-
-## 📊 EPIC 3: Observability, Monitoring & Drift Detection {#epic-3-tasks}
-
-### Feature 3.1: Model Performance Monitoring
-
-**User Story 3.1.1 Tasks:**
-- [ ] Define metric calculation logic for real-time data
-- [ ] Implement sliding window metrics (100, 1000, 10000 boards)
-- [ ] Create metric storage (time-series DB)
-- [ ] Build real-time dashboard with trending graphs
-- [ ] Implement per-class performance breakdown
-- [ ] Set up baseline comparison logic
-- [ ] Add alerts for metric threshold violations
-- [ ] Create metric export to monitoring systems
-- [ ] Implement metric data retention policy
-- [ ] Generate daily performance reports
-
-**User Story 3.1.2 Tasks:**
-- [ ] Implement confusion matrix calculation
-- [ ] Create per-class metric aggregation
-- [ ] Build confusion matrix visualization (heatmap)
-- [ ] Implement misclassification sample collection
-- [ ] Add export to CSV/Excel
-- [ ] Create per-class trending dashboard
-- [ ] Implement cross-model comparison
-- [ ] Build performance degradation alerting
-- [ ] Generate class-specific improvement recommendations
-- [ ] Create confusion matrix report template
-
-### Feature 3.2: Data & Image Quality Drift
-
-**User Story 3.2.1 Tasks:**
-- [ ] Implement image statistics extraction (histogram, edges, etc.)
-- [ ] Build baseline distribution model
-- [ ] Implement Kolmogorov-Smirnov test for distribution comparison
-- [ ] Create drift score calculation
-- [ ] Set up drift threshold and alerting
-- [ ] Build drift visualization dashboard
-- [ ] Implement root cause analysis (camera change, lighting)
-- [ ] Create drift alert workflow
-- [ ] Add manual inspection queue for drifted batches
-- [ ] Generate drift analysis reports
-
-### Feature 3.3: Defect Rate Monitoring & Anomaly Detection
-
-**User Story 3.3.1 Tasks:**
-- [ ] Implement defect rate calculation and tracking
-- [ ] Build baseline rate model (with seasonal adjustments)
-- [ ] Implement statistical shift detection (Z-test, Cusum)
-- [ ] Create alert rules for rate deviations
-- [ ] Build rate trending dashboard
-- [ ] Implement per-class rate breakdown
-- [ ] Create drill-down query builder
-- [ ] Add root cause analysis checklist
-- [ ] Build investigation workflow queue
-- [ ] Generate shift analysis reports
-
-### Feature 3.4: Alert Management & Escalation
-
-**User Story 3.4.1 Tasks:**
-- [ ] Define alert severity levels (critical, high, medium, low)
-- [ ] Implement alert routing based on severity
-- [ ] Create alert notification system (Slack, email, SMS)
-- [ ] Build alert suppression rules (maintain alert fatigue)
-- [ ] Implement alert deduplication
-- [ ] Create alert history and trend analysis
-- [ ] Build alert management dashboard
-- [ ] Implement on-call escalation workflow
-- [ ] Add alert acknowledgment and resolution tracking
-- [ ] Generate alert metrics report
-
-**User Story 3.4.2 Tasks:**
-- [ ] Implement anomaly detection on metrics
-- [ ] Create anomaly scoring algorithm
-- [ ] Build anomaly visualization
-- [ ] Set up anomaly alert thresholds
-- [ ] Create anomaly investigation workflow
-- [ ] Implement anomaly root cause suggestions
-- [ ] Build anomaly trending reports
-- [ ] Add anomaly feedback mechanism (feedback loop)
-- [ ] Implement automated anomaly response (e.g., model hold)
-- [ ] Generate anomaly summary reports
-
----
-
-## 🔒 EPIC 4: Security, Governance & Compliance {#epic-4-tasks}
-
-### Feature 4.1: Authentication & Authorization
-
-**User Story 4.1.1 Tasks:**
-- [ ] Define role and permission matrix
-- [ ] Implement role-based middleware/decorators
-- [ ] Set up user authentication system (LDAP/OAuth2)
-- [ ] Create role assignment workflow
-- [ ] Implement permission-based UI rendering
-- [ ] Add API authorization checks
-- [ ] Set up MFA for privileged roles
-- [ ] Create role management dashboard
-- [ ] Implement session management and timeouts
-- [ ] Generate role assignment audit report
-
-**User Story 4.1.2 Tasks:**
-- [ ] Integrate MFA provider (Auth0, Okta, or open-source)
-- [ ] Define sensitive operations requiring MFA
-- [ ] Implement MFA challenge flow
-- [ ] Create MFA device management UI
-- [ ] Add MFA enrollment workflow
-- [ ] Implement recovery codes for MFA
-- [ ] Set up MFA audit logging
-- [ ] Create MFA compliance report
-- [ ] Add MFA bypass capability (with audit trail)
-- [ ] Document MFA procedures
-
-### Feature 4.2: Audit Logging & Traceability
-
-**User Story 4.2.1 Tasks:**
-- [ ] Design audit log schema
-- [ ] Implement audit logging middleware
-- [ ] Set up append-only log storage (e.g., Kafka, PostgreSQL WAL)
-- [ ] Create audit log retention policy (7 years minimum)
-- [ ] Build audit log search and export interface
-- [ ] Implement audit event filtering and aggregation
-- [ ] Add audit log integrity verification
-- [ ] Create audit trail dashboard
-- [ ] Implement automated compliance reports
-- [ ] Document audit logging standards
-
-**User Story 4.2.2 Tasks:**
-- [ ] Define compliance report requirements (per regulatory framework)
-- [ ] Implement report generation pipeline
-- [ ] Create report template library
-- [ ] Add custom report builder
-- [ ] Implement report scheduling (daily, monthly, quarterly)
-- [ ] Build report distribution workflow
-- [ ] Create report archival and retention
-- [ ] Add report signing/approval workflow
-- [ ] Implement report integrity verification
-- [ ] Generate compliance attestation reports
-
-### Feature 4.3: Risk Management & Policy Enforcement
-
-**User Story 4.3.1 Tasks:**
-- [ ] Design approval workflow state machine
-- [ ] Implement multi-tier approval routing
-- [ ] Create approval request notification system
-- [ ] Build approval dashboard
-- [ ] Implement approval comment and conditions
-- [ ] Add expedited approval request capability
-- [ ] Create approval delegation mechanism
-- [ ] Implement approval timeout handling
-- [ ] Generate deployment approval audit trail
-- [ ] Create escalation procedures
-
-**User Story 4.3.2 Tasks:**
-- [ ] Define fairness metrics (accuracy variance, etc.)
-- [ ] Implement stratified performance analysis
-- [ ] Create per-class performance comparison
-- [ ] Build board region performance heatmap
-- [ ] Implement bias detection algorithms
-- [ ] Create bias report template
-- [ ] Set up bias threshold alerts
-- [ ] Build fairness dashboard
-- [ ] Implement bias mitigation recommendations
-- [ ] Create fairness improvement tracking
-
-### Feature 4.4: Data Protection & Privacy
-
-**User Story 4.4.1 Tasks:**
-- [ ] Implement encryption at rest (database, file storage)
-- [ ] Set up TLS/HTTPS for all APIs
-- [ ] Integrate with KMS (AWS KMS, Azure Key Vault, etc.)
-- [ ] Implement key rotation procedures
-- [ ] Add encryption status monitoring
-- [ ] Create key access audit logging
-- [ ] Implement encryption key backup and recovery
-- [ ] Set up certificate management
-- [ ] Create encryption compliance checklist
-- [ ] Document encryption standards
-
-**User Story 4.4.2 Tasks:**
-- [ ] Define retention policy per data type
-- [ ] Implement retention tracking metadata
-- [ ] Create automated purging job
-- [ ] Add purging approval workflow
-- [ ] Implement data export before purging
-- [ ] Add purging audit logging
-- [ ] Create retention policy dashboard
-- [ ] Implement data anonymization
-- [ ] Generate retention compliance report
-- [ ] Create disaster recovery procedures
-
----
-
-## 📊 EPIC 5: Data Management & Quality {#epic-5-tasks}
-
-### Feature 5.1: Training Data Management
-
-**User Story 5.1.1 Tasks:**
-- [ ] Facilitate defect definition workshops
-- [ ] Collect reference images for each class
-- [ ] Create defect definition documentation
-- [ ] Implement multi-reviewer consensus workflow
-- [ ] Build expert arbitration queue
-- [ ] Add label quality metrics calculation
-- [ ] Create label history tracking
-- [ ] Implement label versioning
-- [ ] Generate ground truth documentation
-- [ ] Create defect definition poster/reference
-
-**User Story 5.1.2 Tasks:**
-- [ ] Define dataset requirements (size, distribution, coverage)
-- [ ] Implement image collection workflow
-- [ ] Set up labeling infrastructure
-- [ ] Create class distribution tracking
-- [ ] Implement quality assessment checks (duplicates, blur, etc.)
-- [ ] Add data augmentation strategy documentation
-- [ ] Build dataset statistics dashboard
-- [ ] Create dataset versioning system
-- [ ] Implement incremental data collection process
-- [ ] Generate dataset report (distribution, quality metrics)
-
-**User Story 5.1.3 Tasks:**
-- [ ] Implement duplicate detection (perceptual hashing, SSIM)
-- [ ] Create image quality assessment (blur, darkness, artifacts)
-- [ ] Build label agreement analyzer (inter-rater reliability)
-- [ ] Implement class distribution analyzer
-- [ ] Create data quality report
-- [ ] Build data quality dashboard
-- [ ] Implement quality improvement recommendations
-- [ ] Create remediation workflow for low-quality data
-- [ ] Add data lineage tracking
-- [ ] Generate data quality certification
-
-### Feature 5.2: Feature & Schema Management
-
-**User Story 5.2.1 Tasks:**
-- [ ] Design data schema (boards, inspections, defects, labels)
-- [ ] Implement schema versioning
-- [ ] Create schema validation rules
-- [ ] Build schema migration tools
-- [ ] Implement data type enforcement
-- [ ] Create schema documentation
-- [ ] Add schema change audit logging
-- [ ] Implement backward compatibility checks
-- [ ] Create schema comparison tool
-- [ ] Generate schema evolution reports
-
-**User Story 5.2.2 Tasks:**
-- [ ] Define feature extraction pipeline
-- [ ] Implement feature engineering for model inputs
-- [ ] Create feature validation suite
-- [ ] Build feature statistics dashboard
-- [ ] Implement feature versioning
-- [ ] Add feature naming conventions and documentation
-- [ ] Create feature correlation analysis
-- [ ] Build feature importance tracking
-- [ ] Implement feature quality checks
-- [ ] Generate feature engineering report
-
-### Feature 5.3: Data Governance & Metadata
-
-**User Story 5.3.1 Tasks:**
-- [ ] Create metadata schema and taxonomy
-- [ ] Implement metadata capture at collection time
-- [ ] Build metadata repository
-- [ ] Create metadata search interface
-- [ ] Implement metadata lineage tracking
-- [ ] Add metadata validation rules
-- [ ] Create metadata profiling dashboard
-- [ ] Implement metadata versioning
-- [ ] Add metadata quality scoring
-- [ ] Generate metadata governance report
-
----
-
-## 🎨 EPIC 6: Real-time UI & Inspector Dashboard {#epic-6-tasks}
-
-### Feature 6.1: Real-time Inspection Interface
-
-**User Story 6.1.1 Tasks:**
-- [ ] Design live board inspection UI mockups
-- [ ] Implement real-time image streaming
-- [ ] Build live defect detection overlay
-- [ ] Implement confidence score visualization
-- [ ] Add real-time alerting for high-confidence defects
-- [ ] Create live statistics dashboard (current board, session, today)
-- [ ] Build defect heatmap overlay
-- [ ] Implement full-screen mode for inspections
-- [ ] Add keyboard shortcuts for decision making
-- [ ] Create responsive design for multiple screen sizes
-
-**User Story 6.1.2 Tasks:**
-- [ ] Implement board queue management interface
-- [ ] Build queue filtering and sorting
-- [ ] Create priority queue visualization
-- [ ] Add queue status dashboard (completed, pending, failed)
-- [ ] Implement batch assignment to inspectors
-- [ ] Create queue reassignment capability
-- [ ] Build queue analytics dashboard
-- [ ] Add queue health monitoring
-- [ ] Implement queue forecasting (ETA)
-- [ ] Generate queue performance reports
-
-### Feature 6.2: Review & Decision Interface
-
-**User Story 6.2.1 Tasks:**
-- [ ] Design review UI with comparison view (model vs. human)
-- [ ] Implement model prediction details panel
-- [ ] Build annotation tools (draw, mark regions)
-- [ ] Create confidence score explanation (why confident)
-- [ ] Implement decision timer and tracking
-- [ ] Add review notes and comment field
-- [ ] Build review history for each board
-- [ ] Implement previous review suggestions (patterns)
-- [ ] Create decision quick actions
-- [ ] Generate review workflow documentation
-
-**User Story 6.2.2 Tasks:**
-- [ ] Build performance metrics dashboard (per inspector)
-- [ ] Create accuracy trending graphs
-- [ ] Implement comparison view (vs. peer performance)
-- [ ] Build performance leaderboard (non-competitive)
-- [ ] Add quality metrics (consistency, review time)
-- [ ] Create individual performance alerts
-- [ ] Build coaching recommendations
-- [ ] Implement training suggestions
-- [ ] Create performance report for managers
-- [ ] Generate performance improvement plans
-
-### Feature 6.3: System Status & Health
-
-**User Story 6.3.1 Tasks:**
-- [ ] Build real-time system health dashboard
-- [ ] Implement model inference latency monitoring
-- [ ] Create system uptime/downtime visualization
-- [ ] Build resource utilization dashboard (GPU, memory, CPU)
-- [ ] Implement bottleneck detection
-- [ ] Add system alert banner
-- [ ] Create performance degradation alerts
-- [ ] Build capacity planning dashboard
-- [ ] Implement SLA monitoring
-- [ ] Generate system health report
-
----
-
-## 📈 EPIC 7: Reporting, Analytics & Business Intelligence {#epic-7-tasks}
-
-### Feature 7.1: Quality Analytics & Defect Analysis
-
-**User Story 7.1.1 Tasks:**
-- [ ] Define production quality metrics to track
-- [ ] Implement defect type aggregation
-- [ ] Create defect location heatmap
-- [ ] Build time-series defect tracking
-- [ ] Implement defect trending analysis
-- [ ] Create defect by production line dashboard
-- [ ] Build defect by shift analysis
-- [ ] Implement root cause categorization
-- [ ] Create quality KPI dashboard
-- [ ] Generate quality trends report
-
-**User Story 7.1.2 Tasks:**
-- [ ] Design impact scoring methodology
-- [ ] Implement Pareto calculation
-- [ ] Create Pareto chart visualization
-- [ ] Add severity weighting options
-- [ ] Build improvement tracking
-- [ ] Create recommendation engine
-- [ ] Implement dynamic Pareto analysis
-- [ ] Add what-if scenarios (impact of fixing defect X)
-- [ ] Generate Pareto analysis report
-- [ ] Create continuous improvement tracking
-
-### Feature 7.2: Business Metrics & OEE Calculation
-
-**User Story 7.2.1 Tasks:**
-- [ ] Define OEE calculation methodology
-- [ ] Integrate with production data system
-- [ ] Implement downtime tracking
-- [ ] Create cost modeling
-- [ ] Build OEE trending dashboard
-- [ ] Add before/after comparison analysis
-- [ ] Implement what-if scenario modeling
-- [ ] Create OEE improvement tracking
-- [ ] Generate OEE reporting
-- [ ] Create business case metrics
-
-**User Story 7.2.2 Tasks:**
-- [ ] Define cost model (inspection labor, rework, recalls, system ops)
-- [ ] Implement cost calculations
-- [ ] Create savings aggregation
-- [ ] Build ROI trending
-- [ ] Add what-if scenario modeling
-- [ ] Create financial impact dashboard
-- [ ] Generate business case reporting
-- [ ] Implement budget tracking vs. actual
-- [ ] Create executive summary templates
-- [ ] Generate investment justification reports
-
-### Feature 7.3: Executive & Management Reports
-
-**User Story 7.3.1 Tasks:**
-- [ ] Design executive dashboard template
-- [ ] Implement KPI aggregation
-- [ ] Create summary metrics visualization
-- [ ] Build trend analysis
-- [ ] Implement alert highlighting
-- [ ] Create automated report generation
-- [ ] Build report scheduling system
-- [ ] Add stakeholder distribution lists
-- [ ] Create personalized dashboards (per role)
-- [ ] Generate executive summary reports
-
----
-
-## 📚 EPIC 8: Training, Documentation & Deployment {#epic-8-tasks}
-
-### Feature 8.1: User Training & Documentation
-
-**User Story 8.1.1 Tasks:**
-- [ ] Create video tutorials (inspection workflow, UI)
-- [ ] Write user manual and procedures
-- [ ] Develop defect identification reference guide
-- [ ] Create troubleshooting FAQ
-- [ ] Develop best practices training materials
-- [ ] Create quick reference cards
-- [ ] Develop e-learning course content
-- [ ] Implement certification testing
-- [ ] Create train-the-trainer materials
-- [ ] Generate training completion tracking
-
-**User Story 8.1.2 Tasks:**
-- [ ] Create architecture documentation
-- [ ] Generate data flow diagrams
-- [ ] Document model specifications and training procedures
-- [ ] Write operational runbooks
-- [ ] Create API documentation
-- [ ] Document database schema
-- [ ] Write security procedures and policies
-- [ ] Create disaster recovery playbooks
-- [ ] Develop troubleshooting guides
-- [ ] Implement documentation maintenance process
-
-### Feature 8.2: System Deployment & Rollout
-
-**User Story 8.2.1 Tasks:**
-- [ ] Set up production infrastructure (GPU servers, storage)
-- [ ] Implement deployment pipeline (CI/CD)
-- [ ] Create staging environment
-- [ ] Implement shadow comparison mode
-- [ ] Set up monitoring and alerting
-- [ ] Create deployment runbook
-- [ ] Implement rollback procedures
-- [ ] Create deployment checklist
-- [ ] Perform pre-deployment testing
-- [ ] Generate deployment readiness report
-
-**User Story 8.2.2 Tasks:**
-- [ ] Implement health check and monitoring
-- [ ] Set up automated backup system
-- [ ] Create backup/restore procedures
-- [ ] Implement database maintenance jobs
-- [ ] Set up centralized logging
-- [ ] Create performance optimization guides
-- [ ] Develop incident response playbooks
-- [ ] Implement maintenance scheduling
-- [ ] Create admin dashboard
-- [ ] Generate system health reports
-
-### Feature 8.3: Fallback & Failure Handling
-
-**User Story 8.3.1 Tasks:**
-- [ ] Implement failure detection logic
-- [ ] Create fallback to manual review procedure
-- [ ] Implement automated alerting
-- [ ] Set up failure logging
-- [ ] Create recovery time estimation
-- [ ] Implement retry logic with backoff
-- [ ] Set up backup model switching
-- [ ] Create failure response procedures
-- [ ] Test fallback scenarios
-- [ ] Generate failure handling documentation
-
-**User Story 8.3.2 Tasks:**
-- [ ] Implement emergency hold functionality
-- [ ] Create MFA approval workflow
-- [ ] Add override logging and audit trail
-- [ ] Build partial hold capability
-- [ ] Implement notification system
-- [ ] Create override management interface
-- [ ] Add hold duration tracking
-- [ ] Generate override reports
-- [ ] Create emergency procedures documentation
-- [ ] Train operators on emergency procedures
-
----
-
-# 🎯 EPIC 1: MODEL INTELLIGENCE & DETECTION ENGINE
-
-## Feature 1.1: YOLO v8 Integration & Inference
-
-### User Story 1.1.1: Deploy YOLO v8 model for real-time defect detection
-**As a** QC Engineer  
-**I want to** use a pre-trained YOLO v8 model to detect defects on circuit boards  
-**So that** we can automate the initial inspection process with minimal latency  
-
-**Acceptance Criteria:**
-- ✅ Model loads and initializes in < 2 seconds
-- ✅ Inference latency ≤ 100ms per board at 640x640 resolution
-- ✅ Throughput ≥ 600 boards/minute (10 boards/sec)
-- ✅ Model handles variable image resolutions gracefully
-- ✅ Supports GPU acceleration (CUDA) and CPU fallback
-- ✅ Memory footprint ≤ 2GB for model inference
-
-**Tasks:**
-- [ ] Acquire YOLOv8 pre-trained weights (COCO or custom)
-- [ ] Set up model loading pipeline with error handling
-- [ ] Implement batching logic for multi-board inference
-- [ ] Add GPU/CPU device management
-- [ ] Profile model inference time on target hardware
-- [ ] Implement model caching strategy
-- [ ] Create inference API wrapper
-- [ ] Add logging for model loading failures
-- [ ] Document model architecture and hyperparameters
-- [ ] Set up model versioning in registry
-
-**Story Points:** 8  
-**Priority:** P0 (Critical)  
-**Dependencies:** None
-
----
-
-### User Story 1.1.2: Support custom YOLO model fine-tuning for in-scope defect classes
-**As an** AI/ML Engineer  
-**I want to** fine-tune YOLO v8 on labeled board defect images  
-**So that** the model learns to detect our specific defect types (solder bridges, misalignment, missing components, scratches)  
-
-**Acceptance Criteria:**
-- ✅ Transfer learning pipeline supports custom dataset format
-- ✅ Can freeze backbone and fine-tune detection head
-- ✅ Training converges in < 50 epochs on labeled data
-- ✅ Supports data augmentation (rotation, flip, brightness, noise)
-- ✅ Generates training metrics (loss, mAP, precision, recall)
-- ✅ Model checkpoint saved every 5 epochs
-- ✅ Supports resume training from checkpoint
-
-**Tasks:**
-- [ ] Define dataset format (image + YOLO annotation format)
-- [ ] Implement dataset loader with augmentation pipeline
-- [ ] Configure transfer learning parameters (freeze layers, learning rate)
-- [ ] Set up training loop with validation split (80/10/10)
-- [ ] Implement early stopping based on validation mAP
-- [ ] Create training metrics dashboard (TensorBoard/Weights&Biases)
-- [ ] Document training procedures and best practices
-- [ ] Set up cross-validation for small datasets
-- [ ] Implement learning rate scheduling
-- [ ] Create model comparison report template
-
-**Story Points:** 13  
-**Priority:** P0 (Critical)  
-**Dependencies:** 1.1.1
-
----
-
-## Feature 1.2: Confidence Calibration & Validation
-
-### User Story 1.2.1: Calibrate raw YOLO confidence scores to business probabilities
-**As a** Data Scientist  
-**I want to** convert raw model confidence scores into calibrated probabilities  
-**So that** business decisions (auto-reject, human review, auto-pass) are based on validated confidence levels  
-
-**Acceptance Criteria:**
-- ✅ Implements temperature scaling, Platt scaling, or isotonic regression
-- ✅ Calibration validated on holdout test set
-- ✅ Expected Calibration Error (ECE) ≤ 5%
-- ✅ Calibration curves show model is well-calibrated
-- ✅ Supports recalibration when new defect types added
-- ✅ Calibration applied to all detection outputs
-- ✅ Confidence scores mapped to [0, 1] range with business meaning
-
-**Tasks:**
-- [ ] Implement temperature scaling method
-- [ ] Implement Platt scaling method
-- [ ] Implement isotonic regression method
-- [ ] Create calibration evaluation suite (ECE, MCE, Brier score)
-- [ ] Generate calibration curves (reliability diagrams)
-- [ ] Establish baseline calibration on validation set
-- [ ] Create calibration validation dashboard
-- [ ] Document calibration methodology
-- [ ] Set up automated calibration testing pipeline
-- [ ] Create calibration report template for stakeholders
-
-**Story Points:** 10  
-**Priority:** P0 (Critical)  
-**Dependencies:** 1.1.1, 1.1.2
-
----
-
-### User Story 1.2.2: Validate confidence scores meet business thresholds before deployment
-**As a** QC Manager  
-**I want to** ensure that calibrated confidence scores meet our quality standards  
-**So that** we can trust the model's uncertainty estimates for decision-making  
-
-**Acceptance Criteria:**
-- ✅ Generates validation report against acceptance criteria
-- ✅ Compares model confidence to domain expert labels
-- ✅ Identifies regions of high uncertainty
-- ✅ Flags edge cases and outliers
-- ✅ Calculates per-defect-type performance
-- ✅ Provides confusion matrix for all defect classes
-- ✅ Sign-off process for releasing models to production
-
-**Tasks:**
-- [ ] Define acceptance criteria for each metric (precision, recall, F1)
-- [ ] Create validation test suite on holdout data
-- [ ] Implement confusion matrix generation
-- [ ] Build per-class performance analytics
-- [ ] Identify and document edge cases
-- [ ] Create uncertainty visualization tools
-- [ ] Implement automated validation checks
-- [ ] Generate executive summary report
-- [ ] Set up model approval workflow (QC, Eng, DS)
-- [ ] Create deployment readiness checklist
-
-**Story Points:** 8  
-**Priority:** P0 (Critical)  
-**Dependencies:** 1.2.1
-
----
-
-## Feature 1.3: Probabilistic Decision Routing
-
-### User Story 1.3.1: Route detections to auto-reject based on high confidence threshold
-**As an** Inspector  
-**I want to** automatically reject boards with high-confidence defects  
-**So that** we don't waste human review time on obvious failures  
-
-**Acceptance Criteria:**
-- ✅ Auto-reject threshold set to ≥ 85% defect probability
-- ✅ Rejected boards logged with defect class and location
-- ✅ Confidence score and bounding box recorded
-- ✅ Decision timestamp and model version captured
-- ✅ No further human review required for auto-rejects
-- ✅ Can override auto-reject if needed (with audit logging)
-
-**Tasks:**
-- [ ] Define configurable confidence thresholds per defect class
-- [ ] Implement decision logic (if confidence >= threshold → reject)
-- [ ] Create rejection decision record format
-- [ ] Add defect class and bounding box to rejection payload
-- [ ] Implement audit logging for all auto-reject decisions
-- [ ] Add timestamp and model version metadata
-- [ ] Create rejection summary dashboard
-- [ ] Implement manual override capability with traceability
-- [ ] Add alerting for high reject rates
-- [ ] Create QC hold instruction for rejected boards
-
-**Story Points:** 8  
-**Priority:** P0 (Critical)  
-**Dependencies:** 1.2.1, 1.2.2
-
----
-
-### User Story 1.3.2: Route uncertain detections to human review with re-imaging option
-**As an** Inspector  
-**I want to** receive flagged boards with uncertain defects for manual review  
-**So that** we don't miss defects and don't over-reject good boards  
-
-**Acceptance Criteria:**
-- ✅ Uncertainty threshold set to 50-85% defect probability
-- ✅ Flagged boards queued in review interface
-- ✅ Inspector can approve, reject, or re-image
-- ✅ Re-image captures board at different angles (90°)
-- ✅ Original and re-imaged results linked in database
-- ✅ Review time tracked per inspector
-- ✅ Can escalate to senior QC for tie-breaking
-
-**Tasks:**
-- [ ] Implement uncertainty detection logic (50-85% range)
-- [ ] Create review queue management system
-- [ ] Build inspector dashboard with flagged items
-- [ ] Implement voting/consensus mechanism for tie-breaking
-- [ ] Add re-imaging request workflow
-- [ ] Create camera angle management (rotate 90°)
-- [ ] Track review duration per board and inspector
-- [ ] Implement decision recording (approve/reject/re-image)
-- [ ] Add escalation routing for conflicts
-- [ ] Generate reviewer performance metrics
-
-**Story Points:** 13  
-**Priority:** P0 (Critical)  
-**Dependencies:** 1.2.1, 1.2.2, 1.3.1
-
----
-
-### User Story 1.3.3: Auto-pass boards with no defect detection
-**As an** Inspector  
-**I want to** automatically pass boards with low/no defect confidence  
-**So that** they proceed to next stage without delay  
-
-**Acceptance Criteria:**
-- ✅ Auto-pass threshold set to < 50% defect probability
-- ✅ Passed boards logged with model confidence
-- ✅ No defects detected recorded
-- ✅ Board moves to next process stage automatically
-- ✅ Audit log captures all auto-pass decisions
-- ✅ Can be overridden with management approval
-
-**Tasks:**
-- [ ] Implement auto-pass logic (if confidence < 50%)
-- [ ] Create pass decision record
-- [ ] Add model confidence to pass record
-- [ ] Implement automatic downstream workflow trigger
-- [ ] Create audit log entry for each pass
-- [ ] Build pass rate dashboard
-- [ ] Implement manual hold capability (with justification)
-- [ ] Add alert for unusual pass rates
-- [ ] Create compliance report for auto-pass audit
-- [ ] Document "unseen defects structurally invisible" limitation
-
-**Story Points:** 5  
-**Priority:** P1 (High)  
-**Dependencies:** 1.2.1, 1.2.2, 1.3.1
-
----
-
-### User Story 1.3.4: Grade down board quality when multiple high-confidence defects detected
-**As a** QC Manager  
-**I want to** grade boards down to QC Hold instead of failing entire production batches  
-**So that** we preserve quality without disrupting the entire production line  
-
-**Acceptance Criteria:**
-- ✅ Failure threshold = multiple high-confidence defects within tolerance zone
-- ✅ Boards graded DOWN to QC Hold (not rejected to scrap)
-- ✅ Defects logged for root cause analysis
-- ✅ Production continues while QC reviews hold batch
-- ✅ Business can decide: rework, sort, or scrap
-- ✅ Threshold configurable by defect type and location
-
-**Tasks:**
-- [ ] Define failure threshold (number of defects, tolerance zone)
-- [ ] Implement quality grading logic (pass/hold/fail)
-- [ ] Create QC Hold status in workflow
-- [ ] Add defect clustering by location
-- [ ] Implement tolerance zone detection (critical vs. non-critical areas)
-- [ ] Build grading decision dashboard
-- [ ] Create QC hold queue management
-- [ ] Implement root cause analysis workflow
-- [ ] Add business decision capture (rework/sort/scrap)
-- [ ] Create quality trending reports
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 1.3.1, 1.3.2, 1.3.3
-
----
-
-# 🧠 EPIC 2: HUMAN-IN-LOOP LEARNING & FEEDBACK SYSTEM
-
-## Feature 2.1: Human Review & Labeling
-
-### User Story 2.1.1: Enable inspectors to review uncertain cases and provide labels
-**As an** Inspector  
-**I want to** review flagged boards and confirm whether they actually have defects  
-**So that** we can collect high-quality labels for model training  
-
-**Acceptance Criteria:**
-- ✅ Review interface shows board image with model predictions
-- ✅ Inspector can zoom, pan, rotate image for detailed inspection
-- ✅ Can mark as "Correct", "Incorrect", or "Unsure"
-- ✅ Can draw additional defect annotations if missed by model
-- ✅ Review time tracked
-- ✅ Comments/notes can be added
-- ✅ Review saved to database with timestamp and inspector ID
-
-**Tasks:**
-- [ ] Design review UI/UX (image viewer, annotation tools)
-- [ ] Implement zoom/pan/rotate image functionality
-- [ ] Create review decision options (correct/incorrect/unsure)
-- [ ] Build annotation editor for missing defects
-- [ ] Implement review timer tracking
-- [ ] Add comment/note field with rich text
-- [ ] Create review database schema
-- [ ] Implement review persistence and versioning
-- [ ] Build inspector performance dashboard
-- [ ] Add quality assurance checks for consistent reviews
-
-**Story Points:** 13  
-**Priority:** P0 (Critical)  
-**Dependencies:** 1.3.2
-
----
-
-### User Story 2.1.2: Detect when human reviewers make labeling mistakes
-**As a** Data Scientist  
-**I want to** identify when reviewers label boards incorrectly  
-**So that** we don't teach the model wrong patterns that lead to false negatives  
-
-**Acceptance Criteria:**
-- ✅ Flags when reviewer labels conflict with model confidence
-- ✅ Identifies reviewers with high error rates
-- ✅ Double-blind review process for uncertain labels
-- ✅ Random spot-check of 5% of reviewed boards
-- ✅ Tracks reviewer accuracy over time
-- ✅ Alerts when reviewer accuracy drops below threshold
-- ✅ Supports expert review for conflict resolution
-
-**Tasks:**
-- [ ] Implement conflict detection logic (model vs. human labels)
-- [ ] Create reviewer accuracy metrics
-- [ ] Build accuracy trending dashboard
-- [ ] Implement double-blind review workflow
-- [ ] Set up spot-check selection algorithm (random 5%)
-- [ ] Create spot-check assignment queue
-- [ ] Build confidence score vs. label review heatmap
-- [ ] Implement alert system for low accuracy
-- [ ] Create expert review queue for conflicts
-- [ ] Generate reviewer performance report card
-
-**Story Points:** 13  
-**Priority:** P0 (Critical)  
-**Dependencies:** 2.1.1
-
----
-
-### User Story 2.1.3: Capture review metadata (time, confidence, uncertainty)
-**As a** Data Scientist  
-**I want to** track rich metadata about each review  
-**So that** we can analyze review patterns and improve the feedback loop  
-
-**Acceptance Criteria:**
-- ✅ Records review time, inspector ID, model confidence
-- ✅ Captures whether review required zooming/panning
-- ✅ Tracks if inspector changed initial assessment
-- ✅ Records number of comment/clarifications
-- ✅ Stores original and corrected labels
-- ✅ Metadata indexed for analysis queries
-- ✅ Exportable for ML pipeline consumption
-
-**Tasks:**
-- [ ] Define metadata schema (time, inspector, confidence, etc.)
-- [ ] Implement metadata capture in review interface
-- [ ] Add UI interaction tracking (zoom, pan, rotate)
-- [ ] Record assessment change events
-- [ ] Implement metadata persistence
-- [ ] Create metadata validation checks
-- [ ] Build metadata analytics dashboard
-- [ ] Implement data export for ML pipeline
-- [ ] Create metadata quality report
-- [ ] Document metadata usage guidelines
-
-**Story Points:** 8  
-**Priority:** P1 (High)  
-**Dependencies:** 2.1.1, 2.1.2
-
----
-
-## Feature 2.2: Active Learning & Data Selection
-
-### User Story 2.2.1: Use active learning to select high-impact uncertain cases for labeling
-**As a** Data Scientist  
-**I want to** automatically select the most informative uncertain cases  
-**So that** we maximize labeling efficiency and improve model performance faster  
-
-**Acceptance Criteria:**
-- ✅ Implements uncertainty sampling (highest entropy detections)
-- ✅ Implements query-by-committee (model ensemble disagreement)
-- ✅ Prioritizes rare defect types
-- ✅ Avoids duplicate/similar cases
-- ✅ Generates prioritized queue for human labeling
-- ✅ Tracks which cases were labeled and which improved model
-- ✅ Measures impact of active learning selections
-
-**Tasks:**
-- [ ] Implement uncertainty sampling algorithm (entropy-based)
-- [ ] Implement query-by-committee (ensemble disagreement)
-- [ ] Add diversity sampling to avoid duplicates
-- [ ] Create rare class detection and prioritization
-- [ ] Build active learning scoring function
-- [ ] Implement case ranking and queuing
-- [ ] Create selection metrics dashboard
-- [ ] Track labeling impact on model metrics
-- [ ] Implement feedback loop effectiveness analysis
-- [ ] Document active learning strategy
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** 2.1.1, 2.1.2, 2.1.3
-
----
-
-### User Story 2.2.2: Continuously collect human labels from review queue for retraining
-**As an** AI/ML Engineer  
-**I want to** automatically collect labeled boards from the review process  
-**So that** we have a growing dataset for model retraining  
-
-**Acceptance Criteria:**
-- ✅ Exports approved labels from review queue
-- ✅ Creates balanced training dataset (controls for class imbalance)
-- ✅ Validates label quality before adding to training set
-- ✅ Tracks label provenance (which inspector, when)
-- ✅ Supports incremental dataset updates
-- ✅ Archives old training datasets for versioning
-- ✅ Generates dataset change logs
-
-**Tasks:**
-- [ ] Implement label export pipeline from review database
-- [ ] Create dataset versioning schema
-- [ ] Implement class balance analysis
-- [ ] Add quality validation checks before import
-- [ ] Create data curation workflow (approve/reject labels)
-- [ ] Build dataset statistics dashboard
-- [ ] Implement incremental update mechanism
-- [ ] Create training data audit trail
-- [ ] Generate dataset change notification
-- [ ] Document data management procedures
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 2.1.1, 2.1.3
-
----
-
-## Feature 2.3: Model Retraining & Continuous Improvement
-
-### User Story 2.3.1: Automatically retrain model on new labeled data
-**As an** AI/ML Engineer  
-**I want to** fine-tune the YOLO model on newly labeled boards  
-**So that** the model learns from human feedback and improves over time  
-
-**Acceptance Criteria:**
-- ✅ Triggered when sufficient new labels accumulated (configurable)
-- ✅ Uses active learning selected high-impact cases
-- ✅ Maintains backward compatibility (no catastrophic forgetting)
-- ✅ Validates on holdout test set before deployment
-- ✅ Compares new model performance vs. previous version
-- ✅ Only deploys if metrics improve or maintain baseline
-- ✅ Logs all retraining runs with hyperparameters
-
-**Tasks:**
-- [ ] Implement retraining trigger logic (label count threshold)
-- [ ] Set up training pipeline (data loading, augmentation, training)
-- [ ] Implement learning rate annealing for fine-tuning
-- [ ] Add catastrophic forgetting prevention (regularization)
-- [ ] Create model comparison metrics
-- [ ] Implement holdout validation suite
-- [ ] Build retraining monitoring dashboard
-- [ ] Create rollback mechanism if model degrades
-- [ ] Implement hyperparameter logging and tracking
-- [ ] Generate retraining report with before/after metrics
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** 1.1.2, 2.2.2
-
----
-
-### User Story 2.3.2: Validate retrained models against acceptance criteria before deployment
-**As a** QC Manager  
-**I want to** ensure retrained models meet quality standards  
-**So that** we only deploy models that maintain or improve defect detection  
-
-**Acceptance Criteria:**
-- ✅ Validates critical defect recall ≥ agreed threshold
-- ✅ Validates major defect recall ≥ agreed threshold
-- ✅ Validates false positive rate ≤ agreed threshold
-- ✅ Validates inference latency ≤ agreed threshold
-- ✅ Compares to previous production model
-- ✅ Generates executive summary report
-- ✅ Requires sign-off from QC and ML teams
-
-**Tasks:**
-- [ ] Define acceptance criteria thresholds (per defect type)
-- [ ] Implement validation test suite
-- [ ] Create per-defect-type performance reporting
-- [ ] Build comparison report (new vs. current model)
-- [ ] Implement automated approval workflow
-- [ ] Add manual override capability (with justification)
-- [ ] Create validation dashboard
-- [ ] Generate compliance report
-- [ ] Implement version comparison tools
-- [ ] Document sign-off procedures
-
-**Story Points:** 8  
-**Priority:** P1 (High)  
-**Dependencies:** 2.3.1
-
----
-
-### User Story 2.3.3: Deploy validated models with automatic rollback capability
-**As a** DevOps Engineer  
-**I want to** deploy retrained models to production with automated safety checks  
-**So that** we can continuously improve without disrupting operations  
-
-**Acceptance Criteria:**
-- ✅ Deploys new model version to staging first
-- ✅ Runs shadow comparison (new model vs. current in parallel)
-- ✅ Monitors accuracy metrics for degradation
-- ✅ Auto-rollback if accuracy drops > 2% within 1 hour
-- ✅ Logs all deployment events and metrics
-- ✅ Supports canary deployment (10% → 50% → 100%)
-- ✅ Maintains complete audit trail
-
-**Tasks:**
-- [ ] Implement model registry and versioning
-- [ ] Create staging environment with production-like data
-- [ ] Build shadow comparison runner
-- [ ] Implement metric monitoring dashboard
-- [ ] Set up auto-rollback logic and triggers
-- [ ] Create canary deployment workflow
-- [ ] Build deployment approval queue
-- [ ] Implement deployment audit logging
-- [ ] Add Slack/email notifications for deployments
-- [ ] Create deployment runbook
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** 2.3.2
-
----
-
-# 📊 EPIC 3: OBSERVABILITY, MONITORING & DRIFT DETECTION
-
-## Feature 3.1: Model Performance Monitoring
-
-### User Story 3.1.1: Monitor real-time model accuracy metrics and performance
-**As a** ML Engineer  
-**I want to** track model accuracy metrics in real-time  
-**So that** we can detect performance degradation and trigger retraining  
-
-**Acceptance Criteria:**
-- ✅ Tracks precision, recall, F1-score per defect type
-- ✅ Updates metrics every 100 boards inspected
-- ✅ Displays trending graphs (hourly, daily, weekly)
-- ✅ Compares current vs. baseline performance
-- ✅ Identifies per-defect-class performance variations
-- ✅ Exports metrics to monitoring system (Prometheus/Datadog)
-- ✅ Alerts on significant metric changes
-
-**Tasks:**
-- [ ] Define metric calculation logic for real-time data
-- [ ] Implement sliding window metrics (100, 1000, 10000 boards)
-- [ ] Create metric storage (time-series DB)
-- [ ] Build real-time dashboard with trending graphs
-- [ ] Implement per-class performance breakdown
-- [ ] Set up baseline comparison logic
-- [ ] Add alerts for metric threshold violations
-- [ ] Create metric export to monitoring systems
-- [ ] Implement metric data retention policy
-- [ ] Generate daily performance reports
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** 1.3.1, 1.3.2, 1.3.3
-
----
-
-### User Story 3.1.2: Generate confusion matrices and per-defect-class performance reports
-**As a** Data Scientist  
-**I want to** analyze which defect types are detected accurately and which need improvement  
-**So that** we can prioritize model improvements where they matter most  
-
-**Acceptance Criteria:**
-- ✅ Generates confusion matrix for all defect classes
-- ✅ Calculates precision, recall, F1 per class
-- ✅ Identifies misclassified examples (false positives/negatives)
-- ✅ Shows defect confusion patterns (e.g., "bridge misclassified as solder bridge")
-- ✅ Exportable as CSV, visualization, or report
-- ✅ Compares per-class performance across models
-- ✅ Highlights classes with performance degradation
-
-**Tasks:**
-- [ ] Implement confusion matrix calculation
-- [ ] Create per-class metric aggregation
-- [ ] Build confusion matrix visualization (heatmap)
-- [ ] Implement misclassification sample collection
-- [ ] Add export to CSV/Excel
-- [ ] Create per-class trending dashboard
-- [ ] Implement cross-model comparison
-- [ ] Build performance degradation alerting
-- [ ] Generate class-specific improvement recommendations
-- [ ] Create confusion matrix report template
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 3.1.1
-
----
-
-## Feature 3.2: Drift Detection & Anomalies
-
-### User Story 3.2.1: Detect input distribution shift (covariate drift) in camera feeds
-**As an** ML Engineer  
-**I want to** detect when board images change significantly from training distribution  
-**So that** we can trigger retraining or investigative reviews  
-
-**Acceptance Criteria:**
-- ✅ Monitors image statistics (brightness, contrast, sharpness)
-- ✅ Detects camera changes (position, focus, lighting)
-- ✅ Alerts when statistical properties shift significantly
-- ✅ Compares current images to baseline distribution
-- ✅ Identifies which batches show drift
-- ✅ Tracks drift metrics over time
-- ✅ Triggers manual inspection if drift detected
-
-**Tasks:**
-- [ ] Implement image statistics extraction (histogram, edges, etc.)
-- [ ] Build baseline distribution model
-- [ ] Implement Kolmogorov-Smirnov test for distribution comparison
-- [ ] Create drift score calculation
-- [ ] Set up drift threshold and alerting
-- [ ] Build drift visualization dashboard
-- [ ] Implement root cause analysis (camera change, lighting)
-- [ ] Create drift alert workflow
-- [ ] Add manual inspection queue for drifted batches
-- [ ] Generate drift analysis reports
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** 3.1.1
-
----
-
-### User Story 3.2.2: Detect label shift (changing defect rates) and trigger investigation
-**As a** QC Manager  
-**I want to** be alerted when defect rates change significantly  
-**So that** we can investigate root causes (process issues, new defect types, calibration drift)  
-
-**Acceptance Criteria:**
-- ✅ Tracks overall defect rate (% boards with ≥1 defect)
-- ✅ Tracks per-defect-type rates
-- ✅ Alerts when rates shift > 2 sigma from baseline
-- ✅ Compares to historical trends
-- ✅ Identifies which time periods show shift
-- ✅ Provides drill-down into affected boards
-- ✅ Supports manual investigation workflow
-
-**Tasks:**
-- [ ] Implement defect rate calculation and tracking
-- [ ] Build baseline rate model (with seasonal adjustments)
-- [ ] Implement statistical shift detection (Z-test, Cusum)
-- [ ] Create alert rules for rate deviations
-- [ ] Build rate trending dashboard
-- [ ] Implement per-class rate breakdown
-- [ ] Create drill-down query builder
-- [ ] Add root cause analysis checklist
-- [ ] Build investigation workflow queue
-- [ ] Generate shift analysis reports
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 3.1.1, 3.1.2
-
----
-
-### User Story 3.2.3: Track model accuracy drift and trigger automatic retraining
-**As an** ML Engineer  
-**I want to** detect when model accuracy degrades over time  
-**So that** we automatically trigger retraining before quality is impacted  
-
-**Acceptance Criteria:**
-- ✅ Monitors accuracy metrics continuously
-- ✅ Alerts when accuracy drops > 5% from baseline
-- ✅ Distinguishes between gradual drift and sudden shifts
-- ✅ Triggers retraining when threshold exceeded
-- ✅ Tracks which factors contributed to drift (covariate, label, concept)
-- ✅ Supports manual override of auto-retraining
-- ✅ Logs all drift events with root causes
-
-**Tasks:**
-- [ ] Implement accuracy drift detection logic
-- [ ] Create drift magnitude classification (gradual vs. sudden)
-- [ ] Set up 5% threshold alert
-- [ ] Implement automatic retraining trigger
-- [ ] Add manual override capability
-- [ ] Build accuracy drift visualization dashboard
-- [ ] Create root cause analysis workflow
-- [ ] Implement drift event logging
-- [ ] Generate drift investigation guide
-- [ ] Create automated remediation recommendations
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** 2.3.1, 3.1.1
-
----
-
-## Feature 3.3: Performance & Latency Monitoring
-
-### User Story 3.3.1: Monitor inference latency and system throughput
-**As a** DevOps Engineer  
-**I want to** track model inference time and board processing throughput  
-**So that** we can ensure production line speed requirements are met  
-
-**Acceptance Criteria:**
-- ✅ Measures per-board inference latency (target: ≤ 100ms)
-- ✅ Tracks end-to-end board processing time
-- ✅ Monitors throughput (boards/minute)
-- ✅ Identifies bottlenecks (preprocessing, inference, post-processing)
-- ✅ Alerts if latency exceeds threshold
-- ✅ Tracks GPU/CPU utilization
-- ✅ Supports multi-GPU load balancing analysis
-
-**Tasks:**
-- [ ] Instrument inference pipeline with timing
-- [ ] Implement per-stage latency tracking
-- [ ] Create latency statistics aggregation (mean, p95, p99)
-- [ ] Build latency dashboard with per-stage breakdown
-- [ ] Implement throughput calculation
-- [ ] Set up latency threshold alerts
-- [ ] Add GPU/CPU utilization monitoring
-- [ ] Create bottleneck analysis reports
-- [ ] Implement load balancing recommendations
-- [ ] Generate performance trend reports
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 1.1.1
-
----
-
-### User Story 3.3.2: Monitor GPU and system resource utilization
-**As a** DevOps Engineer  
-**I want to** track GPU memory, CPU, and disk usage  
-**So that** we can optimize hardware utilization and plan capacity  
-
-**Acceptance Criteria:**
-- ✅ Monitors GPU VRAM utilization
-- ✅ Tracks CPU usage and context switching
-- ✅ Monitors disk I/O for logging/caching
-- ✅ Alerts on resource exhaustion
-- ✅ Provides capacity planning recommendations
-- ✅ Tracks resource trends over time
-- ✅ Supports multi-GPU resource balancing
-
-**Tasks:**
-- [ ] Integrate system monitoring agents (Prometheus Node Exporter)
-- [ ] Add GPU monitoring (nvidia-smi, DCGM)
-- [ ] Create resource utilization dashboard
-- [ ] Set up resource exhaustion alerts
-- [ ] Implement resource trending analysis
-- [ ] Create capacity planning reports
-- [ ] Add cost analysis (resource usage vs. cost)
-- [ ] Implement auto-scaling recommendations
-- [ ] Create resource optimization guide
-- [ ] Build incident response playbook for resource issues
-
-**Story Points:** 8  
-**Priority:** P2 (Medium)  
-**Dependencies:** None
-
----
-
-# 🔐 EPIC 4: SECURITY, GOVERNANCE & COMPLIANCE
-
-## Feature 4.1: Access Control & Authentication
-
-### User Story 4.1.1: Implement role-based access control for different user types
-**As a** Security Officer  
-**I want to** restrict access to the QC system based on user roles  
-**So that** we maintain data security and prevent unauthorized changes  
-
-**Acceptance Criteria:**
-- ✅ Defines roles: Inspector, QC Manager, Data Scientist, Admin, Auditor
-- ✅ Inspectors: Can only view assigned boards and provide labels
-- ✅ QC Managers: Can manage thresholds, view reports, approve holds
-- ✅ Data Scientists: Can train models, access training data, configure settings
-- ✅ Admins: Full system access
-- ✅ Auditors: Read-only access to all audit logs
-- ✅ Supports LDAP/Active Directory integration
-- ✅ Enforces MFA for privileged roles
-
-**Tasks:**
-- [ ] Define role and permission matrix
-- [ ] Implement role-based middleware/decorators
-- [ ] Set up user authentication system (LDAP/OAuth2)
-- [ ] Create role assignment workflow
-- [ ] Implement permission-based UI rendering
-- [ ] Add API authorization checks
-- [ ] Set up MFA for privileged roles
-- [ ] Create role management dashboard
-- [ ] Implement session management and timeouts
-- [ ] Generate role assignment audit report
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** None
-
----
-
-### User Story 4.1.2: Enforce multi-factor authentication for sensitive operations
-**As a** Security Officer  
-**I want to** require MFA for model deployments and threshold changes  
-**So that** we prevent unauthorized production changes  
-
-**Acceptance Criteria:**
-- ✅ Requires MFA (SMS/authenticator app/hardware key) for:
-  - Model deployments
-  - Threshold changes
-  - User role assignments
-  - Data exports
-- ✅ Logs all MFA challenges and confirmations
-- ✅ Supports TOTP and FIDO2
-- ✅ Allows users to manage their MFA devices
-- ✅ Enforces MFA grace period (7 days after initial login)
-
-**Tasks:**
-- [ ] Integrate MFA provider (Auth0, Okta, or open-source)
-- [ ] Define sensitive operations requiring MFA
-- [ ] Implement MFA challenge flow
-- [ ] Create MFA device management UI
-- [ ] Add MFA enrollment workflow
-- [ ] Implement recovery codes for MFA
-- [ ] Set up MFA audit logging
-- [ ] Create MFA compliance report
-- [ ] Add MFA bypass capability (with audit trail)
-- [ ] Document MFA procedures
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 4.1.1
-
----
-
-## Feature 4.2: Audit Logging & Traceability
-
-### User Story 4.2.1: Log all model decisions, user actions, and configuration changes
-**As an** Auditor  
-**I want to** have a complete audit trail of all system activities  
-**So that** we can investigate issues and ensure compliance  
-
-**Acceptance Criteria:**
-- ✅ Logs every board inspection result (accept/reject/hold/review)
-- ✅ Records model version used for each decision
-- ✅ Logs human review actions (approve/reject/override)
-- ✅ Tracks all threshold and configuration changes (who, when, what, why)
-- ✅ Records model deployments and rollbacks
-- ✅ Logs data access (exports, downloads, queries)
-- ✅ Immutable audit log (append-only, no deletes)
-- ✅ Indexed for fast querying
-
-**Tasks:**
-- [ ] Design audit log schema
-- [ ] Implement audit logging middleware
-- [ ] Set up append-only log storage (e.g., Kafka, PostgreSQL WAL)
-- [ ] Create audit log retention policy (7 years minimum)
-- [ ] Build audit log search and export interface
-- [ ] Implement audit event filtering and aggregation
-- [ ] Add audit log integrity verification
-- [ ] Create audit trail dashboard
-- [ ] Implement automated compliance reports
-- [ ] Document audit logging standards
-
-**Story Points:** 13  
-**Priority:** P0 (Critical)  
-**Dependencies:** 4.1.1
-
----
-
-### User Story 4.2.2: Generate compliance and audit reports for regulatory review
-**As a** Compliance Officer  
-**I want to** generate reports showing all inspection decisions and their justifications  
-**So that** we can pass audits and regulatory inspections  
-
-**Acceptance Criteria:**
-- ✅ Exports inspection decisions with defect location, confidence, and timestamp
-- ✅ Includes human reviewer information and their decisions
-- ✅ Shows model versions used for each board
-- ✅ Documents thresholds and policies in effect at time of decision
-- ✅ Supports date range filtering and board batch selection
-- ✅ Exportable as PDF or Excel with digital signatures
-- ✅ Includes summary statistics and aggregate metrics
-- ✅ Meets ISO/QMS documentation requirements
-
-**Tasks:**
-- [ ] Define audit report structure and content
-- [ ] Implement report generation queries
-- [ ] Create report templating system
-- [ ] Add batch filtering and date range selection
-- [ ] Implement digital signature capability
-- [ ] Build report export (PDF, Excel, CSV)
-- [ ] Create audit report scheduling
-- [ ] Add email delivery of scheduled reports
-- [ ] Implement report archival and retention
-- [ ] Create report compliance checklist
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 4.2.1
-
----
-
-### User Story 4.2.3: Track inspector accuracy and performance for quality assurance
-**As a** QC Manager  
-**I want to** monitor each inspector's review quality and accuracy  
-**So that** we can provide training and maintain consistent standards  
-
-**Acceptance Criteria:**
-- ✅ Tracks inspector label accuracy (via expert spot-check)
-- ✅ Calculates precision, recall per inspector
-- ✅ Monitors review speed and efficiency
-- ✅ Identifies reviewers with low accuracy or drift
-- ✅ Generates performance scorecards
-- ✅ Alerts when accuracy falls below threshold
-- ✅ Supports training intervention workflow
-
-**Tasks:**
-- [ ] Implement inspector performance scoring logic
-- [ ] Create spot-check accuracy calculation
-- [ ] Build inspector dashboard with performance metrics
-- [ ] Implement performance trending
-- [ ] Set up accuracy threshold alerts
-- [ ] Create performance scorecard template
-- [ ] Implement training needs assessment
-- [ ] Add performance improvement plan workflow
-- [ ] Generate inspector ranking report
-- [ ] Create quality coaching procedures
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 2.1.2, 4.2.1
-
----
-
-## Feature 4.3: Model Governance & Versioning
-
-### User Story 4.3.1: Maintain model registry with version control and metadata
-**As a** ML Engineer  
-**I want to** track all model versions with training data, hyperparameters, and validation metrics  
-**So that** we can understand model lineage and reproduce results  
-
-**Acceptance Criteria:**
-- ✅ Records model version, training date, training data version
-- ✅ Stores hyperparameters and training configuration
-- ✅ Captures validation metrics (precision, recall, F1 per class)
-- ✅ Links to training dataset and test set versions
-- ✅ Tracks model status (in-dev, staging, production, retired)
-- ✅ Supports model comparison (version A vs. version B metrics)
-- ✅ Stores model artifacts (weights, architecture, config)
-- ✅ Version history immutable and queryable
-
-**Tasks:**
-- [ ] Design model registry schema
-- [ ] Implement model registration API
-- [ ] Create model metadata storage
-- [ ] Build model versioning system
-- [ ] Implement model comparison tools
-- [ ] Add model lineage tracking
-- [ ] Create model registry UI
-- [ ] Implement model artifact storage
-- [ ] Add model search and filtering
-- [ ] Generate model lineage reports
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** 1.1.2, 2.3.1
-
----
-
-### User Story 4.3.2: Enforce approval workflow for production model deployments
-**As a** Quality Manager  
-**I want to** require sign-off from multiple teams before deploying new models  
-**So that** we ensure quality and prevent regressions  
-
-**Acceptance Criteria:**
-- ✅ Requires approval from: QC Manager, Data Science Lead, Production Manager
-- ✅ Deployment blocked until all approvals received
-- ✅ Can add comments and conditions to approval
-- ✅ Approval history tracked with timestamps
-- ✅ Supports expedited approval for critical fixes
-- ✅ Generates deployment approval report
-- ✅ Supports delegation of approval authority
-
-**Tasks:**
-- [ ] Design approval workflow state machine
-- [ ] Implement multi-tier approval routing
-- [ ] Create approval request notification system
-- [ ] Build approval dashboard
-- [ ] Implement approval comment and conditions
-- [ ] Add expedited approval request capability
-- [ ] Create approval delegation mechanism
-- [ ] Implement approval timeout handling
-- [ ] Generate deployment approval audit trail
-- [ ] Create escalation procedures
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 4.1.2, 4.2.1
-
----
-
-### User Story 4.3.3: Track and detect model bias and fairness issues
-**As a** Data Scientist  
-**I want to** analyze model performance across defect types and board variations  
-**So that** we detect and mitigate bias in detection accuracy  
-
-**Acceptance Criteria:**
-- ✅ Measures per-defect-type accuracy (critical vs. non-critical)
-- ✅ Analyzes performance by board region (corners, edges, center)
-- ✅ Detects systematic misclassification patterns
-- ✅ Generates bias report showing accuracy disparities
-- ✅ Alerts if accuracy variance exceeds threshold
-- ✅ Recommends mitigation strategies
-- ✅ Tracks bias metrics across model versions
-
-**Tasks:**
-- [ ] Define fairness metrics (accuracy variance, etc.)
-- [ ] Implement stratified performance analysis
-- [ ] Create per-class performance comparison
-- [ ] Build board region performance heatmap
-- [ ] Implement bias detection algorithms
-- [ ] Create bias report template
-- [ ] Set up bias threshold alerts
-- [ ] Build fairness dashboard
-- [ ] Implement bias mitigation recommendations
-- [ ] Create fairness improvement tracking
-
-**Story Points:** 10  
-**Priority:** P2 (Medium)  
-**Dependencies:** 3.1.2
-
----
-
-## Feature 4.4: Data Protection & Privacy
-
-### User Story 4.4.1: Encrypt sensitive data at rest and in transit
-**As a** Security Officer  
-**I want to** encrypt board images, labels, and model data  
-**So that** we protect intellectual property and comply with data protection regulations  
-
-**Acceptance Criteria:**
-- ✅ All data encrypted at rest (AES-256)
-- ✅ All API communications use TLS 1.3
-- ✅ Database encryption enabled
-- ✅ Encryption keys managed by key management system (KMS)
-- ✅ Key rotation implemented (quarterly)
-- ✅ Supports customer-managed keys (CMK)
-- ✅ Encryption transparent to applications
-
-**Tasks:**
-- [ ] Implement encryption at rest (database, file storage)
-- [ ] Set up TLS/HTTPS for all APIs
-- [ ] Integrate with KMS (AWS KMS, Azure Key Vault, etc.)
-- [ ] Implement key rotation procedures
-- [ ] Add encryption status monitoring
-- [ ] Create key access audit logging
-- [ ] Implement encryption key backup and recovery
-- [ ] Set up certificate management
-- [ ] Create encryption compliance checklist
-- [ ] Document encryption standards
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** None
-
----
-
-### User Story 4.4.2: Implement data retention and purging policies
-**As a** Compliance Officer  
-**I want to** automatically purge old board images and labels after retention period  
-**So that** we comply with data retention regulations and manage storage costs  
-
-**Acceptance Criteria:**
-- ✅ Retains board images and labels for 7 years (configurable)
-- ✅ Retains audit logs for 7 years
-- ✅ Automatically purges expired data
-- ✅ Requires approval for early purging
-- ✅ Generates purging audit log
-- ✅ Exports data before purging (for archive)
-- ✅ Supports data anonymization before purging
-
-**Tasks:**
-- [ ] Define retention policy per data type
-- [ ] Implement retention tracking metadata
-- [ ] Create automated purging job
-- [ ] Add purging approval workflow
-- [ ] Implement data export before purging
-- [ ] Add purging audit logging
-- [ ] Create retention policy dashboard
-- [ ] Implement data anonymization
-- [ ] Generate retention compliance report
-- [ ] Create disaster recovery procedures
-
-**Story Points:** 10  
-**Priority:** P2 (Medium)  
-**Dependencies:** 4.2.1
-
----
-
-# 📊 EPIC 5: DATA MANAGEMENT & QUALITY
-
-## Feature 5.1: Training Data Management
-
-### User Story 5.1.1: Establish ground truth labeling process with quality controls
-**As a** QC Manager  
-**I want to** define authoritative labels for training data  
-**So that** the model learns from accurate, consistent defect definitions  
-
-**Acceptance Criteria:**
-- ✅ Establishes consensus definition of each defect type
-- ✅ Creates reference images for each defect class
-- ✅ Requires multiple reviewers for disputed labels
-- ✅ Resolves reviewer disagreement through expert arbitration
-- ✅ Maintains label history (changes tracked)
-- ✅ Defines quality thresholds (> 95% reviewer agreement)
-- ✅ Documents ground truth methodology
-
-**Tasks:**
-- [ ] Facilitate defect definition workshops
-- [ ] Collect reference images for each class
-- [ ] Create defect definition documentation
-- [ ] Implement multi-reviewer consensus workflow
-- [ ] Build expert arbitration queue
-- [ ] Add label quality metrics calculation
-- [ ] Create label history tracking
-- [ ] Implement label versioning
-- [ ] Generate ground truth documentation
-- [ ] Create defect definition poster/reference
-
-**Story Points:** 10  
-**Priority:** P0 (Critical)  
-**Dependencies:** None
-
----
-
-### User Story 5.1.2: Collect and curate representative training dataset
-**As a** Data Scientist  
-**I want to** gather labeled images covering all defect types and board variations  
-**So that** the model has sufficient data to generalize well  
-
-**Acceptance Criteria:**
-- ✅ Collects minimum 100,000 good board images
-- ✅ Collects ≥ 5,000 images per defect type
-- ✅ Covers board variations (different camera angles, lighting, board positions)
-- ✅ Includes rare defects (≥ 20 examples minimum)
-- ✅ Resolves class imbalance through sampling strategy
-- ✅ Dataset versioned and reproducible
-- ✅ Dataset quality assessed (no duplicates, no mislabels)
-
-**Tasks:**
-- [ ] Define dataset requirements (size, distribution, coverage)
-- [ ] Implement image collection workflow
-- [ ] Set up labeling infrastructure
-- [ ] Create class distribution tracking
-- [ ] Implement quality assessment checks (duplicates, blur, etc.)
-- [ ] Add data augmentation strategy documentation
-- [ ] Build dataset statistics dashboard
-- [ ] Create dataset versioning system
-- [ ] Implement incremental data collection process
-- [ ] Generate dataset report (distribution, quality metrics)
-
-**Story Points:** 13  
-**Priority:** P0 (Critical)  
-**Dependencies:** 5.1.1
-
----
-
-### User Story 5.1.3: Validate dataset quality and representativeness
-**As a** Data Scientist  
-**I want to** assess training data quality before model training  
-**So that** we can identify gaps and biases in the dataset  
-
-**Acceptance Criteria:**
-- ✅ Checks for image resolution consistency
-- ✅ Detects duplicate or near-duplicate images
-- ✅ Analyzes class distribution and imbalance
-- ✅ Validates label consistency and quality
-- ✅ Identifies outliers and edge cases
-- ✅ Compares dataset to production image distribution
-- ✅ Generates quality report with recommendations
-
-**Tasks:**
-- [ ] Implement image quality checks (resolution, blur, brightness)
-- [ ] Add duplicate detection (using image hashing)
-- [ ] Create class distribution analysis
-- [ ] Implement label consistency checks
-- [ ] Build outlier detection (statistical methods)
-- [ ] Add production data comparison
-- [ ] Create dataset quality dashboard
-- [ ] Generate quality report template
-- [ ] Implement data cleaning recommendations
-- [ ] Create dataset improvement tracking
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 5.1.2
-
----
-
-## Feature 5.2: Data Ingestion & Pipeline
-
-### User Story 5.2.1: Ingest production images from cameras in real-time
-**As a** DevOps Engineer  
-**I want to** continuously receive board images from production line cameras  
-**So that** we can inspect every board without manual intervention  
-
-**Acceptance Criteria:**
-- ✅ Receives images from camera at production speed (≥ 10 boards/sec)
-- ✅ Handles network interruptions gracefully
-- ✅ Includes camera ID, timestamp, and board ID metadata
-- ✅ Validates image integrity (not corrupted)
-- ✅ Buffers images if downstream processing slower than camera feed
-- ✅ Monitors ingestion health (lag, dropped frames)
-- ✅ Supports multiple camera sources
-
-**Tasks:**
-- [ ] Evaluate camera APIs and protocols
-- [ ] Implement image ingestion consumer (HTTP, MQTT, RTP)
-- [ ] Add image validation and integrity checks
-- [ ] Create image buffering/queuing system
-- [ ] Implement metadata extraction from cameras
-- [ ] Add network error handling and retry logic
-- [ ] Build ingestion monitoring dashboard
-- [ ] Create ingestion health alerts
-- [ ] Implement multi-camera source management
-- [ ] Generate ingestion performance reports
-
-**Story Points:** 13  
-**Priority:** P0 (Critical)  
-**Dependencies:** None
-
----
-
-### User Story 5.2.2: Preprocess images (resize, normalize) before inference
-**As an** ML Engineer  
-**I want to** standardize image format and dimensions  
-**So that** the model receives consistent inputs and runs efficiently  
-
-**Acceptance Criteria:**
-- ✅ Resizes images to 640x640 (YOLO standard)
-- ✅ Normalizes pixel values to [0, 1] or [-1, 1]
-- ✅ Handles various input formats (JPEG, PNG, RGB, Grayscale)
-- ✅ Preserves aspect ratio with letterboxing
-- ✅ Processes batches efficiently
-- ✅ Adds augmentation (brightness, contrast) for robustness
-- ✅ Caches preprocessing results
-
-**Tasks:**
-- [ ] Implement image resizing with aspect ratio preservation
-- [ ] Add image normalization
-- [ ] Create format conversion (RGB, Grayscale, etc.)
-- [ ] Implement batch processing
-- [ ] Add preprocessing caching
-- [ ] Implement data augmentation pipeline
-- [ ] Create preprocessing validation checks
-- [ ] Add preprocessing performance monitoring
-- [ ] Generate preprocessing statistics
-- [ ] Document preprocessing specifications
-
-**Story Points:** 8  
-**Priority:** P0 (Critical)  
-**Dependencies:** 5.2.1
-
----
-
-## Feature 5.3: Defect Class & Training Data Version Management
-
-### User Story 5.3.1: Define and manage in-scope defect types with characteristics
-**As a** QC Manager  
-**I want to** document all defect types the system can detect  
-**So that** everyone understands what the model is trained for  
-
-**Acceptance Criteria:**
-- ✅ Creates defect class catalog with:
-  - Class name and ID
-  - Visual definition (reference images)
-  - Severity (critical/major/minor)
-  - Root cause
-  - Impact on functionality
-  - Preventive measures
-- ✅ Tracks in-scope vs. out-of-scope defects
-- ✅ Supports adding new defect types
-- ✅ Versioned and audit-trailed
-- ✅ Accessible to all team members
-
-**Tasks:**
-- [ ] Conduct defect analysis workshop
-- [ ] Create defect classification schema
-- [ ] Collect reference images for each class
-- [ ] Document defect characteristics and severity
-- [ ] Build defect catalog database
-- [ ] Create defect reference UI
-- [ ] Implement defect class versioning
-- [ ] Add severity mapping to business rules
-- [ ] Generate defect class documentation
-- [ ] Create training materials for inspectors
-
-**Story Points:** 10  
-**Priority:** P0 (Critical)  
-**Dependencies:** None
-
----
-
-### User Story 5.3.2: Version training datasets and link to model versions
-**As a** Data Scientist  
-**I want to** track which training data was used for each model  
-**So that** we can understand model behavior and reproduce training  
-
-**Acceptance Criteria:**
-- ✅ Records training dataset version with:
-  - Dataset ID and version number
-  - Training date
-  - Number of samples per class
-  - Data splits (train/val/test)
-  - Augmentation parameters
-  - Quality metrics
-- ✅ Links dataset version to model version
-- ✅ Supports querying models by dataset
-- ✅ Immutable dataset records
-- ✅ Generates dataset lineage reports
-
-**Tasks:**
-- [ ] Design dataset versioning schema
-- [ ] Implement dataset registration and versioning
-- [ ] Create dataset metadata storage
-- [ ] Link dataset versions to model versions
-- [ ] Build dataset lineage tracking
-- [ ] Create dataset comparison tool
-- [ ] Implement dataset artifact storage
-- [ ] Add dataset search and query interface
-- [ ] Generate dataset lineage reports
-- [ ] Create data scientist training on versioning
-
-**Story Points:** 8  
-**Priority:** P1 (High)  
-**Dependencies:** 1.1.2, 4.3.1
-
----
-
-# 🎯 EPIC 6: REAL-TIME UI & USER EXPERIENCE
-
-## Feature 6.1: Inspection Dashboard & Visualization
-
-### User Story 6.1.1: Display real-time defect detection results with bounding boxes and confidence
-**As an** Inspector  
-**I want to** see detection results clearly with visual annotations  
-**So that** I can understand the model's findings and make informed decisions  
-
-**Acceptance Criteria:**
-- ✅ Displays board image with detected defects marked
-- ✅ Shows bounding boxes around detected defects
-- ✅ Color-codes boxes by confidence (red for high, yellow for low)
-- ✅ Shows defect class label and confidence percentage
-- ✅ Supports zooming, panning, rotating image
-- ✅ Can toggle defect overlays on/off
-- ✅ Responsive design (works on tablets, monitors)
-- ✅ < 500ms page load time
-
-**Tasks:**
-- [ ] Design UI mockups for inspection dashboard
-- [ ] Implement real-time board feed display
-- [ ] Build SVG/Canvas overlay for bounding boxes
-- [ ] Implement color-coding scheme
-- [ ] Add zoom/pan/rotate controls
-- [ ] Create toggle controls for overlays
-- [ ] Implement responsive design (mobile/tablet)
-- [ ] Add performance optimization (lazy loading)
-- [ ] Create user testing and feedback collection
-- [ ] Generate UI specification document
-
-**Story Points:** 13  
-**Priority:** P0 (Critical)  
-**Dependencies:** 1.3.1, 1.3.2, 1.3.3
-
----
-
-### User Story 6.1.2: Provide uncertainty visualization with confidence heatmaps
-**As a** QC Manager  
-**I want to** see visual representation of model confidence levels  
-**So that** I can quickly identify uncertain detections needing review  
-
-**Acceptance Criteria:**
-- ✅ Generates confidence heatmap (red = high confidence, blue = low)
-- ✅ Shows uncertainty regions on board image
-- ✅ Displays confidence distribution histogram
-- ✅ Highlights regions below threshold
-- ✅ Exportable as image or PDF
-- ✅ Supports custom color schemes
-- ✅ Real-time update as model runs
-
-**Tasks:**
-- [ ] Implement heatmap generation (using model attention)
-- [ ] Create confidence color palette
-- [ ] Build heatmap overlay visualization
-- [ ] Implement uncertainty region highlighting
-- [ ] Add confidence distribution histogram
-- [ ] Create heatmap export (image, PDF)
-- [ ] Build custom color scheme selector
-- [ ] Add real-time heatmap updates
-- [ ] Create heatmap interpretation guide
-- [ ] Generate visualization documentation
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 6.1.1
-
----
-
-## Feature 6.2: QC Hold & Rejection Queues
-
-### User Story 6.2.1: Display QC hold queue with sorting and filtering
-**As a** QC Manager  
-**I want to** manage boards placed on QC hold  
-**So that** I can prioritize investigation and determine next steps  
-
-**Acceptance Criteria:**
-- ✅ Lists all boards in QC hold status
-- ✅ Sorts by time added, number of defects, severity
-- ✅ Filters by defect type, location, date range
-- ✅ Shows defect count and confidence for each board
-- ✅ Quick action buttons (rework, sort, scrap, return to production)
-- ✅ Tracks hold duration and reasons
-- ✅ Exports hold queue to Excel
-
-**Tasks:**
-- [ ] Design QC hold queue UI
-- [ ] Implement queue data model
-- [ ] Create sorting and filtering controls
-- [ ] Build quick action button handlers
-- [ ] Implement hold duration tracking
-- [ ] Add reason/comment field
-- [ ] Create export functionality
-- [ ] Build bulk action capabilities
-- [ ] Add queue statistics dashboard
-- [ ] Generate hold queue reporting
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 1.3.4
-
----
-
-### User Story 6.2.2: Display auto-rejection queue and summary
-**As an** Inspector  
-**I want to** see which boards were auto-rejected by the model  
-**So that** I can verify decisions and identify patterns  
-
-**Acceptance Criteria:**
-- ✅ Lists auto-rejected boards with defect type and confidence
-- ✅ Groups by defect class and time period
-- ✅ Shows rejection rate trends
-- ✅ Allows spot-check review of rejections
-- ✅ Can override rejection with approval workflow
-- ✅ Tracks override reasons and approver
-- ✅ Exportable rejection summary report
-
-**Tasks:**
-- [ ] Design auto-rejection queue UI
-- [ ] Implement rejection data aggregation
-- [ ] Create rejection grouping and analytics
-- [ ] Build trend visualization
-- [ ] Implement spot-check selection (random sample)
-- [ ] Create override request workflow
-- [ ] Add override approval routing
-- [ ] Implement override tracking and audit
-- [ ] Generate rejection summary report
-- [ ] Create rejection trend analysis dashboard
-
-**Story Points:** 8  
-**Priority:** P1 (High)  
-**Dependencies:** 1.3.1
-
----
-
-## Feature 6.3: Alerts & Notifications
-
-### User Story 6.3.1: Send alerts for high-risk defect detections
-**As a** QC Manager  
-**I want to** be notified immediately of critical defect detections  
-**So that** we can take immediate action to prevent shipping defective products  
-
-**Acceptance Criteria:**
-- ✅ Alerts on critical defect detection (immediate)
-- ✅ Sends notification via Slack, email, SMS
-- ✅ Includes defect type, board ID, confidence, defect image
-- ✅ Provides quick action buttons (view, investigate, hold)
-- ✅ Tracks alert delivery and acknowledgment
-- ✅ Supports alert escalation (SMS if not acknowledged in 5min)
-- ✅ Configurable alert thresholds per defect type
-
-**Tasks:**
-- [ ] Design alert schema and rules
-- [ ] Integrate with notification services (Slack, SendGrid, Twilio)
-- [ ] Create alert template system
-- [ ] Implement alert throttling (avoid spam)
-- [ ] Build alert acknowledgment system
-- [ ] Create escalation rules and routing
-- [ ] Add user notification preferences
-- [ ] Implement alert audit logging
-- [ ] Create alert configuration UI
-- [ ] Generate alert delivery reports
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** 1.3.1, 1.3.4
-
----
-
-### User Story 6.3.2: Alert on model performance degradation and drift
-**As an** ML Engineer  
-**I want to** be notified when model accuracy drops or drift detected  
-**So that** we can investigate and trigger retraining  
-
-**Acceptance Criteria:**
-- ✅ Alerts when accuracy drops > 5% from baseline
-- ✅ Alerts when covariate drift detected
-- ✅ Alerts when label shift detected
-- ✅ Alerts when inference latency exceeds threshold
-- ✅ Includes root cause analysis suggestions
-- ✅ Configurable alert thresholds
-- ✅ Supports Slack, email, PagerDuty
-
-**Tasks:**
-- [ ] Implement drift and performance monitoring
-- [ ] Create alert rule engine
-- [ ] Define alert threshold configurations
-- [ ] Build root cause analysis suggestions
-- [ ] Integrate with alerting platforms
-- [ ] Create alert templates with context
-- [ ] Implement on-call rotation integration
-- [ ] Add alert correlation and deduplication
-- [ ] Create alert troubleshooting guide
-- [ ] Generate alert effectiveness report
-
-**Story Points:** 10  
-**Priority:** P2 (Medium)  
-**Dependencies:** 3.1.1, 3.2.1, 3.2.2, 3.2.3
-
----
-
-# 📈 EPIC 7: REPORTING & ANALYTICS
-
-## Feature 7.1: Defect Analytics & Reporting
-
-### User Story 7.1.1: Generate defect trend reports by type, location, time period
-**As a** QC Manager  
-**I want to** analyze defect trends over time  
-**So that** we can identify root causes and prevent recurrence  
-
-**Acceptance Criteria:**
-- ✅ Reports defect count by type, time period (daily, weekly, monthly)
-- ✅ Identifies most common defect locations on board
-- ✅ Calculates defect rate (% of boards with defects)
-- ✅ Compares trends across production lines
-- ✅ Includes year-over-year comparisons
-- ✅ Exportable as PDF, Excel, or interactive dashboard
-- ✅ Identifies statistically significant trends
-
-**Tasks:**
-- [ ] Design defect analytics data model
-- [ ] Implement trend calculation queries
-- [ ] Create time series aggregation
-- [ ] Build location-based heat mapping
-- [ ] Add cross-line comparison
-- [ ] Implement statistical trend detection
-- [ ] Create report generation pipeline
-- [ ] Build interactive dashboard
-- [ ] Add scheduled report delivery
-- [ ] Generate analytics documentation
-
-**Story Points:** 13  
-**Priority:** P1 (High)  
-**Dependencies:** 1.3.1, 1.3.4
-
----
-
-### User Story 7.1.2: Generate Pareto analysis identifying most impactful defects
-**As a** Quality Engineer  
-**I want to** identify which 20% of defects cause 80% of problems  
-**So that** we can prioritize improvement efforts  
-
-**Acceptance Criteria:**
-- ✅ Calculates defect contribution to rejection rate
-- ✅ Ranks defects by impact (frequency × severity)
-- ✅ Identifies cumulative contribution (20/80 rule)
-- ✅ Generates Pareto chart visualization
-- ✅ Recommends improvement priorities
-- ✅ Tracks impact reduction over time
-- ✅ Exportable analysis report
-
-**Tasks:**
-- [ ] Design impact scoring methodology
-- [ ] Implement Pareto calculation
-- [ ] Create Pareto chart visualization
-- [ ] Add severity weighting options
-- [ ] Build improvement tracking
-- [ ] Create recommendation engine
-- [ ] Implement dynamic Pareto analysis
-- [ ] Add what-if scenarios (impact of fixing defect X)
-- [ ] Generate Pareto analysis report
-- [ ] Create continuous improvement tracking
-
-**Story Points:** 10  
-**Priority:** P2 (Medium)  
-**Dependencies:** 7.1.1
-
----
-
-## Feature 7.2: Business Metrics & OEE Calculation
-
-### User Story 7.2.1: Calculate Overall Equipment Effectiveness (OEE) impact
-**As a** Production Manager  
-**I want to** understand how defect detection affects OEE  
-**So that** I can measure manufacturing efficiency improvements  
-
-**Acceptance Criteria:**
-- ✅ Calculates OEE = Availability × Performance × Quality
-- ✅ Tracks downtime caused by QC holds
-- ✅ Measures throughput impact
-- ✅ Estimates cost of defects (rework, scrap, recalls)
-- ✅ Shows OEE before/after AI system deployment
-- ✅ Generates OEE trending reports
-- ✅ Supports what-if scenarios
-
-**Tasks:**
-- [ ] Define OEE calculation methodology
-- [ ] Integrate with production data system
-- [ ] Implement downtime tracking
-- [ ] Create cost modeling
-- [ ] Build OEE trending dashboard
-- [ ] Add before/after comparison analysis
-- [ ] Implement what-if scenario modeling
-- [ ] Create OEE improvement tracking
-- [ ] Generate OEE reporting
-- [ ] Create business case metrics
-
-**Story Points:** 13  
-**Priority:** P2 (Medium)  
-**Dependencies:** 7.1.1, 3.1.1
-
----
-
-### User Story 7.2.2: Calculate ROI and financial impact of AI inspection system
-**As a** Finance Manager  
-**I want to** quantify cost savings from automated inspection  
-**So that** we can justify investment and track payback period  
-
-**Acceptance Criteria:**
-- ✅ Calculates savings from reduced manual inspection
-- ✅ Estimates cost avoidance (prevents recalls, rework)
-- ✅ Tracks system operating costs (GPU, maintenance)
-- ✅ Calculates payback period
-- ✅ Compares to traditional QC costs
-- ✅ Generates financial impact report
-- ✅ Supports scenario analysis (price, volume changes)
-
-**Tasks:**
-- [ ] Define cost model (inspection labor, rework, recalls, system ops)
-- [ ] Implement cost calculations
-- [ ] Create savings aggregation
-- [ ] Build ROI trending
-- [ ] Add what-if scenario modeling
-- [ ] Create financial impact dashboard
-- [ ] Generate business case reporting
-- [ ] Implement budget tracking vs. actual
-- [ ] Create executive summary templates
-- [ ] Generate investment justification reports
-
-**Story Points:** 10  
-**Priority:** P2 (Medium)  
-**Dependencies:** 7.1.1, 7.2.1
-
----
-
-# 🏁 EPIC 8: TRAINING, DOCUMENTATION & DEPLOYMENT
-
-## Feature 8.1: User Training & Documentation
-
-### User Story 8.1.1: Create training materials for inspectors and QC staff
-**As a** Training Manager  
-**I want to** train inspectors on how to use the QC system  
-**So that** they can make effective decisions and catch labeling mistakes  
-
-**Acceptance Criteria:**
-- ✅ Video tutorials for inspection workflow
-- ✅ User manual with screenshots
-- ✅ Defect identification guide with reference images
-- ✅ Troubleshooting FAQ
-- ✅ Best practices for review quality
-- ✅ Quick reference guides (laminated card)
-- ✅ E-learning course with certification
-
-**Tasks:**
-- [ ] Create video tutorials (inspection workflow, UI)
-- [ ] Write user manual and procedures
-- [ ] Develop defect identification reference guide
-- [ ] Create troubleshooting FAQ
-- [ ] Develop best practices training materials
-- [ ] Create quick reference cards
-- [ ] Develop e-learning course content
-- [ ] Implement certification testing
-- [ ] Create train-the-trainer materials
-- [ ] Generate training completion tracking
-
-**Story Points:** 10  
-**Priority:** P2 (Medium)  
-**Dependencies:** 6.1.1, 6.2.1, 6.2.2
-
----
-
-### User Story 8.1.2: Document system architecture, model details, and operational procedures
-**As a** Systems Engineer  
-**I want to** maintain comprehensive documentation  
-**So that** the system can be maintained and scaled  
-
-**Acceptance Criteria:**
-- ✅ Architecture diagram and components
-- ✅ Data flow diagrams
-- ✅ Model documentation (architecture, training, evaluation)
-- ✅ Operational runbooks (deployment, monitoring, troubleshooting)
-- ✅ API documentation
-- ✅ Database schema documentation
-- ✅ Security and compliance documentation
-- ✅ Disaster recovery procedures
-
-**Tasks:**
-- [ ] Create architecture documentation
-- [ ] Generate data flow diagrams
-- [ ] Document model specifications and training procedures
-- [ ] Write operational runbooks
-- [ ] Create API documentation
-- [ ] Document database schema
-- [ ] Write security procedures and policies
-- [ ] Create disaster recovery playbooks
-- [ ] Develop troubleshooting guides
-- [ ] Implement documentation maintenance process
-
-**Story Points:** 13  
-**Priority:** P2 (Medium)  
-**Dependencies:** All epics
-
----
-
-## Feature 8.2: System Deployment & Rollout
-
-### User Story 8.2.1: Deploy system to production with staged rollout
-**As a** DevOps Engineer  
-**I want to** deploy the QC system safely to production  
-**So that** we can start automating inspections  
-
-**Acceptance Criteria:**
-- ✅ Deployment to single production line first (pilot)
-- ✅ Canary deployment (10% → 50% → 100% traffic)
-- ✅ Shadow mode running (model results not used initially)
-- ✅ Comparison of AI vs. human decisions for 2 weeks
-- ✅ Approval before moving to auto-reject mode
-- ✅ Rollback capability if issues found
-- ✅ Deployment documentation and checklist
-
-**Tasks:**
-- [ ] Set up production infrastructure (GPU servers, storage)
-- [ ] Implement deployment pipeline (CI/CD)
-- [ ] Create staging environment
-- [ ] Implement shadow comparison mode
-- [ ] Set up monitoring and alerting
-- [ ] Create deployment runbook
-- [ ] Implement rollback procedures
-- [ ] Create deployment checklist
-- [ ] Perform pre-deployment testing
-- [ ] Generate deployment readiness report
-
-**Story Points:** 13  
-**Priority:** P0 (Critical)  
-**Dependencies:** All platform features
-
----
-
-### User Story 8.2.2: Provide system administration and maintenance capabilities
-**As a** System Administrator  
-**I want to** manage system health, backups, and updates  
-**So that** the system remains reliable and available  
-
-**Acceptance Criteria:**
-- ✅ Health check dashboard (uptime, latency, resource usage)
-- ✅ Automated backups (daily, encrypted)
-- ✅ Backup restore capability
-- ✅ Database maintenance procedures
-- ✅ Log aggregation and archival
-- ✅ Performance optimization tools
-- ✅ Incident response procedures
-- ✅ Maintenance windows with user notification
-
-**Tasks:**
-- [ ] Implement health check and monitoring
-- [ ] Set up automated backup system
-- [ ] Create backup/restore procedures
-- [ ] Implement database maintenance jobs
-- [ ] Set up centralized logging
-- [ ] Create performance optimization guides
-- [ ] Develop incident response playbooks
-- [ ] Implement maintenance scheduling
-- [ ] Create admin dashboard
-- [ ] Generate system health reports
-
-**Story Points:** 10  
-**Priority:** P2 (Medium)  
-**Dependencies:** 8.2.1
-
----
-
-## Feature 8.3: Fallback & Failure Handling
-
-### User Story 8.3.1: Implement graceful degradation if model fails
-**As a** DevOps Engineer  
-**I want to** fall back to manual inspection if the model fails  
-**So that** production doesn't stop and quality isn't compromised  
-
-**Acceptance Criteria:**
-- ✅ Detects model inference failures
-- ✅ Falls back to manual QC review (all boards)
-- ✅ Alerts operations team immediately
-- ✅ Logs failure details for debugging
-- ✅ Provides estimated time to recovery
-- ✅ Automatic retry with exponential backoff
-- ✅ Switchover to backup model if available
-
-**Tasks:**
-- [ ] Implement failure detection logic
-- [ ] Create fallback to manual review procedure
-- [ ] Implement automated alerting
-- [ ] Set up failure logging
-- [ ] Create recovery time estimation
-- [ ] Implement retry logic with backoff
-- [ ] Set up backup model switching
-- [ ] Create failure response procedures
-- [ ] Test fallback scenarios
-- [ ] Generate failure handling documentation
-
-**Story Points:** 10  
-**Priority:** P1 (High)  
-**Dependencies:** 1.1.1, 3.3.1
-
----
-
-### User Story 8.3.2: Provide manual override and emergency hold procedures
-**As a** QC Manager  
-**I want to** manually stop production or place holds if issues detected  
-**So that** we can prevent shipping of defective products  
-
-**Acceptance Criteria:**
-- ✅ Emergency hold button stops auto-pass and auto-reject
-- ✅ Requires MFA approval for override
-- ✅ Logs all overrides with reason and approver
-- ✅ Reverts to automatic mode only after approval
-- ✅ Notifies all relevant stakeholders
-- ✅ Supports partial holds (specific product lines)
-- ✅ Tracks hold duration and reason tracking
-
-**Tasks:**
-- [ ] Implement emergency hold functionality
-- [ ] Create MFA approval workflow
-- [ ] Add override logging and audit trail
-- [ ] Build partial hold capability
-- [ ] Implement notification system
-- [ ] Create override management interface
-- [ ] Add hold duration tracking
-- [ ] Generate override reports
-- [ ] Create emergency procedures documentation
-- [ ] Train operators on emergency procedures
-
-**Story Points:** 8  
-**Priority:** P1 (High)  
-**Dependencies:** 4.1.2, 4.2.1
-
----
-
----
-
-## 📋 PRODUCT BACKLOG SUMMARY
-
-### Total Epics: 8
-### Total Features: 26
-### Total User Stories: 64
-### Total Story Points: ~700
-
-### Backlog Prioritization by Phase:
-
-**Phase 1: MVP (Months 1-3) - ~180 Story Points**
-- EPIC 1: Model Intelligence & Detection Engine (Complete)
-- EPIC 5: Data Management & Quality (Foundations)
-- EPIC 6: Real-time UI (MVP Level)
-- EPIC 8: Deployment (Pilot)
-
-**Phase 2: Enhanced (Months 4-6) - ~200 Story Points**
-- EPIC 2: Human-in-Loop Learning & Feedback (Complete)
-- EPIC 3: Observability & Drift Detection (Complete)
-- EPIC 4: Security & Governance (Foundations)
-- EPIC 7: Reporting & Analytics (MVP Level)
-
-**Phase 3: Hardening (Months 7-9) - ~160 Story Points**
-- EPIC 4: Security & Governance (Complete)
-- EPIC 7: Reporting & Analytics (Enhanced)
-- EPIC 8: Operations & Maintenance (Complete)
-
-**Phase 4: Continuous Excellence (Months 10+) - ~160 Story Points**
-- Optimization, scaling, advanced analytics
-- Cost reduction initiatives
-- Organizational rollout to additional lines
-
----
-
-## 🎯 SUCCESS CRITERIA & METRICS (Per BRD)
-
-### Business Metrics (Phase 1 Goal)
-- ✅ **Defect Detection Performance** (Per BRD Section 17):
-  - Critical defect recall: ≥ agreed threshold (TBD)
-  - Major defect recall: ≥ agreed threshold (TBD)
-  - False positive rate: ≤ agreed threshold (TBD)
-  - Overall board classification accuracy: ≥ agreed threshold (TBD)
-- ✅ **Inspection Cost Reduction**: 70% (from $500K annually)
-- ✅ **ROI**: 300% within 12 months
-- ✅ **Quality Impact**: Reduce defect escape rate to 0.2%
-- ✅ **Production Volume Handling**: Support 30% annual production growth
-
-### Technical Metrics (Phase 1 Goal - Per BRD Section 17)
-- ✅ **Inference Latency**: ≤ 100ms per board (production speed constraint)
-- ✅ **Throughput**: ≥ 600 boards/minute (must match production line speed)
-- ✅ **System Uptime**: 99.9%
-- ✅ **Model Confidence Calibration**: ECE ≤ 5%
-- ✅ **Accuracy Stability**: < 2% drift month-over-month
-- ✅ **Precision, Recall, F1-score**: Per-defect tracking (BRD Section 17.3)
-
-### Data Quality Metrics (Per BRD Section 18.4)
-- ✅ Image resolution consistency: Documented
-- ✅ Image quality assessment: Defined thresholds
-- ✅ Labelling accuracy: ≥ 95% inter-rater agreement
-- ✅ Duplicate images: < 1% of dataset
-- ✅ Data distribution documented: Good boards, each defect type count
-
-### Operational Metrics (Phase 2 Goal)
-- ✅ Human reviewer accuracy: ≥ 95%
-- ✅ Model retraining cycle: Every 2 weeks (Phase 2)
-- ✅ Audit compliance: 100% (per BRD Section 36 - Governance)
-- ✅ User adoption: 100% of QC staff trained (per BRD training requirements)
-- ✅ Ground truth inter-rater agreement: ≥ 95% (BRD Section 19)
-
----
-
-## 📌 RISK & CONSTRAINTS
-
-### Known Constraints
-1. **No Anomaly Detection**: Unseen defects structurally invisible
-   - Mitigation: Continuous re-labeling of human-reviewed cases, expert sweeps
-2. **Human Label Error**: Reviewers can teach model wrong patterns
-   - Mitigation: Double-blind review, spot-check, accuracy tracking
-3. **Production Speed**: Must not slow line
-   - Constraint: ≤ 100ms inference required
-4. **Data Availability**: Limited training data initially
-   - Mitigation: Active learning, gradual expansion
-
-### Risks
-1. **Model Degradation**: Accuracy drops if defects change
-2. **Class Imbalance**: Rare defects hard to detect
-3. **Camera Drift**: Image quality changes over time
-4. **False Confidence**: Model overconfident on uncertain cases
-
----
-
-## 📚 APPENDICES
-
-### A. Glossary
-- **Confidence Score**: Model's probability estimate for defect
-- **Calibration**: Converting model confidence to business probability
-- **Drift**: Systematic change in model performance
-- **Ground Truth**: Authoritative correct labels
-- **OEE**: Overall Equipment Effectiveness (Availability × Performance × Quality)
-- **QC Hold**: Product grade awaiting disposition (rework/sort/scrap)
-
-### B. Assumptions
-1. Production line cameras ready to provide images
-2. Historical labeled data available for training
-3. Budget available for GPU infrastructure
-4. QC staff available for training and human review
-
-### C. Dependencies
-- External: Camera hardware, production systems integration
-- Internal: Training data availability, stakeholder alignment
-
-### D. Future Considerations
-- Multi-product support (different board types)
-- Anomaly detection module (for unseen defects)
-- Supplier quality integration
-- Predictive maintenance (detect equipment degradation)
-
----
-
-**Document Status**: Ready for Development Planning  
-**Last Updated**: 2026-09-01  
-**Next Review**: Upon completion of Phase 1 MVP
-
----
-
-# ?? BRD REQUIREMENTS MAPPING
-
-## Summary: Business Requirement Document Coverage
-
-This product backlog has been mapped directly to the **Business Requirement Document (BRD)** for the **AI-Based Automated Board Defect Inspection System**. The following sections demonstrate how each major BRD requirement is addressed in the backlog:
-
-### **? BRD Section 17: Performance Metrics & Acceptance Framework**
-- **Mapped to**: EPIC 3 (Observability & Monitoring)
-  - Feature 3.1.1: Monitor real-time model accuracy metrics
-  - Feature 3.1.2: Generate confusion matrices and per-defect performance
-  - User Story 2.3.2: Validate retrained models against acceptance criteria
-- **Specific Framework**: Critical defect recall = agreed threshold ? Feature 3.1.2
-- **Note**: Actual thresholds to be established through business/quality discussions
-
-### **? BRD Section 18: Training Data Requirements**
-- **Mapped to**: EPIC 5 (Data Management & Quality)
-  - Feature 5.1.2: Collect min 100,000 good boards + =5,000 per defect type
-  - Feature 5.1.3: Validate dataset quality (resolution, duplicates, lighting variations)
-  - Feature 5.3.1: Define in-scope defect types with characteristics
-
-### **? BRD Section 19: Ground Truth Process**
-- **Mapped to**: EPIC 5, Feature 5.1.1
-  - User Story 5.1.1: Establish ground truth labeling with quality controls
-  - Addresses all BRD questions: Who determines defect, who verifies, what on disagreement
-
-### **? BRD Section 20: Camera & Image Requirements**
-- **Mapped to**: EPIC 5, Features 5.2.1 & 5.2.2
-  - Feature 5.2.1: Ingest production images (=10 boards/sec)
-  - Feature 5.2.2: Preprocess images (resize, normalize)
-  - Addresses production-line speed constraint (100ms latency)
-
-### **? BRD Section 36: Constraints (Governance, Security, Approval)**
-- **Mapped to**: EPIC 4 (Security, Governance & Compliance) - Complete
-  - Feature 4.1: Access Control & Authentication
-  - Feature 4.2: Audit Logging & Traceability
-  - Feature 4.3: Model Governance & Versioning
-  - Feature 4.4: Data Protection & Privacy
-
-### **? BRD Confidence & Uncertainty Handling**
-- **Mapped to**: EPIC 1 (Model Intelligence & Detection Engine)
-  - Feature 1.2: Confidence Calibration & Validation
-  - Feature 1.3: Probabilistic Decision Routing
-- **BRD Principle**: Raw YOLO scores are model confidence, must be calibrated to business probability
-
-### **? BRD Human Review & Labeling**
-- **Mapped to**: EPIC 2 (Human-in-Loop Learning & Feedback)
-  - Feature 2.1.2: Detect when reviewers make mistakes (double-blind, spot-check)
-- **BRD Principle**: Don't teach model incorrect patterns from wrong labels
-
-### **? BRD Continuous Improvement**
-- **Mapped to**: EPIC 2, Feature 2.3 & EPIC 3, Feature 3.2
-  - Feature 2.3: Model Retraining & Continuous Improvement
-  - Feature 3.2: Drift Detection & Anomalies (accuracy drift trigger retraining)
-
-### **? BRD Training & Documentation**
-- **Mapped to**: EPIC 8 (Training, Documentation & Deployment)
-  - Feature 8.1: User Training & Documentation
-- **BRD Principle**: QC Manager defines defects, not AI team
-
----
-
-## Backlog Status Summary
-
-? **100% of Major BRD Requirements Addressed**
-
-- 8 Epics aligned to BRD sections
-- 26 Features covering specific requirements
-- 64 User Stories with detailed acceptance criteria
-- All BRD constraints captured in feature dependencies
-- Success metrics tied to BRD business case (70% cost reduction, 300% ROI)
-
----
+# Board Defect Inspection - Product Backlog
+
+Version: 2.0 | Prepared: 2026-09-08 | Status: Development specification; business decision gates remain open
+
+## 1. Scope and source of truth
+
+Primary visual source: [Solution architecture.png](<Solution architecture.png>). Detailed behavior and component boundaries: [SOLUTION_ARCHITECTURE_MERMAID.md](SOLUTION_ARCHITECTURE_MERMAID.md). Business traceability follows the discovery BRD referenced by that document.
+
+Deliver a conventional enterprise application with Angular/TypeScript, Java/Spring Boot, Python/ONNX Runtime, PostgreSQL, S3-compatible storage, RabbitMQ, NGINX, enterprise OIDC identity, Git/Jenkins and managed Linux VMs. The image groups components for presentation; the written architecture resolves arrow ambiguity: database outbox events reach RabbitMQ through a publisher, workers deliver external integrations, and original images are stored in object storage.
+
+The scope includes camera acquisition, board identification, vision inference, versioned QC decisions, local durability, optional PLC control, OT/IT synchronization, human review, history/reporting, model governance and production operations. Hardware purchases, factory modifications and stakeholder approvals are external dependencies tracked below. Autonomous manufacturing changes, physical repair, generative AI, predictive maintenance, fixed YOLO selection and automatic unapproved model deployment are excluded.
+
+No inspection accuracy, confidence threshold, latency, availability or delivery date is invented here. Stories contain executable behavior and test expectations; live hardware and production acceptance remain gated by the named decisions. All stories are initially **Not started**. This backlog is a specification, not evidence of implementation or approval.
+
+## 2. Planning conventions
+
+- **P0:** essential for reliable inspection, traceability, access control or production acceptance. **P1:** required enterprise capability that can follow the first controlled pilot. Optional integrations become release requirements only when selected.
+- **R0 Foundation:** decisions, contracts, simulators and development platform. **R1 Controlled pilot:** one line/board scope, reviewed model and end-to-end review/evidence; live actuation disabled until approved. **R2 Enterprise rollout:** selected integrations, expanded reporting, redundancy and multi-line acceptance. **R3 Improvement:** governed additional model releases.
+- **Open:** work can enter refinement immediately; listed prerequisites must still finish before integration. **Gated Dxx:** simulator/framework work can start, but production completion requires the named decision. **Conditional Dxx:** build live integration only if selected.
+- Dependencies are story IDs; decision gates are separate. Owner labels designate accountable disciplines, not assigned individuals. Team estimates and capacity-based sprint commitments are set in refinement after decision gates and representative workloads are available.
+- Feature groups are the epics below. Acceptance criteria are mandatory, uniquely addressable as `<story ID>-AC1`, etc. Development tasks are checklist items `<story ID>-T1`, etc.
+
+## 3. Decision register and acceptance parameters
+
+| ID | Decision and required artifact | Accountable owner | Blocks |
+| --- | --- | --- | --- |
+| D01 | Supported boards/revisions, defect catalogue, severities, tolerances, required views and identity policy; signed recipe examples | Quality + Manufacturing | Live capture, QC rules, model scope |
+| D02 | Per-defect and board-level metrics, minimum critical recall, false-positive/negative limits, calibration criteria and review thresholds; approved evaluation matrix | Quality + ML | Model release and automatic PASS/FAIL |
+| D03 | Peak/steady boards per minute, end-to-end maximum latency, inspection timeout and image sizes; workload profile | Manufacturing + Automation | Hardware sizing and performance acceptance |
+| D04 | REVIEW/unavailable/missing-ID behavior, hold/manual/stop actions, reviewer SLA and authorized overrides; signed state/action matrix | Manufacturing + Quality | Live fallback, review release and actuation |
+| D05 | Camera SDK, trigger protocol, board identity mapping, equipment access and camera/lighting acceptance sample | Automation | Hardware adapter acceptance |
+| D06 | Whether PLC and MES/QMS are required; protocol/schema, command expiry, acknowledgement and reconciliation rules; interface contracts | Automation + Enterprise IT | Live external integrations |
+| D07 | Operating hours, availability SLO, maximum offline time, RTO/RPO, standby strategy and failure domains; capacity/recovery plan | Manufacturing + IT Operations | Production topology and recovery acceptance |
+| D08 | Retention by data class, legal holds, archive/deletion policy, expected volume and access/export restrictions | Quality + Compliance + Security | Lifecycle jobs and storage sizing |
+| D09 | Representative images, ground-truth owner, label adjudication rules, independent dataset split and permitted data use | Quality + Data + ML | Validated model feasibility |
+| D10 | Enterprise identity provider, line/site access matrix, MFA policy, certificate issuer and approval/deployment separation | Security + Enterprise IT | Production authentication and deployment roles |
+
+Parameter contract: store approved values in versioned configuration with units and owner: `peakBoardsPerMinute`, `inspectionDeadlineMs`, `reviewSlaMinutes`, `commandExpiryMs`, `maxOfflineHours`, `availabilityTarget`, `rtoMinutes`, `rpoMinutes`, retention periods and per-defect metric thresholds. Sample fixtures must be marked TEST ONLY. Production startup rejects missing required configuration instead of silently adopting test defaults.
+
+## 4. Shared implementation contracts
+
+These are proposed development contracts to implement and version in PB-003; changes require migration and compatibility review.
+
+### 4.1 Domain records
+
+| Record | Minimum fields and invariants |
+| --- | --- |
+| InspectionAttempt | Globally unique inspectionId; optional boardId; board type/revision, batch, site, line, station; recipe/model/preprocessing versions; UTC capture/completion timestamps; processingStatus; initialDisposition; authoritativeDisposition; recordVersion; optional parentInspectionId. Never reuse boardId as an attempt key. |
+| Evidence | evidenceId, inspectionId, viewId, capture timestamp, pixel dimensions, content type, byte length, SHA-256, storage key, synchronization status and retention class. Image bytes remain outside broker messages. |
+| Prediction | predictionId, inspectionId, evidenceId, defect code, severity reference, confidence and score semantics, original-image coordinates when localization applies, model version. |
+| ReviewDecision | reviewId, inspectionId, reviewer subject, prior recordVersion, decision, reason, timestamp and optional corrected annotations. Append changes; retain original AI outcome. |
+| Command | commandId, inspectionId, expected board/state, disposition/action, issuer, creation/expiry timestamps, commandVersion, delivery/acknowledgement status and reason. |
+| ReleasePackage | releaseId, model/recipe/preprocessing versions, supported board revisions, artifact checksums, approval identity/time, compatible runtime and previous release. |
+| Event / AuditEvent | eventId, schemaVersion, eventType, aggregateId/version, occurredAt, correlationId, producer; audit adds actor, action, prior/new state reference and reason. |
+
+Use foreign keys and uniqueness constraints, UTC timestamps, explicit schema migrations, and indexes supporting line/time/status queries. Record missing board identity explicitly and apply D01/D04 policy. Never fabricate a board ID. Model confidence is a score with documented semantics, not automatically a probability.
+
+### 4.2 State and consistency rules
+
+Processing state: `CAPTURED -> VALIDATING -> INFERENCING -> COMPLETED`; invalid images, unsupported configuration and timeout terminate as `UNAVAILABLE` with a reason. Incomplete/unavailable processing is not PASS. A completed attempt has initial disposition PASS, FAIL or REVIEW. REVIEW assignment state is separate: `OPEN -> CLAIMED -> RESOLVED`, with audited reassignment. Human decisions append revisions and update authoritativeDisposition transactionally.
+
+Physical command state is separate: `PENDING -> SENT -> ACKNOWLEDGED`; failures can become `UNKNOWN`, `EXPIRED` or `FAILED`. UNKNOWN triggers reconciliation; it is not permission to repeat physical action. An ACK confirms the agreed protocol state, not proof of product quality.
+
+Persist evidence durably, then commit the inspection, pending command and outbox event locally before dispatch. Synchronize centrally with at-least-once delivery and idempotent effects. Confirm image checksums before evidence becomes AVAILABLE; metadata can be RECEIVED while images remain PENDING. Reinspection is a new linked attempt. At review resolution, lock/check recordVersion; persist disposition, audit and outbox atomically. Validate current board state and command expiry at the edge before acting.
+
+### 4.3 API and event surface
+
+All enterprise APIs use `/api/v1`, versioned OpenAPI, JSON validation, correlation IDs, bounded pagination and standardized errors. User requests use OIDC; factory requests use line-scoped machine identities over mutual TLS. Never expose PostgreSQL or PLC access to browsers.
+
+| Interface | Required behavior |
+| --- | --- |
+| POST /inspections | Idempotency-Key = inspectionId; identical retry returns the recorded response; reused ID with different immutable data returns 409. |
+| PUT /inspections/{id}/evidence/{evidenceId} | Bounded streamed upload through the approved gateway; verify declared size/type/hash; retries do not create duplicate evidence. |
+| GET /inspections and GET /inspections/{id} | Authorized filters, cursor pagination, complete history and evidence availability. |
+| GET /inspections/{id}/evidence/{evidenceId} | Authorized evidence streaming; no unrestricted object-store URL. |
+| GET /reviews; POST /reviews/{id}/claim; POST /reviews/{id}/decisions | Assignment and If-Match/recordVersion checks; 409 on stale edits; reasons mandatory. |
+| GET /edge/commands; POST /edge/commands/{id}/ack | Poll by authenticated line with durable cursor; command expiry, state and acknowledgement identity validated. |
+| GET /edge/releases/current; GET /edge/releases/{id}/artifact | Only compatible approved release manifests/artifacts for the authenticated line. |
+| POST /recipes; POST /recipes/{id}/approve; POST /releases/{id}/approve | Versioned changes, server-side role checks and audit. Approval is separate from deployment. |
+| GET /reports/quality; POST /reports/exports | Approved metric definitions, access-scoped filters, asynchronous bounded exports and freshness indication. |
+| Events | InspectionRecorded.v1, EvidenceAvailable.v1, ReviewRequested.v1, ReviewResolved.v1, ReleaseApproved.v1, CommandStatusChanged.v1, AuditRecorded.v1. Stable eventId; consumers track duplicates and aggregate versions. |
+
+Recommended HTTP errors: 400 invalid fields, 401 missing/invalid identity, 403 insufficient scope, 404 inaccessible/missing resource per agreed disclosure policy, 409 conflict, 413 oversize upload, 429 throttled, 503 dependency unavailable. Never put tokens, image bytes or sensitive review text in routine logs.
+
+### 4.4 Initial permission matrix
+
+D10 confirms this proposed matrix. All permissions are line/site-scoped and enforced by the backend.
+
+| Role | Permissions |
+| --- | --- |
+| Operator | View assigned-line status/evidence and record operational acknowledgement; no quality override by default. |
+| Inspector | Claim/review assigned cases; resolve only permitted dispositions under D04. |
+| Quality approver | Approve rules/models and authorized overrides; cannot silently rewrite historical results. |
+| Manager/analyst | Read scoped dashboards/history and approved exports; no deployment or override. |
+| ML engineer | Access approved datasets; submit model candidates and evaluation; no self-approval. |
+| Deployment administrator | Deploy approved software/model packages; no model self-approval or quality override. |
+| Factory service | Upload own-line inspections, poll own-line releases/commands and acknowledge own commands only. |
+
+## 5. Epic and release map
+
+| Epic | Capability | Stories | Primary milestone |
+| --- | --- | --- | --- |
+| E01 | Decisions, contracts and engineering foundation | PB-001 to PB-005 | R0 |
+| E02 | Camera acquisition and local inference | PB-006 to PB-010 | R1 |
+| E03 | QC decisions, persistence and physical control | PB-011 to PB-015 | R1 |
+| E04 | OT/IT gateway, synchronization and messaging | PB-016 to PB-020 | R1 |
+| E05 | Identity, operator experience and human review | PB-021 to PB-025 | R1 |
+| E06 | History, reporting and external integrations | PB-026 to PB-029 | R1/R2 |
+| E07 | Dataset, model validation and controlled releases | PB-030 to PB-033 | R1/R3 |
+| E08 | Audit, retention and security hardening | PB-034 to PB-037 | R1/R2 |
+| E09 | Observability, deployment and resilience | PB-038 to PB-042 | R1/R2 |
+| E10 | Integrated verification and operational acceptance | PB-043 to PB-046 | R1/R2 |
+
+## 6. Detailed development backlog
+
+### E01
+
+#### PB-001 - Resolve quality and operational decisions
+
+**Priority:** P0 | **Milestone:** R0 | **Owner:** BA / Quality / Manufacturing
+
+**Readiness:** Open | **Dependencies:** None
+
+**Traceability:** BO-01 to BO-08; BRD sections 12-25, 40-41
+
+As a product owner, I need approved inspection rules and measurable acceptance targets so development can distinguish configurable behavior from unresolved business choices.
+
+**Acceptance criteria**
+
+1. **PB-001-AC1:** D01-D06 each have an owner, a signed artifact or explicit unresolved status, and linked examples for supported boards.
+2. **PB-001-AC2:** D02/D03 define metric units, sample population and pass/fail evaluation method; illustrative BRD values are not adopted silently.
+3. **PB-001-AC3:** D04 maps REVIEW, timeout, missing identity and lost acknowledgement to authorized operational actions.
+
+**Development tasks**
+
+- [ ] **PB-001-T1:** Run workshops and record D01-D06 decisions and interface availability.
+- [ ] **PB-001-T2:** Produce a versioned recipe fixture and state/action table covering normal and failure cases.
+- [ ] **PB-001-T3:** Publish acceptance parameter schema and tag unresolved stories with their decision gates.
+
+#### PB-002 - Approve data, security and service objectives
+
+**Priority:** P0 | **Milestone:** R0 | **Owner:** Security / Operations / Data
+
+**Readiness:** Open | **Dependencies:** None
+
+**Traceability:** BRD sections 18-19, 22, 26, 29-31
+
+As an operations owner, I need explicit service and data obligations so infrastructure and controls can be sized and verified.
+
+**Acceptance criteria**
+
+1. **PB-002-AC1:** D07-D10 identify approvers, required artifacts and unresolved assumptions.
+2. **PB-002-AC2:** Recovery and retention policies distinguish databases, images, model datasets and audit evidence.
+3. **PB-002-AC3:** The role matrix includes approval/deployment separation and line-scoped service access.
+
+**Development tasks**
+
+- [ ] **PB-002-T1:** Document failure domains, SLO/RTO/RPO and offline capacity inputs.
+- [ ] **PB-002-T2:** Create data classification, permitted-use and retention matrix.
+- [ ] **PB-002-T3:** Map enterprise identity/certificate integrations and access test accounts.
+
+#### PB-003 - Version domain, API and event contracts
+
+**Priority:** P0 | **Milestone:** R0 | **Owner:** Backend / Edge / QA
+
+**Readiness:** Open | **Dependencies:** None
+
+**Traceability:** FR-002, FR-011, FR-012; BRD 25, 28
+
+As an engineer, I need executable shared contracts so edge, UI and enterprise components integrate consistently.
+
+**Acceptance criteria**
+
+1. **PB-003-AC1:** OpenAPI and event schemas implement section 4, including validation, errors, identity and version fields.
+2. **PB-003-AC2:** Contract fixtures cover duplicate/conflicting IDs, missing board ID, stale reviews and out-of-order events.
+3. **PB-003-AC3:** Compatibility checks reject breaking schema changes without a version/migration plan.
+
+**Development tasks**
+
+- [ ] **PB-003-T1:** Define JSON schemas, OpenAPI and database ownership boundaries.
+- [ ] **PB-003-T2:** Implement schema validation and shared fixtures for Java, Python and Angular clients.
+- [ ] **PB-003-T3:** Add consumer/provider contract checks and document evolution rules.
+
+#### PB-004 - Bootstrap application and developer environment
+
+**Priority:** P0 | **Milestone:** R0 | **Owner:** Backend / Frontend / DevOps
+
+**Readiness:** Open | **Dependencies:** PB-003
+
+**Traceability:** Architecture: conventional application stack
+
+As a developer, I need a reproducible local stack so I can run a complete synthetic inspection without factory access.
+
+**Acceptance criteria**
+
+1. **PB-004-AC1:** A clean checkout builds Angular, Spring Boot and the Python inference interface using pinned dependencies and documented commands.
+2. **PB-004-AC2:** Development PostgreSQL, object storage, RabbitMQ and test identity services start with non-production credentials.
+3. **PB-004-AC3:** Health checks distinguish liveness from dependency readiness; sample data is clearly test-only.
+
+**Development tasks**
+
+- [ ] **PB-004-T1:** Create application modules, edge service skeleton and Python package.
+- [ ] **PB-004-T2:** Add database migrations and local service orchestration with seeded test data.
+- [ ] **PB-004-T3:** Document setup, configuration injection, troubleshooting and teardown.
+
+#### PB-005 - Provide simulators and automated engineering checks
+
+**Priority:** P0 | **Milestone:** R0 | **Owner:** QA / Automation / DevOps
+
+**Readiness:** Open | **Dependencies:** PB-003, PB-004
+
+**Traceability:** AC-004 to AC-007; architecture: Git/Jenkins
+
+As an engineer, I need deterministic equipment and dependency simulators so failure behavior is testable before hardware is available.
+
+**Acceptance criteria**
+
+1. **PB-005-AC1:** Simulators reproduce camera disconnects, missing views, delayed inference, duplicate triggers and lost PLC acknowledgements.
+2. **PB-005-AC2:** CI builds and runs contract/unit/integration checks and produces identifiable artifacts without embedded secrets.
+3. **PB-005-AC3:** A synthetic inspection traverses capture, persistence and a stub central endpoint with a stable correlation ID.
+
+**Development tasks**
+
+- [ ] **PB-005-T1:** Implement camera/board/PLC and inference simulators behind production adapter interfaces.
+- [ ] **PB-005-T2:** Create versioned normal, invalid and adversarial fixtures.
+- [ ] **PB-005-T3:** Configure Jenkins stages, artifact provenance and test reports.
+
+### E02
+
+#### PB-006 - Capture and correlate board identity
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Edge / Automation
+
+**Readiness:** Gated D01, D05 | **Dependencies:** PB-003, PB-005
+
+**Traceability:** FR-001, FR-002
+
+As a production operator, I need every capture assigned to the correct inspection attempt so evidence cannot be attributed to another board.
+
+**Acceptance criteria**
+
+1. **PB-006-AC1:** Each accepted trigger creates a unique inspectionId and captures available board/type/revision/line metadata.
+2. **PB-006-AC2:** Duplicate triggers are deduplicated within the agreed hardware contract; reinspection creates a linked new attempt.
+3. **PB-006-AC3:** Missing or conflicting identity is recorded and follows approved policy rather than guessing a board ID.
+
+**Development tasks**
+
+- [ ] **PB-006-T1:** Implement identity-source adapter and trigger correlation state machine.
+- [ ] **PB-006-T2:** Persist trigger identity and lineage; isolate simultaneous line/station contexts.
+- [ ] **PB-006-T3:** Exercise duplicate, reordered, missing and conflicting identity scenarios with simulator and D05 equipment.
+
+#### PB-007 - Acquire and validate all required views
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Edge / Automation / QA
+
+**Readiness:** Gated D01, D03, D05 | **Dependencies:** PB-006
+
+**Traceability:** FR-001; BRD 20-21
+
+As an inspector, I need complete usable images so inspection never treats a missing view as a clean board.
+
+**Acceptance criteria**
+
+1. **PB-007-AC1:** The pinned recipe defines required views and capture deadline; missing/late views produce an explicit incomplete outcome.
+2. **PB-007-AC2:** Image format, dimensions and configured quality checks are applied before inference; failures include view and reason.
+3. **PB-007-AC3:** Original images are durably written with checksum and view metadata before the attempt can become complete.
+
+**Development tasks**
+
+- [ ] **PB-007-T1:** Implement camera SDK adapter, timeout handling and reconnect policy.
+- [ ] **PB-007-T2:** Add recipe-driven multi-view collection and image validation.
+- [ ] **PB-007-T3:** Verify wrong resolution, corrupt image, missing side, disconnected camera and lighting test samples.
+
+#### PB-008 - Implement validated local inference service
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** ML / Edge
+
+**Readiness:** Open | **Dependencies:** PB-003, PB-004
+
+**Traceability:** FR-003, FR-005 to FR-008; AI-006
+
+As the inspection coordinator, I need structured predictions and explicit failures so QC decisions use a dependable model interface.
+
+**Acceptance criteria**
+
+1. **PB-008-AC1:** A request returns defect codes, scores, evidence/view identity, model version and original-image coordinates where applicable.
+2. **PB-008-AC2:** Multiple detections are retained; malformed outputs, NaN scores, unknown classes and runtime errors return typed failures.
+3. **PB-008-AC3:** No approved/compatible model means not-ready; test stubs are unmistakably non-production and cannot satisfy release validation.
+
+**Development tasks**
+
+- [ ] **PB-008-T1:** Implement ONNX loading, preprocessing/postprocessing and versioned inference interface.
+- [ ] **PB-008-T2:** Restore bounding-box coordinates after resizing and validate output schema.
+- [ ] **PB-008-T3:** Test representative fixtures, empty detections, multiple defects and incompatible runtime/model packages.
+
+#### PB-009 - Coordinate inspection deadlines and concurrency
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Edge / QA
+
+**Readiness:** Gated D03, D04 | **Dependencies:** PB-007, PB-008
+
+**Traceability:** FR-004; AC-004, AC-005
+
+As a manufacturing operator, I need each inspection completed within its approved deadline without mixing concurrent boards.
+
+**Acceptance criteria**
+
+1. **PB-009-AC1:** One pinned model/recipe/preprocessing version is used throughout each attempt even during release activation.
+2. **PB-009-AC2:** Late inference is recorded as unavailable and cannot overwrite a terminal outcome or release a board.
+3. **PB-009-AC3:** Bounded concurrency and backpressure follow the configured overload policy; restart does not silently abandon in-flight attempts.
+
+**Development tasks**
+
+- [ ] **PB-009-T1:** Implement attempt state machine, deadline budget and bounded work queues.
+- [ ] **PB-009-T2:** Add cancellation/result fencing and startup reconciliation for interrupted attempts.
+- [ ] **PB-009-T3:** Load-test concurrent boards, timeout races and package switches using synthetic workloads.
+
+#### PB-010 - Benchmark camera and inference hardware
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** ML / Automation / Performance QA
+
+**Readiness:** Gated D01, D03, D05, D09 | **Dependencies:** PB-007, PB-008, PB-009
+
+**Traceability:** AI-001 to AI-004; AC-004, AC-005
+
+As a solution owner, I need measured target-hardware capacity so the selected computer and cameras support actual production.
+
+**Acceptance criteria**
+
+1. **PB-010-AC1:** The benchmark uses representative board variants, image sizes, required views and peak workloads from approved decisions.
+2. **PB-010-AC2:** Results report end-to-end and stage latency, deadline misses, throughput, CPU/GPU, memory and disk pressure.
+3. **PB-010-AC3:** The hardware recommendation includes capacity headroom and a reproducible pass/fail report against D03; an unmet target blocks pilot approval.
+
+**Development tasks**
+
+- [ ] **PB-010-T1:** Build replay harness and capture measurements on candidate CPU/GPU equipment.
+- [ ] **PB-010-T2:** Profile capture, preprocessing, inference and local commit costs.
+- [ ] **PB-010-T3:** Publish sizing, bottlenecks and camera/lighting feasibility findings.
+
+### E03
+
+#### PB-011 - Manage versioned defect catalogues and recipes
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / Quality
+
+**Readiness:** Gated D01, D02, D04 | **Dependencies:** PB-003, PB-004
+
+**Traceability:** FR-004; AI-005; BRD 13-16, 32
+
+As a Quality approver, I need reviewed versioned rules so each board is evaluated against the correct criteria.
+
+**Acceptance criteria**
+
+1. **PB-011-AC1:** Draft recipes validate supported revisions, required views, severities, tolerances and required parameters.
+2. **PB-011-AC2:** An approved version is immutable; edits create a new version and preserve approver/time/reason.
+3. **PB-011-AC3:** Production activation rejects missing decision parameters and unsupported model/recipe combinations.
+
+**Development tasks**
+
+- [ ] **PB-011-T1:** Implement catalogue/recipe schema, validation and draft/approval APIs.
+- [ ] **PB-011-T2:** Add approval audit events and compatibility manifest generation.
+- [ ] **PB-011-T3:** Create fixtures for severity conflicts, absent critical rules and invalid threshold combinations.
+
+#### PB-012 - Calculate board-level PASS, FAIL or REVIEW
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Edge / Quality / QA
+
+**Readiness:** Gated D01, D02, D04 | **Dependencies:** PB-009, PB-011
+
+**Traceability:** FR-004, FR-008; proposed BR-001, BR-002
+
+As a Quality manager, I need deterministic board-level decisions so multiple defects and uncertainty follow approved policy.
+
+**Acceptance criteria**
+
+1. **PB-012-AC1:** Given a pinned rule fixture, outcomes and reason codes match its severity/tolerance/multiple-defect decision table.
+2. **PB-012-AC2:** Incomplete inspection, invalid output or low confidence alone cannot produce PASS; unavailable processing remains distinct.
+3. **PB-012-AC3:** Every outcome records contributing predictions and rule/model versions, making replay of the same inputs deterministic.
+
+**Development tasks**
+
+- [ ] **PB-012-T1:** Implement pure decision evaluator and structured explanation payload.
+- [ ] **PB-012-T2:** Define precedence for conflicting defects and review conditions from D01/D04.
+- [ ] **PB-012-T3:** Add boundary, multi-defect, critical-defect and missing-view decision-table tests.
+
+#### PB-013 - Persist local evidence, outcomes and outbox atomically
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Edge / Backend
+
+**Readiness:** Open | **Dependencies:** PB-003, PB-004
+
+**Traceability:** FR-011; architecture: persist before dispatch
+
+As an operations engineer, I need durable local results so a crash does not lose evidence or dispatch an unrecorded decision.
+
+**Acceptance criteria**
+
+1. **PB-013-AC1:** Durable image write precedes metadata commit; outcome, command intent and outbox records commit in one database transaction.
+2. **PB-013-AC2:** A crash before commit produces no dispatchable command; a crash after commit leaves a recoverable pending record.
+3. **PB-013-AC3:** Startup reconciles orphan files and incomplete attempts without deleting unsynchronized evidence.
+
+**Development tasks**
+
+- [ ] **PB-013-T1:** Create local migrations, evidence write/checksum protocol and outbox tables.
+- [ ] **PB-013-T2:** Implement transactional repository and dispatcher eligibility checks.
+- [ ] **PB-013-T3:** Inject crash points around image write, transaction commit and dispatch; verify recovery.
+
+#### PB-014 - Apply explicit unavailable and fallback policies
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Edge / Automation / Quality
+
+**Readiness:** Gated D04, D07 | **Dependencies:** PB-009, PB-012, PB-013
+
+**Traceability:** BRD 23; AC-007
+
+As a production operator, I need visible approved fallback behavior when inspection cannot run.
+
+**Acceptance criteria**
+
+1. **PB-014-AC1:** Camera/model failure, storage exhaustion, timeout and missing configuration produce distinct unavailable reasons.
+2. **PB-014-AC2:** Configured manual/hold/stop requests are recorded and routed through the control interface only when authorized; no silent PASS occurs.
+3. **PB-014-AC3:** An edge outage has a documented independent operator/PLC procedure because software on the failed computer cannot execute fallback.
+
+**Development tasks**
+
+- [ ] **PB-014-T1:** Implement policy mapping, unavailable events and local status indicators.
+- [ ] **PB-014-T2:** Define recovery criteria and manual acknowledgement for restart of inspection.
+- [ ] **PB-014-T3:** Test each failure type and document the edge-down procedure with Automation.
+
+#### PB-015 - Deliver and reconcile PLC commands
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Automation / Edge
+
+**Readiness:** Conditional D06; gated D04 | **Dependencies:** PB-013, PB-014
+
+**Traceability:** BRD 25; architecture: line control adapter
+
+As an automation engineer, I need acknowledged board-specific commands so a retry cannot act on the wrong board.
+
+**Acceptance criteria**
+
+1. **PB-015-AC1:** Commands contain inspection/board identity, expected state and expiry; stale or mismatched commands are rejected and escalated.
+2. **PB-015-AC2:** Acknowledgement loss produces UNKNOWN and reconciliation using the agreed PLC contract, not blind repeat actuation.
+3. **PB-015-AC3:** Restart and duplicate delivery preserve command history; simulator mode is available and real actuation defaults disabled.
+
+**Development tasks**
+
+- [ ] **PB-015-T1:** Implement PLC adapter from D06 protocol and durable command/acknowledgement state machine.
+- [ ] **PB-015-T2:** Add board-position validation, expiry and manual reconciliation workflow.
+- [ ] **PB-015-T3:** Run hardware-in-loop tests for duplicate commands, delayed ACK, changed board position and restart.
+
+### E04
+
+#### PB-016 - Establish the controlled OT/IT gateway
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Network / Security / DevOps
+
+**Readiness:** Gated D10 | **Dependencies:** PB-003, PB-004
+
+**Traceability:** BRD 25, 29; architecture: industrial DMZ
+
+As a security engineer, I need authenticated allowlisted factory connections so enterprise synchronization does not expose control equipment.
+
+**Acceptance criteria**
+
+1. **PB-016-AC1:** Only approved upload/poll endpoints are reachable from factory identities; direct browser/database/PLC routes are denied.
+2. **PB-016-AC2:** Wrong, expired or revoked certificates fail authentication; service identity maps to permitted site/line.
+3. **PB-016-AC3:** Gateway enforces body size/time limits and logs correlation IDs without credentials or image bodies.
+
+**Development tasks**
+
+- [ ] **PB-016-T1:** Configure NGINX mutual TLS, routing, certificate trust and network rules as code.
+- [ ] **PB-016-T2:** Implement line identity propagation with spoofed-header prevention.
+- [ ] **PB-016-T3:** Test unauthorized endpoints, cross-line requests, certificate rotation and large uploads.
+
+#### PB-017 - Ingest inspections and verify evidence
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / Data
+
+**Readiness:** Open | **Dependencies:** PB-003, PB-004
+
+**Traceability:** FR-011, FR-012; architecture: ingestion API
+
+As a Quality investigator, I need consistent central records and verified evidence so partial uploads are visible.
+
+**Acceptance criteria**
+
+1. **PB-017-AC1:** Identical inspection retries have one effect; conflicting immutable data under the same ID returns 409.
+2. **PB-017-AC2:** Evidence becomes AVAILABLE only after size/hash verification; interrupted uploads remain retryable and visibly PENDING.
+3. **PB-017-AC3:** Metadata, ingestion audit and outbox changes commit atomically; access is scoped to the authenticated producer.
+
+**Development tasks**
+
+- [ ] **PB-017-T1:** Implement idempotent inspection endpoint, relational constraints and evidence streaming.
+- [ ] **PB-017-T2:** Create object keys, checksums and pending/available reconciliation jobs.
+- [ ] **PB-017-T3:** Test partial upload, bad checksum, duplicate/conflicting payload and central database failure.
+
+#### PB-018 - Synchronize offline data and poll factory updates
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Edge / Backend
+
+**Readiness:** Gated D07 | **Dependencies:** PB-013, PB-016, PB-017
+
+**Traceability:** BRD 22-23, 25; architecture: synchronization worker
+
+As an operator, I need inspections buffered during network outages and safely synchronized after recovery.
+
+**Acceptance criteria**
+
+1. **PB-018-AC1:** A simulated outage retains local records/evidence and retries with bounded backoff; synchronized data is not duplicated.
+2. **PB-018-AC2:** Checkpoints advance only after durable central acknowledgement; local cleanup requires verified upload and retention eligibility.
+3. **PB-018-AC3:** Release/command polling uses durable cursors and line scope; a crash after receipt permits safe replay without skipping commands.
+
+**Development tasks**
+
+- [ ] **PB-018-T1:** Implement checkpointed upload/poll workers and jittered retry/backoff.
+- [ ] **PB-018-T2:** Add bounded spool thresholds, oldest-unsynced metrics and backpressure integration.
+- [ ] **PB-018-T3:** Test disconnect/reconnect, central 429/503 responses, clock skew and worker restart.
+
+#### PB-019 - Publish and consume durable business events
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / DevOps
+
+**Readiness:** Open | **Dependencies:** PB-003, PB-017
+
+**Traceability:** Architecture: PostgreSQL outbox, RabbitMQ, workers
+
+As an integration owner, I need reliable asynchronous events so broker outages do not lose committed business changes.
+
+**Acceptance criteria**
+
+1. **PB-019-AC1:** Committed outbox events publish with stable IDs and publisher confirmation; broker failure leaves them pending.
+2. **PB-019-AC2:** A consumer acknowledges only after durable processing; repeated delivery has one business effect.
+3. **PB-019-AC3:** Poison messages reach a dead-letter queue after configured attempts and replay retains original event identity.
+
+**Development tasks**
+
+- [ ] **PB-019-T1:** Provision durable exchanges/queues and implement outbox claiming/publication.
+- [ ] **PB-019-T2:** Implement consumer inbox/deduplication and aggregate-version ordering checks.
+- [ ] **PB-019-T3:** Test crashes before/after publish and acknowledgement, broker disconnect and malformed payload.
+
+#### PB-020 - Return authorized review dispositions to the edge
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / Edge
+
+**Readiness:** Gated D04, D06 | **Dependencies:** PB-018, PB-025
+
+**Traceability:** FR-010; architecture: command polling
+
+As a reviewer, I need my authorized decision delivered to the correct board with visible execution status.
+
+**Acceptance criteria**
+
+1. **PB-020-AC1:** A resolved review creates a versioned command atomically with its decision; factory polling returns only its own commands.
+2. **PB-020-AC2:** The edge validates signature/identity, expiry and expected board/attempt state; stale commands are escalated without actuation.
+3. **PB-020-AC3:** UI distinguishes decision recorded, command pending and action acknowledged; duplicate commands cannot create duplicate execution effects.
+
+**Development tasks**
+
+- [ ] **PB-020-T1:** Implement command polling/ack APIs and edge disposition validation.
+- [ ] **PB-020-T2:** Connect valid commands to simulator or selected PLC adapter and persist execution history.
+- [ ] **PB-020-T3:** Test review after board movement, duplicate poll, expired command and lost acknowledgement.
+
+### E05
+
+#### PB-021 - Implement enterprise sign-in and backend authorization
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / Frontend / Security
+
+**Readiness:** Gated D10 | **Dependencies:** PB-003, PB-004
+
+**Traceability:** BRD 29; architecture: OIDC/RBAC
+
+As a security owner, I need scoped identities and server-side authorization for every sensitive action.
+
+**Acceptance criteria**
+
+1. **PB-021-AC1:** Valid OIDC sessions permit only mapped roles/lines; expired tokens and wrong issuer/audience are rejected.
+2. **PB-021-AC2:** Inspector, analyst, ML and deployment roles cannot approve or modify resources outside their permissions.
+3. **PB-021-AC3:** Evidence reads, exports and direct API requests receive the same checks as UI actions; denied actions are observable.
+
+**Development tasks**
+
+- [ ] **PB-021-T1:** Integrate Angular sign-in/session handling and backend token verification.
+- [ ] **PB-021-T2:** Implement permission policies, site/line scope and privileged MFA requirements.
+- [ ] **PB-021-T3:** Automate permission-matrix tests including object-ID tampering and cross-line requests.
+
+#### PB-022 - Build live inspection and evidence screens
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Frontend / Backend
+
+**Readiness:** Open | **Dependencies:** PB-017, PB-021
+
+**Traceability:** FR-006, FR-007, FR-011
+
+As an operator, I need an accurate view of inspection status and evidence so I can identify quality or equipment issues.
+
+**Acceptance criteria**
+
+1. **PB-022-AC1:** The screen shows line/board/attempt identity, processing status, disposition, timestamps and evidence availability.
+2. **PB-022-AC2:** Original images and overlays remain aligned through zoom/rotation; all required views and multiple detections are accessible.
+3. **PB-022-AC3:** Loading, empty, unavailable and disconnected states are explicit; color is not the sole status indicator and keyboard navigation works.
+
+**Development tasks**
+
+- [ ] **PB-022-T1:** Implement paginated line feed and bounded status refresh.
+- [ ] **PB-022-T2:** Build accessible image viewer, overlay transforms and metadata panel.
+- [ ] **PB-022-T3:** Test missing evidence, large images, multiple views and stale connections on supported operator displays.
+
+#### PB-023 - Manage review assignment and escalation
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / Frontend
+
+**Readiness:** Gated D04 | **Dependencies:** PB-019, PB-021
+
+**Traceability:** FR-009; BRD 24
+
+As an inspector, I need an ordered review queue with ownership so cases are not lost or reviewed concurrently without control.
+
+**Acceptance criteria**
+
+1. **PB-023-AC1:** REVIEW outcomes create one case; queue filtering respects line access and configured priority/SLA.
+2. **PB-023-AC2:** Concurrent claims allow one owner; reassignment is authorized and audited without discarding work history.
+3. **PB-023-AC3:** Overdue cases generate deduplicated escalation events and remain visible until resolved.
+
+**Development tasks**
+
+- [ ] **PB-023-T1:** Implement review-case schema, claim/reassignment API and indexed queue queries.
+- [ ] **PB-023-T2:** Build queue/assignment screens with age, priority and claimant information.
+- [ ] **PB-023-T3:** Test duplicate review events, simultaneous claims, abandoned assignments and SLA timers.
+
+#### PB-024 - Capture human evidence and corrected annotations
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Frontend / Backend / Quality
+
+**Readiness:** Gated D04, D09 | **Dependencies:** PB-022, PB-023
+
+**Traceability:** FR-009; BRD 18-19, 24
+
+As a reviewer, I need to inspect original evidence and record corrections so uncertainty can be resolved with provenance.
+
+**Acceptance criteria**
+
+1. **PB-024-AC1:** Review displays original prediction, complete evidence and model/rule versions without altering the source image.
+2. **PB-024-AC2:** Corrections use original-image coordinates and include reviewer identity, reason and timestamp.
+3. **PB-024-AC3:** Unsure/disputed cases can be escalated; corrected labels are marked unverified until the ground-truth process approves them.
+
+**Development tasks**
+
+- [ ] **PB-024-T1:** Build annotation add/edit tools and review draft persistence.
+- [ ] **PB-024-T2:** Implement correction validation and provenance schema.
+- [ ] **PB-024-T3:** Test coordinate transforms, unavailable evidence, reload of drafts and disputed label handling.
+
+#### PB-025 - Resolve reviews with concurrency-safe overrides
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / Frontend / Quality
+
+**Readiness:** Gated D04, D10 | **Dependencies:** PB-023, PB-024
+
+**Traceability:** FR-010; proposed BR-003
+
+As an authorized inspector, I need an auditable final decision that cannot silently overwrite another review.
+
+**Acceptance criteria**
+
+1. **PB-025-AC1:** Decision submission requires permitted disposition, reason and current recordVersion; a stale version returns 409.
+2. **PB-025-AC2:** Original AI outcome remains immutable; human decision, authoritative disposition, audit and command intent commit together.
+3. **PB-025-AC3:** A rejected/unauthorized request creates no disposition command, and UI explains conflicts without resubmitting blindly.
+
+**Development tasks**
+
+- [ ] **PB-025-T1:** Implement transactional resolution endpoint, concurrency checks and role/rule policy.
+- [ ] **PB-025-T2:** Add decision confirmation/reason UI and conflict refresh workflow.
+- [ ] **PB-025-T3:** Test simultaneous overrides, unauthorized transitions, duplicate submissions and transaction rollback.
+
+### E06
+
+#### PB-026 - Search complete inspection history
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / Frontend
+
+**Readiness:** Open | **Dependencies:** PB-017, PB-021, PB-025
+
+**Traceability:** FR-012; AC-006
+
+As a Quality investigator, I need to reconstruct why a board received its disposition.
+
+**Acceptance criteria**
+
+1. **PB-026-AC1:** Search filters board/attempt, line, date, defect and disposition with stable bounded pagination.
+2. **PB-026-AC2:** Detail shows initial predictions, evidence, rule/model versions, all reviews, reinspection lineage and command states.
+3. **PB-026-AC3:** Unavailable or expired evidence is labelled explicitly; access checks cover every linked record.
+
+**Development tasks**
+
+- [ ] **PB-026-T1:** Implement indexed history queries and authoritative detail endpoint.
+- [ ] **PB-026-T2:** Build history filters, timeline and linked reinspection navigation.
+- [ ] **PB-026-T3:** Verify reconstruction across overrides, missing board ID, pending upload and retained metadata after image expiry.
+
+#### PB-027 - Provide quality dashboards and controlled exports
+
+**Priority:** P1 | **Milestone:** R2 | **Owner:** Backend / Frontend / Data
+
+**Readiness:** Gated D08 | **Dependencies:** PB-019, PB-026
+
+**Traceability:** BRD 27; architecture: reporting replica
+
+As a manager, I need consistent quality metrics and exports without slowing inspection or miscounting attempts.
+
+**Acceptance criteria**
+
+1. **PB-027-AC1:** Reports distinguish attempts from unique boards, unavailable inspections from completed outcomes and initial from authoritative dispositions.
+2. **PB-027-AC2:** Totals reconcile to a fixed fixture; defect distribution declares whether its denominator is defects, boards or attempts.
+3. **PB-027-AC3:** Replica freshness is visible; scoped asynchronous exports use bounded resources, audited downloads and expiry.
+
+**Development tasks**
+
+- [ ] **PB-027-T1:** Define report metric catalogue and reinspection/override/timezone semantics.
+- [ ] **PB-027-T2:** Implement reporting replica queries, aggregates and asynchronous export jobs.
+- [ ] **PB-027-T3:** Build dashboard filters; test totals, lag, access restrictions and spreadsheet-formula escaping.
+
+#### PB-028 - Integrate selected MES and quality systems
+
+**Priority:** P1 | **Milestone:** R2 | **Owner:** Integration / Enterprise IT
+
+**Readiness:** Conditional D06 | **Dependencies:** PB-019, PB-025
+
+**Traceability:** BRD 25
+
+As a manufacturing systems owner, I need inspection and revised review outcomes delivered under the agreed external contract.
+
+**Acceptance criteria**
+
+1. **PB-028-AC1:** Selected interfaces map board/attempt, defects, evidence references and authoritative disposition without exposing unrestricted images.
+2. **PB-028-AC2:** Retries use the external idempotency/correlation contract and prevent duplicate downstream effects where supported.
+3. **PB-028-AC3:** Permanent rejection and unknown delivery state remain visible; replay and reconciliation are authorized and audited.
+
+**Development tasks**
+
+- [ ] **PB-028-T1:** Implement D06 mapping, protocol adapter and versioned contract fixtures.
+- [ ] **PB-028-T2:** Persist per-destination delivery/acknowledgement state and reconcile uncertain outcomes.
+- [ ] **PB-028-T3:** Run partner sandbox tests for outage, duplicate delivery, schema rejection and later human override.
+
+#### PB-029 - Deliver operational and review notifications
+
+**Priority:** P1 | **Milestone:** R2 | **Owner:** Backend / Operations
+
+**Readiness:** Gated D04 | **Dependencies:** PB-019, PB-023
+
+**Traceability:** BRD 24, 31; architecture: notifications
+
+As a support owner, I need actionable alerts with controlled escalation so inspection failures receive attention.
+
+**Acceptance criteria**
+
+1. **PB-029-AC1:** Configured review/system events route to authorized recipients with line, severity and a protected application link.
+2. **PB-029-AC2:** Repeated events are grouped/deduplicated; retries and failed delivery are recorded without blocking inspection.
+3. **PB-029-AC3:** Notification content excludes raw images, tokens and unrestricted review text; acknowledgement/escalation follows configured policy.
+
+**Development tasks**
+
+- [ ] **PB-029-T1:** Implement notification adapter, templates and recipient configuration.
+- [ ] **PB-029-T2:** Add deduplication, delivery tracking and escalation scheduler.
+- [ ] **PB-029-T3:** Test channel outage, alert storms, recipient scope and resolution messages.
+
+### E07
+
+#### PB-030 - Curate versioned datasets and verified ground truth
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Data / Quality / ML
+
+**Readiness:** Gated D01, D08, D09 | **Dependencies:** PB-003
+
+**Traceability:** BRD 18-19; BO-08
+
+As an ML engineer, I need representative verified datasets so evaluation reflects the supported manufacturing scope.
+
+**Acceptance criteria**
+
+1. **PB-030-AC1:** Dataset manifests record evidence hashes, label versions, board/revision, provenance and permitted use.
+2. **PB-030-AC2:** Quality adjudication resolves disputed labels; reviewer corrections are not promoted automatically.
+3. **PB-030-AC3:** Splits isolate related boards/batches/images to prevent leakage and report class/variant coverage, including rare defects.
+
+**Development tasks**
+
+- [ ] **PB-030-T1:** Import approved historical data and implement manifest/annotation validation.
+- [ ] **PB-030-T2:** Define adjudication workflow and versioned train/validation/independent-test partitions.
+- [ ] **PB-030-T3:** Produce data-quality, duplicate, representation and access/retention reports.
+
+#### PB-031 - Train and independently evaluate candidate models
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** ML / Quality
+
+**Readiness:** Gated D01, D02, D03, D09 | **Dependencies:** PB-008, PB-030
+
+**Traceability:** AI-001 to AI-007; AC-001 to AC-005
+
+As a Quality approver, I need reproducible model evidence so only candidates meeting agreed quality and timing criteria can progress.
+
+**Acceptance criteria**
+
+1. **PB-031-AC1:** Evaluation reports per-defect and board-level precision/recall, false positives/negatives, confusion matrices, sample counts and target-hardware latency.
+2. **PB-031-AC2:** Threshold/calibration tuning uses development/validation data; the independent test set is reserved for final evaluation.
+3. **PB-031-AC3:** A candidate failing any mandatory D02/D03 criterion is ineligible for approval; unsupported/rare categories are declared, not hidden in overall accuracy.
+
+**Development tasks**
+
+- [ ] **PB-031-T1:** Implement reproducible training/configuration capture and ONNX export validation.
+- [ ] **PB-031-T2:** Evaluate calibration where scores are used and document score semantics.
+- [ ] **PB-031-T3:** Publish signed-off evaluation artifacts, dataset versions and model limitations for review.
+
+#### PB-032 - Approve, distribute and roll back model packages
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** ML / Backend / Edge / Quality
+
+**Readiness:** Gated D02, D10 | **Dependencies:** PB-011, PB-018, PB-031
+
+**Traceability:** AI-006, AI-007; AC-008; BRD 30
+
+As a deployment administrator, I need verified approved packages so model changes are controlled and reversible.
+
+**Acceptance criteria**
+
+1. **PB-032-AC1:** Only Quality-approved compatible model/preprocessing/recipe bundles are offered to a line; checksums and approval provenance are verified at the edge.
+2. **PB-032-AC2:** Activation occurs between attempts, preserves the prior package and pins running attempts to their original versions.
+3. **PB-032-AC3:** Failed download/health check leaves the prior release active; rollback records history and cannot install an incompatible or unapproved package.
+
+**Development tasks**
+
+- [ ] **PB-032-T1:** Implement candidate/approved/deployed registry and separation of approval from deployment.
+- [ ] **PB-032-T2:** Build resumable artifact transfer, integrity checks, atomic activation and rollback.
+- [ ] **PB-032-T3:** Exercise corrupt download, approval denial, incompatible runtime, in-flight inspection and staged-line rollout.
+
+#### PB-033 - Monitor model quality and govern improvement cycles
+
+**Priority:** P1 | **Milestone:** R3 | **Owner:** ML / Data / Quality
+
+**Readiness:** Gated D02, D09 | **Dependencies:** PB-024, PB-025, PB-030, PB-032
+
+**Traceability:** BO-08; BRD 30-31
+
+As a Quality manager, I need verified post-release metrics so degradation can trigger investigation and a controlled new release.
+
+**Acceptance criteria**
+
+1. **PB-033-AC1:** Quality metrics join predictions to verified labels and expose sample size, delay, scope and unlabelled coverage.
+2. **PB-033-AC2:** Input/defect-rate shifts generate investigation signals rather than claims of measured accuracy loss.
+3. **PB-033-AC3:** Retraining candidates follow the same curation, independent evaluation and approval gates; no automatic production replacement occurs.
+
+**Development tasks**
+
+- [ ] **PB-033-T1:** Ingest verified review labels into the controlled dataset workflow.
+- [ ] **PB-033-T2:** Implement cohort metrics and configurable drift/investigation alerts.
+- [ ] **PB-033-T3:** Create retraining request records linking trigger, dataset, experiment and eventual release.
+
+### E08
+
+#### PB-034 - Archive business audit events without gaps
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / Security / Data
+
+**Readiness:** Open | **Dependencies:** PB-019, PB-021
+
+**Traceability:** BRD 28-29; FR-010
+
+As an auditor, I need a protected record of decisions and privileged changes so their provenance can be demonstrated.
+
+**Acceptance criteria**
+
+1. **PB-034-AC1:** Business state changes and audit outbox entries commit together; archive delivery failure leaves retryable durable events.
+2. **PB-034-AC2:** Archive records include actor, action, aggregate/version, timestamp, reason and correlation; ordinary application roles cannot update/delete them.
+3. **PB-034-AC3:** Duplicate archive delivery is idempotent and audit gaps/backlogs are detected; authorized audit queries are themselves recorded.
+
+**Development tasks**
+
+- [ ] **PB-034-T1:** Implement shared audit emission for reviews, recipes, releases, exports and administration.
+- [ ] **PB-034-T2:** Create restricted archive writer/read roles and retention-lock integration when selected.
+- [ ] **PB-034-T3:** Test transaction rollback, archive outage, tampering attempts and replay reconciliation.
+
+#### PB-035 - Apply retention, archival and legal-hold policies
+
+**Priority:** P1 | **Milestone:** R2 | **Owner:** Data / Compliance / Backend
+
+**Readiness:** Gated D08 | **Dependencies:** PB-017, PB-030, PB-034
+
+**Traceability:** BRD 26, 28
+
+As a data owner, I need controlled lifecycle management so evidence is retained and deleted according to approved obligations.
+
+**Acceptance criteria**
+
+1. **PB-035-AC1:** Policy dry-run reports affected images, results, labels, artifacts and audit records before destructive execution.
+2. **PB-035-AC2:** Legal hold, active investigation, unsynchronized evidence and required deployed artifacts prevent ineligible deletion.
+3. **PB-035-AC3:** Lifecycle jobs retain tombstones/provenance where permitted, update evidence availability and account for replicas/backups under D08.
+
+**Development tasks**
+
+- [ ] **PB-035-T1:** Implement per-class retention metadata, holds and idempotent archival/deletion jobs.
+- [ ] **PB-035-T2:** Add policy administration, dry-run report and restricted execution audit.
+- [ ] **PB-035-T3:** Test hold precedence, partial deletion recovery, object/metadata consistency and backup expiration rules.
+
+#### PB-036 - Harden secrets, encryption and network access
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Security / DevOps
+
+**Readiness:** Gated D10 | **Dependencies:** PB-016, PB-021
+
+**Traceability:** BRD 29; architecture: security controls
+
+As a security owner, I need protected service identities and data across the deployment.
+
+**Acceptance criteria**
+
+1. **PB-036-AC1:** Production secrets are injected from the approved store, excluded from repository/artifacts/logs and restricted by service.
+2. **PB-036-AC2:** TLS and encryption-at-rest settings are verified for applicable databases, evidence and backups; rotated credentials/certificates work without unauthorized bypass.
+3. **PB-036-AC3:** Network tests deny unapproved paths and browser-to-PLC/database access; privileged and service actions respect D10.
+
+**Development tasks**
+
+- [ ] **PB-036-T1:** Provision least-privilege accounts, secrets references and encryption keys.
+- [ ] **PB-036-T2:** Implement rotation/expiry monitoring and documented recovery from expired credentials.
+- [ ] **PB-036-T3:** Run negative access, transport, log-redaction and artifact-secret scans.
+
+#### PB-037 - Verify application and supply-chain security
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Security / QA / DevOps
+
+**Readiness:** Open | **Dependencies:** PB-005, PB-021
+
+**Traceability:** BRD 29; architecture: build/test/scan
+
+As a release owner, I need security verification that covers APIs, uploads and dependencies before pilot deployment.
+
+**Acceptance criteria**
+
+1. **PB-037-AC1:** CI generates dependency inventory and scans code/dependencies/artifacts under the agreed security policy.
+2. **PB-037-AC2:** Tests cover broken object authorization, malicious uploads, injection, cross-site scripting, session handling and rate limits.
+3. **PB-037-AC3:** Findings have reproducible evidence and remediation ownership; unresolved release-blocking findings prevent deployment.
+
+**Development tasks**
+
+- [ ] **PB-037-T1:** Add artifact inventory/provenance, dependency checks and secret scanning to Jenkins.
+- [ ] **PB-037-T2:** Implement bounded file handling, output escaping and API abuse tests.
+- [ ] **PB-037-T3:** Review threat model for OT/IT, review overrides, artifact delivery and external integrations.
+
+### E09
+
+#### PB-038 - Instrument inspection and enterprise operations
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Backend / Edge / Operations
+
+**Readiness:** Open | **Dependencies:** PB-004, PB-013
+
+**Traceability:** BRD 31; architecture: observability
+
+As an on-call engineer, I need correlated metrics and logs to locate inspection failures quickly.
+
+**Acceptance criteria**
+
+1. **PB-038-AC1:** An inspection correlation ID connects capture, inference, persistence, synchronization, review and command records where those stages exist.
+2. **PB-038-AC2:** Metrics expose latency, deadline misses, throughput, unavailable reasons, spool space, unsynced age, queue depth and review age.
+3. **PB-038-AC3:** Metric labels avoid unbounded board/inspection IDs; telemetry failure cannot block local inspection and sensitive data is redacted.
+
+**Development tasks**
+
+- [ ] **PB-038-T1:** Add OpenTelemetry spans and structured logs at shared boundaries.
+- [ ] **PB-038-T2:** Expose Prometheus metrics and Grafana operational dashboards.
+- [ ] **PB-038-T3:** Create diagnostic fixtures proving correlation, cardinality limits and telemetry-outage behavior.
+
+#### PB-039 - Define service alerts and support runbooks
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Operations / Quality
+
+**Readiness:** Gated D03, D04, D07 | **Dependencies:** PB-038
+
+**Traceability:** BRD 22-23, 31
+
+As on-call support, I need actionable alarms and recovery procedures tied to approved service objectives.
+
+**Acceptance criteria**
+
+1. **PB-039-AC1:** Alerts cover stalled inspection, no camera input, storage pressure, synchronization age, broker/DB failure and certificate expiry with configured severities.
+2. **PB-039-AC2:** Each alarm links to a runbook with diagnosis, authorized action, escalation and recovery verification.
+3. **PB-039-AC3:** SLO dashboards show measurement window and exclusions from D07; drills demonstrate alarm triggering and clearing without alert floods.
+
+**Development tasks**
+
+- [ ] **PB-039-T1:** Define alert rules, routing and operational dashboards from approved parameters.
+- [ ] **PB-039-T2:** Write runbooks for edge down, camera failure, central outage, storage full and UNKNOWN commands.
+- [ ] **PB-039-T3:** Exercise alerts through the approved monitoring channel and retain drill evidence.
+
+#### PB-040 - Deploy controlled VM environments and releases
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** DevOps / Security
+
+**Readiness:** Gated D07, D10 | **Dependencies:** PB-005, PB-036, PB-037
+
+**Traceability:** Architecture: managed Linux VMs, Git/Jenkins
+
+As a deployment administrator, I need reproducible isolated environments and reversible releases.
+
+**Acceptance criteria**
+
+1. **PB-040-AC1:** Development/test/production use separated credentials and data; one identifiable tested artifact is promoted with recorded authorization.
+2. **PB-040-AC2:** Central software deployment uses health checks and rollback; edge upgrades occur in approved windows without mixing attempt versions.
+3. **PB-040-AC3:** Database migration checks document compatibility and forward recovery; rollback never assumes irreversible migrations can be undone. Before pilot use, encrypted database/object backups and a matching-evidence restore are demonstrated; PB-041 extends this to enterprise failover.
+
+**Development tasks**
+
+- [ ] **PB-040-T1:** Create VM/service provisioning and environment-specific configuration templates.
+- [ ] **PB-040-T2:** Implement Jenkins promotion, artifact verification and application rollback.
+- [ ] **PB-040-T3:** Rehearse migration compatibility, failed startup, edge maintenance recovery and baseline pilot backup/restore.
+
+#### PB-041 - Implement failover and disaster recovery
+
+**Priority:** P0 | **Milestone:** R2 | **Owner:** Operations / Data / QA
+
+**Readiness:** Gated D07, D08 | **Dependencies:** PB-040
+
+**Traceability:** BRD 22, 31; architecture: data platform/resilience
+
+As a manufacturing owner, I need proven recovery of inspections and evidence within agreed objectives.
+
+**Acceptance criteria**
+
+1. **PB-041-AC1:** Chosen topology includes redundant application/gateway endpoints, PostgreSQL standby and replicated RabbitMQ queues across approved failure domains.
+2. **PB-041-AC2:** Database failover avoids two writable primaries; evidence backup/restore includes matching metadata and verified checksums.
+3. **PB-041-AC3:** Restore/failover drills measure actual RTO/RPO against D07 and identify lost/unreconciled data; unmet objectives block enterprise rollout.
+
+**Development tasks**
+
+- [ ] **PB-041-T1:** Provision replication, failover fencing, backups and recovery access.
+- [ ] **PB-041-T2:** Implement coordinated database/object restore and queue/outbox reconciliation procedures.
+- [ ] **PB-041-T3:** Run isolated restore, node failure, gateway outage and failback drills with evidence.
+
+#### PB-042 - Onboard additional lines and enforce isolation
+
+**Priority:** P1 | **Milestone:** R2 | **Owner:** Edge / Backend / Operations
+
+**Readiness:** Gated D01, D03, D07 | **Dependencies:** PB-032, PB-040, PB-041
+
+**Traceability:** BRD 31; architecture: repeat per production line
+
+As a manufacturing manager, I need new lines onboarded without leaking data or exhausting existing inspection capacity.
+
+**Acceptance criteria**
+
+1. **PB-042-AC1:** Each line has its own identity, compatible approved recipe/model and independently bounded edge resources.
+2. **PB-042-AC2:** Central load from one line cannot cross authorization boundaries; capacity tests exercise planned concurrent lines.
+3. **PB-042-AC3:** Onboarding verifies camera, clock synchronization, package, connectivity, fallback and support ownership before activation.
+
+**Development tasks**
+
+- [ ] **PB-042-T1:** Create line registration and configuration/deployment checklist.
+- [ ] **PB-042-T2:** Add per-line quotas, access tests and capacity dashboards.
+- [ ] **PB-042-T3:** Rehearse line onboarding, removal and high-load neighbor scenarios.
+
+### E10
+
+#### PB-043 - Verify the complete pilot inspection workflow
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** QA / Quality / Automation
+
+**Readiness:** Gated D01-D06, D09, D10 | **Dependencies:** PB-010, PB-012, PB-014, PB-020, PB-026, PB-032, PB-034, PB-036, PB-037, PB-040
+
+**Traceability:** AC-001 to AC-008
+
+As a product owner, I need demonstrated end-to-end behavior before the controlled pilot.
+
+**Acceptance criteria**
+
+1. **PB-043-AC1:** A supported board traverses capture, inference, decision, durable evidence, central history and applicable review with one traceable attempt.
+2. **PB-043-AC2:** Scenarios include PASS, FAIL, REVIEW, unavailable, multiple defects, reinspection and human override, using approved fixtures and model evidence.
+3. **PB-043-AC3:** All AC-001 through AC-008 have linked reports and owner disposition; selected PLC integration additionally requires PB-015 hardware acceptance.
+
+**Development tasks**
+
+- [ ] **PB-043-T1:** Assemble requirement-to-test matrix and representative end-to-end fixtures.
+- [ ] **PB-043-T2:** Run integrated pilot tests including role/line access and package/version traceability.
+- [ ] **PB-043-T3:** Record defects, repeat failed cases after fixes and publish pilot acceptance evidence.
+
+#### PB-044 - Verify peak load, disconnection and crash recovery
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Performance QA / Edge / Operations
+
+**Readiness:** Gated D03, D04, D07 | **Dependencies:** PB-018, PB-019, PB-038, PB-040
+
+**Traceability:** AC-004, AC-005; BRD 22-23, 31
+
+As an operations owner, I need fault and load evidence that inspection remains controlled during expected failures.
+
+**Acceptance criteria**
+
+1. **PB-044-AC1:** Peak-load and endurance tests meet approved throughput/deadline limits and expose resource headroom and unavailable outcomes.
+2. **PB-044-AC2:** Network/broker outages, partial uploads, disk exhaustion and crashes around commits cause no silent evidence loss or unrecorded physical command.
+3. **PB-044-AC3:** Replay reconciles duplicates and pending records; duration/capacity tests use D07 offline limits and verify fallback when limits are exceeded.
+
+**Development tasks**
+
+- [ ] **PB-044-T1:** Build workload and fault-injection scenarios around transaction/acknowledgement boundaries.
+- [ ] **PB-044-T2:** Measure end-to-end latency, spool growth, retry behavior and recovery convergence.
+- [ ] **PB-044-T3:** Publish pass/fail report and remediate bottlenecks before release approval.
+
+#### PB-045 - Conduct operational handover and pilot go-live
+
+**Priority:** P0 | **Milestone:** R1 | **Owner:** Product / Quality / Manufacturing / Operations
+
+**Readiness:** Gated D01-D10 | **Dependencies:** PB-039, PB-043, PB-044
+
+**Traceability:** BRD 40; AC-001 to AC-008
+
+As a manufacturing owner, I need trained operators and an approved rollback/fallback plan before live use.
+
+**Acceptance criteria**
+
+1. **PB-045-AC1:** Quality and Manufacturing approve pilot scope, model/rules, fallback, review staffing and go/no-go criteria; unresolved mandatory gates prevent live automatic control.
+2. **PB-045-AC2:** Operators demonstrate review, escalation and edge-down procedures; support can locate evidence and execute authorized recovery.
+3. **PB-045-AC3:** Deployment, smoke checks, observation period and rollback responsibilities are recorded; pilot limitations versus enterprise HA are explicit.
+
+**Development tasks**
+
+- [ ] **PB-045-T1:** Prepare operator/support guides and run scenario-based training.
+- [ ] **PB-045-T2:** Complete production readiness checklist and scoped pilot approvals.
+- [ ] **PB-045-T3:** Execute controlled deployment, record observed results and track follow-up defects.
+
+#### PB-046 - Accept enterprise rollout and selected integrations
+
+**Priority:** P0 | **Milestone:** R2 | **Owner:** Product / Quality / Operations
+
+**Readiness:** Gated D06-D08 | **Dependencies:** PB-027, PB-029, PB-035, PB-041, PB-042, PB-045
+
+**Traceability:** BRD 25-31, 40
+
+As the business sponsor, I need enterprise acceptance evidence across selected lines and integrations.
+
+**Acceptance criteria**
+
+1. **PB-046-AC1:** Selected PLC/MES/QMS interfaces pass partner/hardware acceptance; unselected integrations are explicitly marked not applicable with D06 approval.
+2. **PB-046-AC2:** Multi-line capacity, recovery objectives, retention/hold behavior and security controls pass the approved acceptance matrix.
+3. **PB-046-AC3:** Release evidence includes restore/failback drills, outstanding risks, ownership and business/operational sign-off; no planned control is represented as tested.
+
+**Development tasks**
+
+- [ ] **PB-046-T1:** Run PB-015/PB-028 acceptance when their integrations are selected.
+- [ ] **PB-046-T2:** Complete enterprise UAT, retention/hold rehearsal and multi-line/recovery evidence review.
+- [ ] **PB-046-T3:** Publish release record, support ownership and scheduled post-release review.
+
+## 7. Delivery sequence and dependency handling
+
+These are dependency waves, not date or effort commitments. Prerequisite IDs in each story take precedence over release labels. Implementing framework code with fixtures does not close a production decision gate.
+
+| Wave | Work package | Exit evidence |
+| --- | --- | --- |
+| A | PB-001/PB-002 decision workshops; PB-003 contracts; PB-004 scaffold; PB-005 simulators/CI | Executable contracts, clean local build, tracked decision artifacts and fault-capable simulators |
+| B | PB-006/PB-007 capture, PB-008 inference interface, PB-011 recipes, PB-013 persistence; PB-016/PB-017 gateway/ingestion; PB-021 identity; PB-030 dataset | Synthetic durable inspection synchronized through authenticated interfaces; approved live-data scope tracked |
+| C | PB-009/PB-010 coordination/benchmark, PB-012/PB-014 QC/fallback; PB-018/PB-019 synchronization/events; PB-022 to PB-025 UI/review; PB-031 evaluation | Complete simulated decision/review path, independent model report and fault evidence |
+| D | PB-020 review commands, selected PB-015 PLC, PB-026 history, PB-032 releases, PB-034/PB-036/PB-037 controls, PB-038 to PB-040 operations | Approved package, access/audit evidence, operational dashboards and repeatable deployment |
+| E | PB-043/PB-044 integrated and fault/load tests; PB-045 pilot | AC-001 to AC-008 evidence and scoped go-live approval |
+| F | PB-027 to PB-029 enterprise reporting/integrations, PB-035 lifecycle, PB-041/PB-042 resilience/scale; PB-046 rollout | Selected integrations, recovery and multi-line UAT accepted |
+| G | PB-033 governed improvement | Verified production feedback and subsequent release through existing approval gates |
+
+Security, identity, audit, baseline backup/restore procedures and tested fallback are pilot requirements. R2 expands recovery to the approved enterprise failover topology; it does not authorize an unprotected pilot. If D07 requires full redundancy for the first production line, PB-041 moves into the R1 gate.
+
+**First refinement package:** PB-001 through PB-005. Refine PB-003's schemas before parallel component implementation. Then choose a vertical slice: synthetic board -> local evidence/outbox -> authenticated central ingestion -> authorized history view. Assign individual owners and estimate after the team reviews fixtures, hardware access and shared contracts.
+
+For each conditional story, record SELECTED or NOT APPLICABLE with D06 evidence. If SELECTED, PB-015 is a hard prerequisite to live PLC actuation, and PB-028 is a hard prerequisite to the relevant enterprise integration acceptance. A conditional dependency cannot be bypassed merely because its story is P1.
+
+## 8. Verification and requirement coverage
+
+| Source requirement/component | Delivery stories | Required verification |
+| --- | --- | --- |
+| FR-001 image capture; cameras/lighting | PB-006, PB-007, PB-010 | Trigger correlation, required views, corrupt/late images and hardware sample acceptance |
+| FR-002 board identification | PB-003, PB-006, PB-026 | Missing ID policy, duplicate trigger and reinspection lineage |
+| FR-003, FR-005 to FR-008 defect detection/classification/localization/confidence | PB-008, PB-010, PB-012, PB-030, PB-031 | Per-defect metrics, multiple detections, coordinate mapping and score semantics |
+| FR-004 board classification | PB-009, PB-011, PB-012, PB-014 | Approved decision tables; incomplete or low-confidence-only input never implies PASS |
+| FR-009/FR-010 human review/override | PB-020, PB-023, PB-024, PB-025 | Claim races, stale edits, authorized outcomes and command expiry |
+| FR-011/FR-012 evidence/history | PB-013, PB-017, PB-018, PB-026, PB-035 | Checksums, interrupted upload, history reconstruction and retention |
+| AI-001 to AI-005, AI-007 | PB-010, PB-030, PB-031, PB-033 | Independent test evidence, critical recall, false positives/negatives and calibration where applicable |
+| AI-006; approved model/version | PB-008, PB-011, PB-032 | Recorded compatible versions, approval, failed rollout and rollback |
+| Local coordinator/QC/PLC | PB-009, PB-012 to PB-015, PB-020 | Deadline fencing, commit-before-dispatch, acknowledgement loss and stale board state |
+| DMZ gateway/synchronization | PB-016 to PB-018, PB-036 | Mutual TLS, network denial, offline recovery and checkpoint replay |
+| Angular/SSO/Spring Boot | PB-003, PB-004, PB-021 to PB-027 | API contracts, access matrix, evidence UI, concurrency and report reconciliation |
+| PostgreSQL/object storage/reporting replica/backups | PB-013, PB-017, PB-027, PB-035, PB-041 | Transaction invariants, evidence consistency, visible lag and restore |
+| RabbitMQ/workers/MES/notifications | PB-019, PB-028, PB-029 | Idempotency, dead-letter replay, partner contract and escalation |
+| Model governance/Git/Jenkins | PB-005, PB-030 to PB-033, PB-037, PB-040 | Dataset provenance, independent evaluation, approval separation and artifact promotion |
+| Security/audit/traceability | PB-021, PB-026, PB-034 to PB-037 | Cross-line denial, tamper resistance, encryption and audit completeness |
+| Observability/resilience/multi-line operations | PB-038 to PB-042, PB-044 | Fault alarms, SLO measurements, failover, RTO/RPO and isolation |
+| AC-001 defect detection | PB-031, PB-043 | Approved performance for every in-scope defect |
+| AC-002 critical defects | PB-012, PB-031, PB-043 | Approved critical recall and critical-rule cases |
+| AC-003 false positives | PB-031, PB-043 | Agreed false-positive metric on independent data |
+| AC-004 throughput / AC-005 latency | PB-010, PB-043, PB-044 | End-to-end target-hardware peak-load measurements |
+| AC-006 traceability | PB-026, PB-034, PB-043 | Reconstruct board/attempt, evidence, versions, review and command history |
+| AC-007 human review | PB-023 to PB-025, PB-043 | Approved uncertain-case handling, role checks and review escalation |
+| AC-008 approved model use | PB-032, PB-043 | Reject unapproved/incompatible packages and retain previous approved release |
+
+Test implementation choices: Java unit/integration tests for transactions and rules; Python tests for inference contracts and coordinate transforms; Angular component and browser workflow tests for review/accessibility; simulator and hardware-in-loop tests for acquisition/control; workload/fault harnesses for offline/load/recovery. Use real PostgreSQL/RabbitMQ/object-store test instances for delivery and persistence semantics rather than claiming mocks prove durability.
+
+## 9. Definition of Ready
+
+A story is Ready for sprint commitment when:
+
+- Its accountable team and individual assignee are recorded and the team has estimated/split it into a deliverable increment.
+- Referenced schemas and fixtures exist; acceptance criteria identify positive, negative and failure cases.
+- Prerequisites are delivered or a documented contract-compatible stub is agreed for the intended increment.
+- Named decision gates are resolved for the intended scope, or the increment is explicitly limited to simulator/framework work with live acceptance still open.
+- Required equipment, data, accounts and test environment are accessible.
+- API/data migration, authorization, operational and test impacts are understood.
+
+Do not label an entire gated story Done because its simulator path works. Track remaining live acceptance explicitly. Do not substitute invented targets for missing D02/D03/D07 inputs.
+
+## 10. Definition of Done
+
+A development story is Done when:
+
+- All numbered acceptance criteria pass with linked test evidence and required decision artifacts.
+- Implementation is reviewed, builds reproducibly, and passes relevant contract, integration, security and workflow checks.
+- Persistent changes include verified migrations and recovery/compatibility notes.
+- Sensitive actions enforce backend authorization and emit required audit records.
+- Required metrics, error messages, runbook updates and operator-facing failure states are implemented.
+- No release-blocking defects remain under the agreed quality/security policy.
+- Documentation and fixtures match deployed behavior; demonstrations use the correct model/rule/artifact versions.
+- The product/Quality owner accepts business behavior where required; production deployment is tracked separately from code completion.
+
+## 11. Release evidence checklist
+
+| Gate | Required evidence | Accountable approver |
+| --- | --- | --- |
+| Scope and rules | D01-D04 artifacts, reviewed recipe/action fixtures and identified unsupported cases | Quality / Manufacturing |
+| Equipment and integration | D05/D06 contracts; camera checks; selected PLC/MES acceptance; actuation enablement record | Automation / Enterprise IT |
+| Model quality | Dataset lineage, independent evaluation, approved package and rollback rehearsal | Quality / ML |
+| Security | D10 role matrix, denial tests, network/certificate checks, scans and issue disposition | Security |
+| Data and recovery | D07/D08 policies, backups, recovery drill, evidence consistency and retention plan | Operations / Compliance |
+| Pilot functionality | PB-043/PB-044 reports tied to AC-001 through AC-008 | QA / Quality |
+| Operational readiness | Runbooks, trained reviewers/operators, alert drill, support ownership and fallback demonstration | Manufacturing / Operations |
+| Enterprise rollout | Selected integration reports, multi-line capacity, HA/failback and lifecycle evidence | Product / Operations / Quality |
+
+The product owner maintains this backlog as decisions are resolved. Scope changes must update the architecture, affected contracts, story dependencies and verification matrix together.
