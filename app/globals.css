@@ -1,0 +1,260 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  --font-dashboard: "IBM Plex Sans", sans-serif;
+  --page-bg: #eef3f1;
+  --ink: #17212b;
+  --muted: #62707d;
+  --panel: #ffffff;
+  --line: #dbe4e8;
+  --teal: #1d7a8c;
+  --amber: #f0b43c;
+  --rust: #c65332;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, rgba(29, 122, 140, 0.12), rgba(240, 180, 60, 0.10)),
+    repeating-linear-gradient(90deg, rgba(23, 33, 43, 0.035) 0 1px, transparent 1px 44px),
+    var(--page-bg);
+  font-family: var(--font-dashboard);
+}
+
+.dashboard-shell {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.dashboard-header {
+  height: auto;
+  min-height: 88px;
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: rgba(255, 255, 255, 0.86);
+  border-bottom: 1px solid rgba(23, 33, 43, 0.09);
+  backdrop-filter: blur(18px);
+}
+
+.brand-group {
+  min-width: 0;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--teal), #31475f);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(29, 122, 140, 0.26);
+}
+
+.dashboard-header h1.ant-typography,
+.overview-panel h2.ant-typography {
+  margin: 0;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+
+.dashboard-header h1.ant-typography {
+  font-size: clamp(1.45rem, 2vw, 2.1rem);
+  line-height: 1.1;
+}
+
+.overview-panel h2.ant-typography {
+  max-width: 780px;
+  font-size: clamp(1.2rem, 2vw, 1.7rem);
+  line-height: 1.25;
+}
+
+.eyebrow {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  justify-content: flex-end;
+}
+
+.dashboard-content {
+  width: min(1480px, 100%);
+  margin: 0 auto;
+  padding: 24px 28px 36px;
+}
+
+.overview-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+  padding: 22px 24px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(23, 33, 43, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(49, 71, 95, 0.12);
+}
+
+.health-score {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 250px;
+}
+
+.health-score .ant-typography-secondary {
+  display: block;
+  margin-top: 4px;
+}
+
+.metric-card,
+.panel-card {
+  height: 100%;
+  border: 1px solid rgba(23, 33, 43, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 12px 36px rgba(49, 71, 95, 0.10);
+}
+
+.metric-card .ant-card-body {
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metric-card .ant-statistic-title {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.metric-card .ant-statistic-content {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.warning-card {
+  border-top: 4px solid var(--amber);
+}
+
+.critical-card {
+  border-top: 4px solid var(--rust);
+}
+
+.chart-row {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.panel-card .ant-card-head-title {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.chart {
+  width: 100%;
+}
+
+.chart-wide {
+  height: 354px;
+}
+
+.chart-donut {
+  height: 354px;
+}
+
+.chart-loading {
+  height: 354px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: #f7fafb;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+}
+
+.status-card .ant-card-body {
+  min-height: 314px;
+}
+
+.status-list {
+  width: 100%;
+}
+
+.status-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.table-card .ant-table-wrapper {
+  overflow: hidden;
+}
+
+.ant-table-thead > tr > th {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .dashboard-header,
+  .overview-panel {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .health-score {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-header {
+    padding: 16px;
+  }
+
+  .dashboard-content {
+    padding: 16px;
+  }
+
+  .overview-panel {
+    padding: 18px;
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+  }
+
+  .chart-wide,
+  .chart-donut,
+  .chart-loading {
+    height: 310px;
+  }
+}
