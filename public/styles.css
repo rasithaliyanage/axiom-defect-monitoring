@@ -1,0 +1,225 @@
+:root {
+  --bg: #091420;
+  --panel: #122234;
+  --panel-alt: #1a2d3d;
+  --border: rgba(125, 170, 215, 0.2);
+  --text: #ecf5ff;
+  --muted: #9fc1da;
+  --accent: #73c7ff;
+  --critical: #ff6b6b;
+  --major: #ffb347;
+  --moderate: #ffd166;
+  --minor: #7ae582;
+  --open: #73c7ff;
+  --triaged: #8ecae6;
+  --in-progress: #a390f0;
+  --blocked: #ff8fab;
+  --resolved: #68d391;
+  --verified: #7dd3fc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #071018 0%, #0c1824 100%);
+  color: var(--text);
+  font-family: Inter, 'Segoe UI', sans-serif;
+}
+
+.page-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+input,
+select {
+  border: 1px solid var(--border);
+  background: rgba(17, 30, 42, 0.8);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-width: 160px;
+}
+
+.searchbox input {
+  min-width: 220px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: rgba(18, 34, 52, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+}
+
+.summary-card .label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.summary-card .value {
+  margin-top: 12px;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 700;
+}
+
+.summary-card .delta {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.panel {
+  background: rgba(18, 34, 52, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.result-count {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+tbody tr:hover {
+  background: rgba(115, 199, 255, 0.04);
+}
+
+.status-pill,
+.severity-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status-open { background: rgba(115, 199, 255, 0.18); color: var(--open); }
+.status-triaged { background: rgba(142, 202, 230, 0.18); color: var(--triaged); }
+.status-in-progress { background: rgba(163, 144, 240, 0.18); color: var(--in-progress); }
+.status-blocked { background: rgba(255, 143, 171, 0.18); color: var(--blocked); }
+.status-resolved { background: rgba(104, 211, 145, 0.18); color: var(--resolved); }
+.status-verified { background: rgba(125, 211, 252, 0.18); color: var(--verified); }
+
+.severity-critical { background: rgba(255, 107, 107, 0.14); color: var(--critical); }
+.severity-major { background: rgba(255, 179, 71, 0.14); color: var(--major); }
+.severity-moderate { background: rgba(255, 209, 102, 0.14); color: var(--moderate); }
+.severity-minor { background: rgba(122, 229, 130, 0.14); color: var(--minor); }
+
+.loading {
+  padding: 24px;
+  color: var(--muted);
+}
+
+.empty-state {
+  color: var(--muted);
+  padding: 20px 0;
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters {
+    width: 100%;
+  }
+
+  .filters label,
+  .filters .searchbox,
+  .filters input,
+  .filters select {
+    width: 100%;
+  }
+}
