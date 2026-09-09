@@ -1,0 +1,81 @@
+Use case: infographic-diagram. Create an updated, publication-quality PORTRAIT architecture infographic based on the attached expected diagram's ten numbered horizontal layers and sidebar layout, using the latest Mermaid source summarized below. The attached image is a layout/style reference, not text to blindly copy. White background, crisp navy headings, pastel blue/green/purple bands, technical flat icons, green check marks and red exception markers. Large high resolution portrait, prioritize legible text. Do not crop any layer. Use ample height. Preserve exactly ten numbered main layers. Make the new content read like a coherent senior architecture deliverable.
+
+Title "Enterprise AI-Native PCB Defect Inspection Architecture"
+Subtitle "Model-Driven | Probabilistic | Adaptive | Human in the Loop"
+Badge "Proposed design — validation required"
+
+Left margin vertical zone labels "EDGE — Factory / On-premises" alongside rows 1–3 and "ENTERPRISE — Central Platform" alongside rows 4–10. Label row 3 shared and row 4 edge-deployable so placement is not misleading.
+
+Main rows, accurate concise copy:
+1 "Data Capture & Ingestion Layer (Edge)"
+Cards "Cameras", "Board ID", "Sensors", "Metadata" (product, camera, timestamp, line).
+Gate "QG-1 Ingestion Quality": complete image; focus / lighting / orientation; board metadata; source health; time / sequence.
+Failure "Fail → Quarantine / bounded re-capture".
+
+2 "Edge AI Processing Layer (On-site)"
+Clear left-to-right flow "Preprocess" (denoise, normalize, align, ROI) → "Edge inference" (approved optimized model, defect / anomaly / OOD scores) → "QG-2 Edge Quality" (approved version, healthy inference, deadline, valid output) → "Local decision (optional)" (approved layers 5–6, includes QG-4) → "Persist + trusted evidence" (raw / processed images, metadata, decision, outbox).
+Below last box arrow to compact "Line adapter ↔ Optional PLC" with "Command ID • State checks • Acknowledgement".
+Failure "Fail → HOLD / bounded re-process".
+A clear note "Persist before action • Pin package per attempt". No inference-to-PLC shortcut.
+
+3 "Context & Reference Layer (Edge + Enterprise)"
+Cards "Local cache" (board specs, BOM, inspection rules) ↔ "Context sync" (version, expiry, compatibility) ↔ "Central context store" (authoritative specs, variants, machine / process context).
+Gate "QG-3 Context Quality": product / revision valid; spec and component references complete; line context valid.
+Failure "Fail → HOLD / exception".
+Important explicit arrow from QG-3 UP to edge inference/local decision labelled "Validated context before inference".
+Note "Last-known-good only within approved validity policy".
+
+Boundary band "Secure Edge ↔ Enterprise Synchronization"
+"Factory-initiated uploads & polling • DMZ / mTLS • Evidence, context, models, policies and logs"
+This is bidirectional payload communication, not unrestricted inbound access.
+
+4 "AI Model Layer (Enterprise + Edge Deployment)"
+"Approved orchestration" (routing, product-specific selection, validated ensembles) → "Vision pipeline" (understand → detect → classify → localize) → "Model evidence" (classes, locations, raw scores).
+Side compact card "Specialized models": missing, wrong, misaligned, solder bridge, damaged, scratch, unknown / anomaly.
+Caption "Central re-analysis preserves the original edge outcome".
+
+5 "Probabilistic Reasoning & Risk Layer"
+Four connected boxes "Evidence aggregation" (model, image quality, context) → "Validated calibration" (temperature / Platt / isotonic candidates) → "Uncertainty" (aleatoric / epistemic where validated) → "Risk assessment" (severity, product criticality, business impact).
+Caption "Raw scores are not automatically probabilities".
+
+6 "Decision Layer"
+"Product-specific policy" → "QG-4 Decision Quality" (valid evidence, complete context, policy / risk checks) → outcome chips "PASS" green, "HOLD" amber, "REJECT" red → "Decision record" (evidence, reasoning, versions, audit).
+Failure "Fail → HOLD / human review".
+Caption "HOLD = BRD REVIEW • REJECT = BRD FAIL • Physical action separately approved".
+
+7 "Human-in-the-Loop Layer"
+"Review queue" (uncertain, high-risk, unknown) → "Annotation + review" (boxes, component IDs, reasons, second review) → "QG-5 Label Quality" (agreement, completeness, critical checks, guidelines) → "Validated feedback".
+Failure "Fail → Escalate".
+Caption "Operational override and training-label approval are separate".
+
+8 "Model Lifecycle & MLOps Layer"
+"Versioned data" (representative PASS audits, verified labels, leakage control) → "Train & experiment" → "QG-6 Evaluation Quality" (independent recall / FN, calibration, regression, slices, hardware) → "Quality approval + registry" → "Shadow / staged deployment".
+Failure "Fail → Iterate".
+Small loop arrow from validated feedback to versioned data and approved release back to edge via sync; avoid spaghetti.
+Caption "AI-assisted engineering → Human review → CI / evaluation → Authorized release".
+"No self-approved model deployment".
+
+9 "Observability, Operations & AI Native Hosting"
+Allow more height than ordinary row. Top mini-flow "Monitor → Drift / anomaly signals → Alerts → Incident response".
+Second prominent mini-flow "Observe → Forecast → Plan → Policy gate → Execute & verify" with outcome feedback loop.
+"Demand / risk models • Prediction intervals • Quotas • Cooldowns • Audit • Rollback".
+Amber card "Platform owner: approve exceptions / suspend".
+Three tiny isolation tags "Reserved edge" / "Bounded enterprise scaling" / "Isolated training pools".
+Caption "Uncertain forecasts → Static reserve + escalation • Never consume edge reservations".
+Hosting stays inside layer 9, not an eleventh layer.
+
+10 "Governance, Security & Compliance Layer"
+Cards "Access control" (RBAC, least privilege), "Data protection" (encryption, retention), "Audit & lineage" (immutable history), "Model governance" (approvals, risk), "Compliance evidence" (applicable obligations to confirm).
+Caption "Cross-cutting across edge and enterprise".
+
+Right sidebar:
+Panel "Edge–Enterprise Collaboration": approved model / context updates; result synchronization; offline approved cache; secure communication; fleet management.
+Panel "Six Quality Gates": QG-1 Input valid? QG-2 Inference reliable? QG-3 Context complete? QG-4 Decision justified? QG-5 Labels verified? QG-6 Model ready?
+Panel "Supplied Recall Targets" with exact subtitle "Pending Quality confirmation — not measured results".
+Missing component 99.5%; Wrong component 99.0%; Misaligned component 98.5%; Solder bridge 99.5%; Damaged component 98.0%; Scratch 95.0%.
+Panel "Failure Handling": quarantine invalid evidence; bounded re-capture / re-process; HOLD for review; escalate; approved manual / hold / stop fallback.
+Panel "Desired Outcomes": lower escapes; consistent decisions; less manual effort; traceability; continuous improvement.
+
+Footer "Inspect • Decide • Learn • Improve"
+Small footer "Logical layers: approved reasoning and decision services can run locally. Quality gates remain mandatory."
+Strict constraints: spell layer/gate titles correctly, all ten layers and all six gates present, explicit Quality approval before release, human platform exceptions, no claim targets achieved. Do not make all decisions depend on a cloud round trip. Gate failure is not proof of a defective board. Large legible labels, avoid superfluous prose and crossing connectors.

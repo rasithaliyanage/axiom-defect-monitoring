@@ -2,9 +2,11 @@
 
 AI-Based Automated Board Defect Inspection System | Proposed architecture | 9 September 2026
 
+Target visual structure: [ARCH DIAGRAM WITH EDGE.png](<ARCH DIAGRAM WITH EDGE.png>). This user-designated expected diagram takes precedence for architecture organization and component coverage. Business acceptance still requires the BRD decision process.
+
 Based on [Business Requirements Document.docx](<Business Requirements Document.docx>), [Solution architecture.png](<Solution architecture.png>) and [AI_NATIVE_GAP_ANALYSIS.docx](AI_NATIVE_GAP_ANALYSIS.docx). The gap analysis supplies the proposed extensions; it does not convert BRD discovery questions into approved requirements.
 
-This revision extends AI Native design from detection through hosting using four perspectives: **Model-Driven, Probabilistic, Adaptive, and Human in the Loop**. It contains five complementary Mermaid diagrams. Diagram 1 is the enterprise overview; diagrams 2–4 expand decision, learning and engineering; diagram 5 defines adaptive hosting and operations. Standalone `.mmd` files with the same code are provided in `architecture/`. Predictive hosting and bounded operational adaptation are proposed extensions requested in this revision, not requirements already approved in the BRD.
+This revision extends AI Native design from detection through hosting using four perspectives: **Model-Driven, Probabilistic, Adaptive, and Human in the Loop**. It contains five complementary Mermaid diagrams. Diagram 1 follows the expected ten-layer edge–enterprise architecture with QG-1 through QG-6; diagrams 2–4 expand decision, learning and engineering; diagram 5 defines adaptive hosting and operations. Standalone `.mmd` files with the same code are provided in `architecture/`. Predictive hosting and bounded operational adaptation are proposed extensions requested in this revision, not requirements already approved in the BRD.
 
 ## 1. Architecture interpretation
 
@@ -40,249 +42,197 @@ Angular/TypeScript, Java/Spring Boot, Python/ONNX Runtime, PostgreSQL, RabbitMQ 
 
 These are target capabilities with acceptance gates. Learned image-quality, ranking or operational models must earn deployment through evidence; deterministic baseline checks and static capacity reserves remain available when models are absent, stale or unreliable.
 
+### 1.3 Comparison with the expected diagram
+
+| Expected visual element | Previous document | Change in this revision |
+| --- | --- | --- |
+| Ten numbered layers | Service-centric overview and separate hosting view | Enterprise diagram now follows layers 1–10 in the expected image. Hosting remains supporting detail under layer 9; engineering supports layer 8. |
+| Edge capture inputs | Cameras and board identity | Add machine-state sensors and product/camera/time/line metadata; formalize QG-1. |
+| On-site edge processing | Inference, QC and local persistence | Explicit preprocessing, optimized inference, local anomaly/OOD, QG-2, optional local decision and trusted evidence. |
+| Shared context/reference | Supported recipe and pinned release | Explicit local spec/BOM/rule cache, central authoritative context store, context sync, last-known-good policy and QG-3. |
+| AI model layer | Dedicated vision service | Explicit approved orchestration, dynamic selection and optional validated ensembles across edge/enterprise; specialized defect models and unknown/anomaly detection. |
+| Probabilistic reasoning/risk | Confidence and aggregation | Separate evidence aggregation, calibration, aleatoric/epistemic uncertainty and severity/product/business risk assessment. |
+| Decision quality and outcomes | PASS / FAIL / REVIEW | Introduce QG-4 and expected PASS / HOLD / REJECT vocabulary, mapped to BRD dispositions below. |
+| Human review and label quality | Review plus verified labels | Explicit annotation tools, second-level review, QG-5, escalation and validated feedback. |
+| MLOps and model evaluation | Independent evaluation and approved rollout | Explicit QG-6, golden dataset, regression/slice checks, champion/challenger and controlled fleet rollout. |
+| Observability and governance | Broad operational/security controls | Match layers 9–10: monitoring, drift, incident management, dashboards, access, data protection, audit, model governance and compliance evidence. |
+| Targets and outcomes | All numerical values TBD | Record the expected image's recall values as supplied design targets pending business confirmation and independent evaluation. |
+
+### 1.4 Edge and enterprise execution semantics
+
+The numbered layers are logical responsibilities, not a requirement for every board to make a network round trip. Layers 1–2 execute at the edge; layer 3 spans edge and enterprise. Layer 4 includes edge-deployed models and central orchestration/re-analysis. When local decisions are enabled, approved implementations of layers 5–6 execute locally against pinned, QG-3-validated context. Layer 7 and training in layer 8 normally execute centrally. Layers 9–10 cover both environments.
+
+QG-1, QG-2 and QG-3 must pass before a valid local automatic disposition, and QG-4 is mandatory whether the decision runs locally or centrally. A central review or second opinion is a new linked decision; it cannot overwrite the original or actuate on a board that has already moved. If local decisions are disabled, the board follows an approved hold/manual workflow until a valid central disposition arrives. Offline continuation is permitted only with healthy equipment, durable capacity and a compatible unexpired approved model/context/policy package. A last-known-good cache is usable only under an explicit approved validity policy.
+
+The image's arrow from edge processing to context is a presentation ordering. Context required for inference must be validated before inference; it is not supplied retrospectively. Similarly, the label quality gate governs training eligibility, not whether an authorized inspector may record a time-critical operational disposition.
+
+### 1.5 Outcome vocabulary and six quality gates
+
+| Expected image term | BRD / existing API mapping | Meaning |
+| --- | --- | --- |
+| PASS | PASS | Approved acceptance conditions met. |
+| HOLD | REVIEW | Await review or exception resolution; physical hold/manual/stop action is separately approved. |
+| REJECT | FAIL | Defect rejection under approved quality rules. |
+| Gate rejection / quarantine | INVALID or UNAVAILABLE processing status, normally routed to HOLD | Invalid data does not prove that the board itself is defective. |
+
+Existing API values may remain PASS/FAIL/REVIEW with this explicit UI/domain mapping; a storage/API rename requires schema migration. The diagrams use PASS/HOLD/REJECT as the expected presentation vocabulary.
+
+| Gate | Inputs and checks | Failure behavior | Accountable owner |
+| --- | --- | --- | --- |
+| QG-1 Ingestion quality | Complete capture, focus/lighting/orientation, board/metadata, source health, timestamp and sequence | Quarantine or bounded re-capture; preserve attempt evidence | Automation / Data |
+| QG-2 Edge processing quality | Preprocessing, approved model, inference health, deadline, no runtime error, output schema | Bounded re-process or HOLD/fallback | Edge engineering / Operations |
+| QG-3 Context quality | Correct product/revision, spec version, complete component reference, line/machine context and cache validity | HOLD / exception; no silent incompatible fallback | Quality / Manufacturing |
+| QG-4 Decision quality | Valid model evidence, applied product policy, required evidence and risk/authority checks | HOLD / human review; known policy-defined defects still REJECT | Quality |
+| QG-5 Label quality | Reviewer agreement, critical-case review, completeness and annotation guidelines | Escalate; exclude from training until verified | Quality / Label adjudicator |
+| QG-6 Evaluation quality | Independent per-defect recall/FN, calibration/localization, regression and relevant slice checks, golden dataset and hardware performance | Iterate and re-evaluate; no deployment | Quality / ML |
+
+The expected image mentions fairness checks. For this industrial use case, evaluate uneven performance across relevant product revisions, lines, cameras and conditions; determine any additional fairness obligations from the actual data and deployment context. Unknown/anomaly detection is a capability to validate, not a guarantee of discovering all unseen defects.
+
 Legend: solid arrows show runtime requests, evidence or workflow transitions; dashed arrows show configuration, deployment, monitoring or supporting evidence. Purple nodes represent probabilistic processing or model lifecycle; orange nodes represent approved policy and human gates; red nodes represent exception handling; green nodes represent durable data. Arrows across the DMZ show logical payload direction, not permission for unsolicited inbound OT connections.
 
 ## 2. Enterprise architecture
 
 ```mermaid
 flowchart TB
-    subgraph BUSINESS["BUSINESS AND QUALITY AUTHORITY"]
-        Owners["Quality / Manufacturing / Product<br/>Own scope, targets, fallback and acceptance"]
-        Contracts["Versioned acceptance contracts<br/>Defect taxonomy, supported variants and views<br/>Quality limits, deadlines and review rules: TBD"]
-        Owners --> Contracts
-    end
-
-    subgraph OT["FACTORY OT NETWORK - repeat per production line"]
-        Camera["Industrial cameras and controlled lighting<br/>Versioned capture configuration"]
-        Identity["Board identity / barcode / batch<br/>Board type and revision where available"]
-        PLC["Optional PLC / line controller<br/>Position, interlocks and physical routing"]
-        subgraph EDGE["INDUSTRIAL INSPECTION COMPUTER - local deadline boundary"]
-            Capture["Camera SDK adapter<br/>Correlate trigger, board and required views"]
-            Coordinator["Model-aware inspection coordinator<br/>Select approved package by board / revision<br/>Pin attempt, runtime profile and deadline"]
-            InputGate["Input and scope validation<br/>Image quality, complete views and supported recipe"]
-            Prep["Versioned preprocessing<br/>Geometry and image-coordinate mapping"]
-            Vision["Probabilistic vision service - Python / ONNX Runtime<br/>Defect classes, locations and raw scores"]
-            Uncertainty["Validated confidence and uncertainty processing<br/>Calibration where supported<br/>Ambiguity and unfamiliar-input signals"]
-            Aggregate["Validated board evidence aggregation<br/>Multiple defects and correlated views<br/>Coverage and reason codes"]
-            Policy["Deterministic QC policy<br/>Approved severity, tolerance and abstention rules<br/>PASS / FAIL / REVIEW"]
-            Fallback["Invalid, unavailable or overdue inspection<br/>Approved manual inspection / hold / stop procedure"]
-            Local[("Local PostgreSQL and durable image spool<br/>Evidence, predictions, dispositions and outbox")]
-            Control["Line control adapter<br/>Command ID, expiry and board-state checks<br/>Acknowledgement and reconciliation"]
-            Sync["Synchronization and polling worker<br/>Idempotency, retries, checksums and bounded storage"]
-            Package["Approved immutable inspection package<br/>Model, preprocessing, calibration and recipe<br/>Compatibility manifest and previous approved version"]
-            Installer["Release verifier and installer<br/>Authenticate manifest and verify compatibility<br/>Activate only at an attempt boundary"]
-            ReviewFence["Human disposition validation<br/>Authority, record version, expiry and current board state"]
+    subgraph EDGE["EDGE - factory / on-premises: low latency and operational continuity"]
+        subgraph L1["1. DATA CAPTURE AND INGESTION LAYER - Edge"]
+            Source["Manufacturing line<br/>Cameras, board ID / scanner / PLC<br/>Sensors and capture metadata"]
+            QG1{"QG-1 Ingestion Quality<br/>Complete image; focus, lighting, orientation<br/>Board metadata, source health, time and sequence valid?"}
+            CaptureFailure["Quarantine or bounded re-capture<br/>Preserve failure reason and attempt lineage"]
+            Source --> QG1
+            QG1 -->|"Fail"| CaptureFailure
         end
-        Camera --> Capture
-        Identity --> Capture
-        PLC -->|"Trigger and position if selected"| Capture
-        Capture --> Coordinator
-        Coordinator --> InputGate
-        InputGate -->|"Usable and supported"| Prep
-        InputGate -->|"Invalid or unsupported"| Fallback
-        Prep --> Vision
-        Vision -->|"Valid output within deadline"| Uncertainty
-        Vision -->|"Failure or timeout"| Fallback
-        Uncertainty --> Aggregate
-        Aggregate --> Policy
-        Policy -->|"Initial disposition and evidence"| Local
-        Fallback -->|"Record failure when storage is available"| Local
-        Fallback -->|"Independent approved operational procedure"| Owners
-        Local -->|"Committed pending action"| Control
-        Control -->|"Validated command if integrated"| PLC
-        PLC -->|"Acknowledgement and observed state"| Control
-        Control -->|"Delivery or reconciliation status"| Local
-        Local --> Sync
-        Sync -->|"Authorized disposition response"| ReviewFence
-        ReviewFence -->|"Valid: append before action"| Local
-        ReviewFence -->|"Stale or conflicting: escalate"| Fallback
-        Sync -->|"Downloaded release"| Installer
-        Installer -->|"Verified package"| Package
-        Package -.-> Coordinator
-        Package -.-> InputGate
-        Package -.-> Prep
-        Package -.-> Vision
-        Package -.-> Uncertainty
-        Package -.-> Aggregate
-        Package -.-> Policy
-    end
-
-    subgraph DMZ["INDUSTRIAL DMZ - controlled OT / IT boundary"]
-        Gateway["NGINX integration gateway<br/>Mutual TLS and allowlisted HTTPS<br/>Factory-initiated uploads and polling only"]
-    end
-
-    subgraph IT["ENTERPRISE IT - asynchronous application boundary"]
-        Users["Operators / inspectors / managers / administrators"]
-        IdP["Enterprise identity provider<br/>OIDC SSO and privileged-user MFA"]
-        UI["Angular / TypeScript application<br/>Original images, overlays, review and history"]
-        LB["NGINX reverse proxy / load balancer"]
-        subgraph APP["SPRING BOOT MODULAR APPLICATION - replicated instances"]
-            Ingest["Inspection ingestion API<br/>Schema, identity and idempotency checks<br/>Track evidence completeness"]
-            Review["Human review and override module<br/>Assignment, reasons, concurrency and escalation"]
-            Config["Configuration and release API<br/>Only approved manifests and authorized dispositions"]
-            Reports["Authorized history and reporting API<br/>Verified versus predicted quality and data freshness"]
-            Outbox["Transactional outbox publisher"]
+        subgraph L2["2. EDGE AI PROCESSING LAYER - On-site"]
+            Preprocess["Edge preprocessing<br/>Denoise, normalize, align / crop and ROI extraction"]
+            EdgeInfer["Optimized edge AI inference<br/>Approved runtime: ONNX Runtime / TensorRT candidate<br/>Defects, local anomaly / OOD and scores"]
+            QG2{"QG-2 Edge Quality<br/>Preprocessing, model version, inference health<br/>Deadline and output schema valid?"}
+            EdgeFailure["Hold / bounded re-process<br/>Unavailable inspection invokes approved fallback"]
+            Trusted[("Trusted evidence - durable local spool and DB<br/>Raw / processed images, results and metadata<br/>Pinned release, context and outbox")]
+            EdgeDecision["Optional local decision execution<br/>Approved local layers 5 and 6 including QG-4<br/>Require QG-1 / QG-2 / QG-3; PASS / HOLD / REJECT"]
+            EdgeAction["Persist disposition before line action<br/>Command ID, expiry, board-state fence<br/>Optional PLC acknowledgement and reconciliation"]
+            QG1 -->|"Pass"| Preprocess
+            Preprocess --> EdgeInfer --> QG2
+            QG2 -->|"Fail"| EdgeFailure
+            QG2 -->|"Pass"| Trusted
+            EdgeDecision -->|"Commit decision and pending action"| Trusted
+            Trusted -->|"Committed authorized actions only"| EdgeAction
         end
-        MQ["RabbitMQ durable queues<br/>Retry and dead-letter handling"]
-        Workers["Integration workers<br/>Idempotent delivery and controlled replay"]
-        MES["Optional MES / quality system"]
-        Notify["Alerts and reviewer escalation"]
-        Users --> UI
-        UI -.->|"Sign-in"| IdP
-        IdP -.->|"Validated identity; backend role and line checks"| APP
-        UI -->|"HTTPS"| LB
-        LB --> Review
-        LB --> Reports
-        LB --> Config
-        Outbox --> MQ
-        MQ --> Workers
-        Workers --> MES
-        Workers --> Notify
+        subgraph L3["3. CONTEXT AND REFERENCE LAYER - Edge + Enterprise"]
+            Cache[("Local critical-context cache<br/>Board specs, BOM / component library<br/>Inspection rules and versioned last-known-good context")]
+            ContextSync["Context synchronization<br/>Version, checksum, expiry and compatibility checks<br/>Explicit permitted fallback policy"]
+            QG3{"QG-3 Context Quality<br/>Product / revision and spec version valid?<br/>Component reference and line / machine context complete?"}
+            ContextFailure["Hold / exception<br/>No silent use of incompatible or expired context"]
+            Cache --> QG3
+            ContextSync --> Cache
+            QG3 -->|"Fail"| ContextFailure
+            QG3 -->|"Pass: pinned context"| EdgeInfer
+        end
     end
 
-    subgraph DATA["PROTECTED DATA AND EVIDENCE PLATFORM"]
-        DB[("PostgreSQL primary and standby<br/>Attempts, predictions, reviews, rules and outbox")]
-        Objects[("S3-compatible object storage<br/>Images, annotations, datasets and artifacts")]
-        Replica[("Reporting replica / views<br/>Visible freshness")]
-        Audit[("Restricted append-only audit archive<br/>Actor, reason and version lineage")]
-        Backup[("Encrypted database and object backups<br/>Retention, holds and tested recovery")]
+    subgraph BOUNDARY["EDGE - ENTERPRISE SECURE SYNCHRONIZATION"]
+        Sync["Factory-initiated gateway / DMZ<br/>Authenticated encrypted uploads and polling<br/>Evidence, context, models, policies, configuration and logs<br/>Retry, deduplication, checksums and bounded buffering"]
     end
 
-    subgraph LEARN["GOVERNED MODEL AND DATA LIFECYCLE - isolated from production"]
-        Sample["Adaptive authorized sampling<br/>Uncertainty-ranked cases plus representative PASS audits<br/>Record selection probabilities and label budget"]
-        Labels["Quality-owned labeling and adjudication<br/>Override is not automatically a training label"]
-        Datasets["Versioned dataset manifests<br/>Grouped splits, provenance and leakage checks"]
-        Experiments["Reproducible experiments<br/>Train and tune using training / validation splits"]
-        Eval["Independent acceptance evaluation<br/>Per-defect and board metrics, uncertainty bounds<br/>Robustness, coverage and target-hardware latency"]
-        Approval["Quality and release approval<br/>Scope, evidence and rollback criteria"]
-        Registry["Immutable approved release registry<br/>Signed or authenticated compatible manifest"]
-        Rollout["Controlled shadow and staged rollout<br/>Candidates cannot actuate<br/>Approved promotion and rollback"]
-        Sample --> Labels
-        Labels --> Datasets
-        Datasets --> Experiments
-        Experiments --> Eval
-        Datasets -->|"Frozen independent test partition"| Eval
-        Eval --> Approval
-        Approval --> Registry
-        Registry --> Rollout
+    subgraph ENTERPRISE["ENTERPRISE - central platform: governance, learning, optimization and fleet management"]
+        CentralContext[("Central context store - Layer 3<br/>Authoritative product specs, component library / variants<br/>Manufacturing line, machine and process context<br/>Traceable revisions and approval")]
+        subgraph L4["4. AI MODEL LAYER - Enterprise + Edge deployment"]
+            Orchestrate["Model orchestration<br/>Approved routing / selection by product and scope<br/>Optional validated ensemble; edge / central placement"]
+            Pipeline["Vision AI pipeline<br/>Image understanding, defect detection, classification<br/>Component / area localization and prediction scores"]
+            Specialists["Specialized models<br/>Missing / wrong / misaligned component<br/>Solder bridge, damaged component, scratch<br/>Unknown / anomaly detection"]
+            ModelResult["Versioned model evidence<br/>Class, location, raw score and supported scope<br/>Central re-analysis is separate from initial edge result"]
+            Orchestrate --> Pipeline --> ModelResult
+            Specialists -.-> Pipeline
+        end
+        subgraph L5["5. PROBABILISTIC REASONING AND RISK LAYER"]
+            Aggregate["Evidence aggregation<br/>Model outputs, image quality, product context<br/>Historical evidence with provenance; correlated views"]
+            Calibrate["Probability calibration<br/>Validated temperature scaling / Platt / isotonic candidate<br/>No assumption that raw scores are probabilities"]
+            Uncertainty["Uncertainty quantification<br/>Aleatoric and epistemic estimates where validated<br/>Ambiguity, unfamiliar inputs and abstention"]
+            Risk["Risk assessment<br/>Defect severity, product criticality and business impact<br/>Versioned validated risk / loss policy"]
+            ModelResult --> Aggregate --> Calibrate --> Uncertainty --> Risk
+        end
+        subgraph L6["6. DECISION LAYER - AI evidence + business rules"]
+            Decision["Decision engine<br/>Product-specific policies, rules and approved thresholds"]
+            QG4{"QG-4 Decision Quality<br/>Model evidence valid; risk within policy bounds?<br/>Required context present; policy applied; action authorized?"}
+            DecisionOutput["PASS: continue under approved policy<br/>HOLD: review / approved hold procedure<br/>REJECT: confirmed defect under approved rules"]
+            DecisionRecord[("Decision record<br/>Initial and subsequent outcomes, reasoning and versions<br/>Evidence, context, audit and action applicability")]
+            DecisionHold["Gate failure: HOLD / human review<br/>Invalid evidence is not proof of a defective board"]
+            Risk --> Decision --> QG4
+            QG4 -->|"Pass"| DecisionOutput --> DecisionRecord
+            QG4 -->|"Fail"| DecisionHold --> DecisionRecord
+        end
+        subgraph L7["7. HUMAN-IN-THE-LOOP LAYER"]
+            Review["Review queue<br/>Uncertain, high-risk and unknown cases<br/>Severity / deadline-aware assignment"]
+            Annotation["Annotation tools and reviewer workflow<br/>Original evidence, boxes / component IDs<br/>Second-level checks, reasons and override authority"]
+            QG5{"QG-5 Label Quality<br/>Reviewer agreement and critical-case review?<br/>Complete labels; annotation guidelines satisfied?"}
+            Feedback[("Validated feedback<br/>Verified labels, comments and adjudication<br/>Final disposition stored separately from training eligibility")]
+            Escalate["Escalate label disagreement / incomplete review"]
+            DecisionHold --> Review
+            DecisionOutput -->|"HOLD or authorized dispute"| Review
+            Review --> Annotation --> QG5
+            QG5 -->|"Pass"| Feedback
+            QG5 -->|"Fail"| Escalate
+            Annotation -->|"Authorized operational decision, independent of label approval"| DecisionRecord
+        end
+        subgraph L8["8. MODEL LIFECYCLE AND MLOPS LAYER"]
+            Data["Training data management<br/>Representative PASS audits + targeted sampling<br/>Curation, versioning, grouped splits and leakage control"]
+            Train["Model training and experimentation<br/>Reproducible runs, validation and calibration"]
+            QG6{"QG-6 Evaluation Quality<br/>Independent per-defect recall / FN tests<br/>Calibration, localization, regression and slice checks<br/>Golden dataset and target-hardware performance?"}
+            Approval["Quality release approval<br/>Scope, evidence, compatible runtime / context<br/>Risk acceptance and rollback plan"]
+            Registry[("Model registry<br/>Approved models, metadata and calibration<br/>Context compatibility and immutable package manifest")]
+            Deploy["Controlled deployment<br/>Champion / challenger, observation-only shadow<br/>Staging, fleet activation and rollback"]
+            Data --> Train --> QG6
+            QG6 -->|"Fail: iterate; preserve test independence"| Train
+            QG6 -->|"Pass"| Approval --> Registry --> Deploy
+            Feedback --> Data
+        end
+        subgraph L9["9. OBSERVABILITY, MONITORING AND OPERATIONS LAYER"]
+            Monitor["Real-time monitoring<br/>Throughput, latency, health and verified quality<br/>Label lag, sampling coverage and SLO / SLA evidence"]
+            Drift["Drift and anomaly detection<br/>Image, data, performance and concept-drift signals"]
+            Alerts["Alerts and notifications<br/>Threshold breaches, uncertainty and anomalies"]
+            Incident["Incident management and operations dashboard<br/>Diagnose, mitigate, verify, escalate and rollback<br/>Adaptive hosting control loop: diagram 5"]
+            Monitor --> Drift --> Alerts --> Incident
+        end
+        subgraph L10["10. GOVERNANCE, SECURITY AND COMPLIANCE LAYER - cross-cutting"]
+            Access["Access control and data protection<br/>RBAC, least privilege, encryption, retention<br/>Anonymization where applicable and OT isolation"]
+            Audit[("Audit and lineage<br/>Restricted immutable history and end-to-end traceability")]
+            Govern["Model governance and compliance evidence<br/>Approval workflows, risk management<br/>Internal / external audit; applicable obligations to confirm"]
+        end
     end
 
-    subgraph ENGINEERING["AI NATIVE ENGINEERING - separate development authority"]
-        Context["Versioned engineering context<br/>Requirements, schemas, fixtures and task constraints"]
-        Assist["AI-assisted requirements, code and tests<br/>Scoped tools and approved data access"]
-        Engineer["Engineer review and independent verification"]
-        CI["Git / Jenkins evidence pipeline<br/>Build, scan, contract, integration and hardware tests"]
-        Release["Authorized application and infrastructure release<br/>Immutable artifacts, declarative specifications<br/>Tests, resource profiles and recovery plan"]
-        Context --> Assist
-        Assist --> Engineer
-        Engineer --> CI
-        CI --> Release
-    end
-
-    subgraph HOSTING["AI NATIVE HOSTING - bounded adaptive platform"]
-        Fleet["Model-aware fleet and serving manager<br/>Approved package / hardware compatibility<br/>Edge reservations and central worker pools"]
-        Desired["Versioned desired-state repository<br/>Infrastructure, runtime images, quotas and placement<br/>Approved scaling and recovery envelopes"]
-        Forecast["Validated operational prediction models<br/>Demand, saturation and failure-risk estimates<br/>Prediction intervals and freshness"]
-        Planner["Adaptive capacity and recovery planner<br/>Candidate action, evidence and expected impact<br/>Abstain when uncertain or outside scope"]
-        PlatformGate["Deterministic action-policy gate<br/>Budget, availability, isolation and cooldown checks<br/>Human approval outside authorized envelope"]
-        PlatformOwner["Platform / Operations owner<br/>Approve plans and envelopes<br/>Suspend automation and review outcomes"]
-        Reconcile["Scoped infrastructure reconciler<br/>Apply authorized desired state<br/>Audit, verify and roll back eligible changes"]
-        Desired --> Fleet
-        Forecast --> Planner --> PlatformGate
-        PlatformGate -->|"Pre-authorized action"| Reconcile
-        PlatformGate -->|"Exception or uncertainty"| PlatformOwner
-        PlatformOwner -->|"Explicit scoped approval"| Reconcile
-        Reconcile --> Desired
-        Reconcile -->|"Observed deployment result"| PlatformOwner
-    end
-
-    subgraph OPS["CROSS-CUTTING OPERATIONS AND GOVERNANCE"]
-        Telemetry["OpenTelemetry / Prometheus / Grafana<br/>Equipment, latency, commands, queues and storage<br/>Edge telemetry buffered through DMZ"]
-        QualityMetrics["Verified quality and business monitoring<br/>Slice metrics, sampling coverage and label lag<br/>Review workload, drift signals and cost per board"]
-        Triage["Accountable incident and drift triage<br/>Check equipment, data, model, rules and workflow"]
-        Security["OT segmentation, least privilege and secrets<br/>Artifact authenticity and dataset protection"]
-        Recovery["Tested fallback and recovery procedures<br/>Edge replacement, restore, failover and rollback"]
-    end
-
-    subgraph OPTIONAL["OPTIONAL P2 - quality investigation assistance"]
-        Copilot["Evidence-grounded assistant<br/>Read-only tools, citations and abstention<br/>No disposition or production-control authority"]
-        Retrieval["Permission-filtered retrieval<br/>Approved procedures and evidence APIs"]
-        Copilot --> Retrieval
-        Retrieval --> Reports
-    end
-
-    Sync -->|"Uploads and polls over HTTPS mTLS"| Gateway
-    Gateway -->|"Inspection and evidence uploads"| Ingest
-    Gateway -->|"Poll releases"| Config
-    Gateway -->|"Poll review dispositions"| Review
-    Gateway -->|"Responses to factory polls"| Sync
-    Ingest --> DB
-    Ingest --> Objects
-    Review -->|"Append disposition and outbox atomically"| DB
-    Review -->|"Authorized evidence reads"| Objects
-    Config --> DB
-    Config -->|"Approved artifacts"| Objects
-    DB --> Outbox
-    DB --> Replica
-    Reports --> Replica
-    Reports --> Objects
-    Workers --> Audit
-    DB --> Backup
-    Objects --> Backup
-    Objects -->|"Authorized evidence only"| Sample
-    DB -->|"Review and sampling provenance"| Sample
-    Registry -->|"Release artifacts"| Objects
-    Rollout -->|"Approved activation scope"| Config
-    Contracts -.-> Policy
-    Contracts -.-> Eval
-    Contracts -.-> Context
-    CI -->|"Software and integration evidence"| Approval
-    Release -.->|"Controlled IT deployment"| APP
-    Release -.->|"Approved edge software via release channel"| Config
-    Release -->|"Reviewed infrastructure specification"| Desired
-    Registry -.->|"Approved manifests and resource profiles"| Fleet
-    Fleet -->|"Edge assignments through existing polling path"| Config
-    Fleet -.->|"Authorized IT runtime placement"| APP
-    Fleet -.->|"Bounded asynchronous capacity"| Workers
-    Contracts -.-> PlatformGate
-    Telemetry --> Forecast
-    QualityMetrics --> Planner
-    Desired -.-> PlatformGate
-    Reconcile -.->|"Outcome telemetry"| Telemetry
-    Security -.-> Reconcile
-    Gateway -.-> Telemetry
-    APP -.-> Telemetry
-    DB -.-> Telemetry
-    MQ -.-> Telemetry
-    Replica --> QualityMetrics
-    Labels -->|"Verified ground truth"| QualityMetrics
-    Telemetry --> Triage
-    QualityMetrics --> Triage
-    Triage -->|"Investigated improvement candidate"| Sample
-    Triage -->|"Authorized recovery request"| Recovery
-    Triage --> Notify
-    Security -.-> Gateway
-    Security -.-> ENGINEERING
-    Security -.-> LEARN
-    Recovery -.-> Backup
-    Recovery -.-> Rollout
-    UI -->|"Optional investigation request"| Copilot
+    Trusted -->|"Persisted evidence"| Sync
+    Sync -->|"Authorized context response"| ContextSync
+    Sync -->|"Poll context"| CentralContext
+    Sync -->|"Uploaded evidence for central analysis"| Orchestrate
+    CentralContext -->|"Versioned context"| Aggregate
+    QG3 -->|"Required local context gate"| EdgeDecision
+    QG2 -->|"Valid local model evidence"| EdgeDecision
+    Orchestrate -.->|"Approved model assignments through release channel"| Deploy
+    Deploy -->|"Approved edge packages via polling"| Sync
+    Registry -.-> Specialists
+    DecisionRecord -->|"Authorized disposition response via polling"| Sync
+    Sync -->|"Local authority / expiry / board-state validation"| EdgeDecision
+    Trusted -.->|"Local telemetry uploaded through gateway"| Sync
+    Sync --> Monitor
+    DecisionRecord --> Monitor
+    Feedback -->|"Verified ground truth"| Monitor
+    Incident -->|"Investigated improvement request"| Data
+    Incident -->|"Authorized rollback request"| Deploy
+    DecisionRecord --> Audit
+    Deploy --> Audit
+    Access -.-> Sync
+    Access -.-> Review
+    Govern -.-> Approval
+    Govern -.-> CentralContext
+    Govern -.-> Decision
 
     classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
-    classDef policy fill:#fff0cc,stroke:#ad7600,color:#302400;
+    classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
     classDef data fill:#e7f4e8,stroke:#39784a,color:#14321b;
-    classDef service fill:#e8f1ff,stroke:#3267a8,color:#172b45;
     classDef risk fill:#ffe5e5,stroke:#b83e3e,color:#4a1515;
-    classDef optional fill:#f4f4f4,stroke:#777777,color:#333333,stroke-dasharray:5 5;
-    class Vision,Uncertainty,Aggregate,Experiments,Eval,Assist,Forecast,Planner ai;
-    class Owners,Contracts,Policy,Approval,Engineer,ReviewFence,Package,Installer policy;
-    class Local,DB,Objects,Replica,Audit,Backup,Datasets,Registry data;
-    class Capture,Coordinator,InputGate,Prep,Control,Sync,Gateway,UI,LB,Ingest,Review,Config,Reports,Outbox,Workers,CI service;
-    class Fallback,Triage,Recovery risk;
-    class Copilot,Retrieval optional;
-    class PlatformGate,PlatformOwner policy;
-    class Desired data;
-    class Fleet,Reconcile service;
+    class EdgeInfer,Orchestrate,Pipeline,Specialists,Aggregate,Calibrate,Uncertainty,Risk,Train ai;
+    class QG1,QG2,QG3,QG4,QG5,QG6,Approval,Decision,EdgeDecision gate;
+    class Trusted,Cache,CentralContext,DecisionRecord,Feedback,Registry,Audit data;
+    class CaptureFailure,EdgeFailure,ContextFailure,DecisionHold,Escalate risk;
 ```
 
 Operational interpretation: local inspection can continue during a central outage only while approved equipment, configuration, evidence capacity and the agreed local review/fallback procedure remain available. If the edge itself or its durable storage fails, the independent Manufacturing-approved procedure must work without relying on the failed application. No browser, assistant or training service connects directly to the PLC.
@@ -295,24 +245,27 @@ This view defines the ordering of checks. It deliberately avoids a fixed confide
 flowchart TD
     Start["Board trigger<br/>Create attempt ID and correlate available board identity"]
     Pin["Pin approved compatible release<br/>Model, transforms, calibration, aggregation and QC recipe"]
-    Ready{"Equipment healthy, package approved,<br/>supported board and required views usable?"}
+    Ready{"QG-1 Ingestion Quality<br/>Source healthy, complete capture and metadata valid?"}
+    ContextGate{"QG-3 Context Quality<br/>Pinned spec, BOM, rules and line context valid?"}
     Infer["Run versioned preprocessing and vision inference<br/>Return per-defect locations and raw scores"]
-    Valid{"Output schema valid and result<br/>within the attempt deadline?"}
+    Valid{"QG-2 Edge Quality<br/>Approved model, preprocessing and inference healthy?<br/>Valid output within deadline?"}
     Confidence["Apply validated score interpretation<br/>Calibrated estimates where supported<br/>Record model and calibration versions"]
     Uncertain["Assess validated ambiguity and novelty signals<br/>Image quality, model uncertainty and view disagreement"]
-    Board["Aggregate evidence across required views<br/>Preserve correlated-view handling, multiple defects<br/>and inspected-region coverage"]
+    Board["Aggregate evidence across required views<br/>Product context, correlated views and multiple defects"]
+    RiskAssessment["Probabilistic risk assessment<br/>Validated uncertainty plus severity, product criticality<br/>and approved business-loss policy"]
+    DecisionGate{"QG-4 Decision Quality<br/>Valid evidence, complete context and policy applied?"}
     Critical{"Approved critical-defect or<br/>mandatory rejection rule satisfied?"}
     Reject{"Other approved severity or<br/>tolerance rejection rule satisfied?"}
     Abstain{"Uncertain, unfamiliar, conflicting<br/>or insufficient acceptance evidence?"}
     Accept{"Complete inspection satisfies<br/>all approved acceptance conditions?"}
-    Fail["FAIL<br/>Record rejected criteria and evidence"]
-    Review["REVIEW<br/>Record abstention reasons and priority"]
+    Fail["REJECT - BRD FAIL<br/>Record rejected criteria and evidence"]
+    Review["HOLD - BRD REVIEW<br/>Record abstention reasons and priority"]
     Pass["PASS<br/>Record acceptance evidence and coverage"]
     Invalid["UNAVAILABLE / INVALID processing status<br/>No automatic acceptance<br/>Approved manual / hold / stop procedure"]
     Persist["Persist original evidence, predictions and status<br/>Initial disposition, pinned release and audit<br/>Commit pending action in local outbox"]
     Durable{"Durable recording succeeded?"}
     Emergency["Independent operational fallback<br/>Storage or edge failure procedure<br/>Reconcile evidence when service is restored"]
-    Action["Map disposition to approved physical action<br/>REVIEW is not itself a PLC action<br/>Validate board state, command ID and expiry"]
+    Action["Map disposition to approved physical action<br/>HOLD / REVIEW requires an approved physical procedure<br/>Validate board state, command ID and expiry"]
     Integrated{"Physical control integration selected?"}
     Dispatch["Dispatch command once logically<br/>Retries require idempotency and state reconciliation"]
     Ack{"Acknowledgement and observed state agree?"}
@@ -322,15 +275,19 @@ flowchart TD
     Override["Append human decision with actor and reason<br/>Preserve original AI result and prior version"]
     Fence{"Disposition authorized, current<br/>and applicable to board location?"}
     Stale["Reject stale or conflicting action<br/>Retain audit and escalate"]
-    Label["Separate label verification and adjudication<br/>Operational override alone is not ground truth"]
+    Label["QG-5 Label Quality - verification and adjudication<br/>Agreement, completeness and critical-case checks<br/>Failed labels escalate; override alone is not ground truth"]
 
     Start --> Pin --> Ready
-    Ready -->|"Yes"| Infer
+    Ready -->|"Yes"| ContextGate
+    ContextGate -->|"Yes"| Infer
+    ContextGate -->|"No"| Invalid
     Ready -->|"No"| Invalid
     Infer --> Valid
     Valid -->|"No"| Invalid
     Valid -->|"Yes"| Confidence
-    Confidence --> Uncertain --> Board --> Critical
+    Confidence --> Uncertain --> Board --> RiskAssessment --> DecisionGate
+    DecisionGate -->|"Pass"| Critical
+    DecisionGate -->|"Fail"| Review
     Critical -->|"Yes"| Fail
     Critical -->|"No"| Reject
     Reject -->|"Yes"| Fail
@@ -376,7 +333,7 @@ Decision semantics:
 
 - Score calibration is assessed on held-out validation data and verified during independent acceptance. A defect detector score is not a board-level probability of acceptability.
 - Multi-label defects need not form a mutually exclusive distribution. Do not force all defect probabilities to sum to one or multiply view-level probabilities under an unvalidated independence assumption.
-- A board risk estimate is optional and requires its own ground truth, calibration and acceptance. Approved rule-based aggregation can meet the BRD without such an estimate.
+- Risk assessment is explicit in the target architecture. A learned board-level probability requires its own ground truth, calibration and acceptance; a severity-weighted policy score must be identified as a score rather than a probability. Product-specific risk limits remain subject to Quality approval.
 - Review routing considers uncertainty, supported scope and evidence completeness. Low scores or no detections alone do not establish PASS.
 - Measure automatic-decision coverage and review load alongside false positives, false negatives and critical recall. Statistical confidence intervals on evaluation metrics are different from runtime prediction confidence.
 - Processing status, quality disposition and physical command status are separate fields. This prevents unavailable inference or unknown command delivery from masquerading as a valid quality result.
@@ -391,7 +348,7 @@ flowchart TB
     Evidence[("Authorized production evidence<br/>PASS / FAIL / REVIEW and unavailable cases<br/>Camera settings, release IDs and downstream outcomes")]
     Sampling["Representative sampling policy<br/>Random PASS audits plus targeted difficult cases<br/>Record selection probability and sampling scope"]
     Annotate["Quality-owned annotation<br/>Defect taxonomy, regions, severity and label policy"]
-    Adjudicate{"Verified label and permitted reuse?"}
+    Adjudicate{"QG-5 Label Quality<br/>Agreement, critical review, complete labels<br/>Guidelines and permitted reuse satisfied?"}
     Quarantine["Quarantine disputed, corrupt or restricted samples<br/>Resolve disagreement or exclude with reason"]
     Version[("Immutable dataset manifest<br/>Image hashes, label versions and lineage<br/>Board, batch, time and line grouping keys")]
     Split["Group-aware split and leakage validation<br/>Related views and repeated boards remain together"]
@@ -402,7 +359,7 @@ flowchart TB
     Tune["Tune model, calibration and aggregation<br/>Approved cost and quality tradeoffs<br/>No tuning against the final acceptance partition"]
     Candidate[("Candidate inspection package<br/>Compatible model, runtime, transforms, calibration<br/>Taxonomy, capture constraints and QC recipe")]
     Test["Independent evaluation evidence<br/>Per-defect and board errors with uncertainty bounds<br/>Calibration, robustness, review rate and coverage<br/>Target-hardware end-to-end load and fault results"]
-    Gate{"Approved acceptance contract met<br/>for every required scope and slice?"}
+    Gate{"QG-6 Evaluation Quality<br/>Independent recall / FN, calibration / localization<br/>Golden dataset, regression, slices and hardware accepted?"}
     Rework["Investigate failure and revise candidate or scope<br/>Refresh acceptance set when tuning contaminated it"]
     ShadowPermit["Authorize observation-only shadow trial<br/>Resource budget and isolated command path"]
     Shadow["Shadow on intended line<br/>Active approved package remains authoritative<br/>Collect independent ground truth"]
@@ -537,10 +494,10 @@ The authority node is a constraint annotation, not a deployed service. Engineeri
 | Contract | Minimum content |
 | --- | --- |
 | Approved package | Release ID; model hash; runtime/hardware compatibility; preprocessing/postprocessing; calibration and aggregation versions where used; taxonomy; QC recipe; capture constraints; supported board/revision/view matrix; schema compatibility; evaluation references; approval; rollback reference. |
-| Inspection attempt | Unique attempt ID; board identity where available; reinspection parent; line/batch/variant; timestamps; required and received views; image hashes; pinned package; raw predictions; calibrated estimates where supported; uncertainty/coverage signals; processing status; initial disposition and reasons. |
-| Human review | Actor/role; prior record version; original AI outcome; human disposition; reason; timestamp; command applicability; separate verified-label status. |
+| Inspection attempt | QG-1 through QG-4 outcomes and reasons; pinned specification/BOM/context versions; orchestration/routing decision; unique attempt ID; board identity where available; reinspection parent; line/batch/variant; timestamps; required and received views; image hashes; pinned package; raw predictions; calibrated estimates where supported; uncertainty/coverage signals; processing status; initial disposition and reasons. |
+| Human review | QG-5 status and adjudication evidence; actor/role; prior record version; original AI outcome; human disposition; reason; timestamp; command applicability; separate verified-label status. |
 | Physical command | Stable command ID; attempt; approved action; expiry; expected board state; dispatch status; acknowledgement and reconciliation outcome. |
-| Dataset and evaluation | Sample selection; image/label versions; provenance; grouped partitions; frozen test manifest; per-slice counts; metric definitions; statistical uncertainty; target-hardware results and acceptance evidence. |
+| Dataset and evaluation | QG-6 outcome and supplied-target approval status; sample selection; image/label versions; provenance; grouped partitions; frozen test manifest; per-slice counts; metric definitions; statistical uncertainty; target-hardware results and acceptance evidence. |
 | Hosting model | Model/version hash; telemetry schema; training period; independent time-separated evaluation; forecast horizon; interval coverage; validated workload scope; approval and expiry/revalidation policy. |
 | Hosting desired state | Runtime image and package hashes; hardware/driver compatibility; resource reservations; placement; replica limits; data locality; budget; network policy; health gates; approved fallback and rollback. |
 | Adaptive action | Action ID; model/version; observed state and freshness; predicted impact/interval; policy version; pre-authorization or named approval; expiry; affected workloads; execution status; post-action evidence and rollback outcome. |
@@ -568,7 +525,7 @@ Persist images durably before committing references. Track partial uploads and c
 
 Quality must approve taxonomy, supported scope, metric definitions, per-defect limits, uncertainty/review policy, statistical acceptance and labeling authority. Manufacturing and Automation must approve throughput, the capture-to-action deadline, review/failure routing, equipment behavior and selected PLC/MES interfaces. Operations and Security must establish availability, offline duration, RTO/RPO, retention, network access and release permissions. Finance and Product must validate costs and benefits.
 
-All numerical thresholds remain TBD. Calibration, uncertainty and unfamiliar-input methods must demonstrate value against their compute and review costs. The hosting platform must implement model-aware deployment, declared resource profiles, operational prediction, bounded adaptation and human oversight. Its substrate may be managed VMs or a container platform selected through benchmarking and operational review. A runtime LLM, vector database or cloud-dependent inspection path is not required to meet the four perspectives.
+The six recall values supplied in the expected image are recorded in section 10; they remain unconfirmed acceptance targets. Other numerical thresholds remain TBD. Calibration, uncertainty and unfamiliar-input methods must demonstrate value against their compute and review costs. The hosting platform must implement model-aware deployment, declared resource profiles, operational prediction, bounded adaptation and human oversight. Its substrate may be managed VMs or a container platform selected through benchmarking and operational review. A runtime LLM, vector database or cloud-dependent inspection path is not required to meet the four perspectives.
 
 Production acceptance must exercise representative defects and variants, peak load, missing views, model/camera failure, central disconnection, full local storage, duplicate events, lost PLC acknowledgements, concurrent reviews, stale commands, restored evidence and compatible rollback. A diagram describes intended controls; passing evidence establishes readiness.
 
@@ -687,3 +644,27 @@ Automatic behavior here describes the proposed production system under a previou
 | Human in the Loop | Demonstrate plan approval/rejection, audit, suspension, exception escalation and Quality approval for inspection-affecting changes. |
 
 Hosting acceptance also measures false operational alarms, action failure rate, recovery time, cost per inspected board and controller-induced instability. Targets remain stakeholder decisions. This extends AI Native accountability through the hosting layer while preserving the physical and quality constraints of the manufacturing solution.
+
+
+## 10. Supplied performance targets and business outcomes
+
+The expected diagram labels the following minimum recall values as “from requirements.” They are now captured as user-supplied design targets from that image. The reviewed discovery BRD does not provide these numerical approvals, and no measured model performance is supplied. Quality must confirm definitions, applicable variants and statistical acceptance before these become release gates.
+
+| Defect type in expected image | Supplied minimum recall |
+| --- | --- |
+| Missing component | 99.5% |
+| Wrong component | 99.0% |
+| Misaligned component | 98.5% |
+| Solder bridge | 99.5% |
+| Damaged component | 98.0% |
+| Scratch | 95.0% |
+
+Define instance versus board-level denominators, localization matching, representative sampling, minimum counts and confidence-bound acceptance. False-positive limits, unknown-defect criteria, latency, throughput and review capacity remain open. Target recall is not runtime prediction confidence and must not be used as an inference threshold.
+
+Track the expected outcomes: higher product quality, lower escape rate, reduced manual inspection effort, faster consistent decisions, traceable auditable evidence and continuous improvement. These are desired outcomes, not demonstrated benefits.
+
+### 10.1 Supporting-view alignment and acceptance
+
+Diagram 2 expands layers 1–6 and operational review with QG-1 through QG-5. Diagram 3 expands layers 7–8 with QG-5 and QG-6. Diagram 4 supports AI-assisted delivery of the ten layers, retaining optional read-only assistance. Diagram 5 expands layer 9 hosting and fleet operations under layer 10 governance. PostgreSQL, object storage, durable queues, DMZ and backup controls remain implementation responsibilities even where the expected overview groups them into broader layers.
+
+In addition to existing fault tests, exercise every quality-gate failure, stale/wrong BOM or spec revision, disconnected context synchronization, permitted versus prohibited last-known-good use, disabled local decisions, bounded re-capture, specialist-model selection, correlated evidence, label disagreement, regression failures and central decisions arriving after board movement. Gate outcomes, context versions and model-routing choices must be reconstructable from the inspection record.

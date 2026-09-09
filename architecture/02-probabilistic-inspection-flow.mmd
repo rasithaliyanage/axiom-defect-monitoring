@@ -1,24 +1,27 @@
 flowchart TD
     Start["Board trigger<br/>Create attempt ID and correlate available board identity"]
     Pin["Pin approved compatible release<br/>Model, transforms, calibration, aggregation and QC recipe"]
-    Ready{"Equipment healthy, package approved,<br/>supported board and required views usable?"}
+    Ready{"QG-1 Ingestion Quality<br/>Source healthy, complete capture and metadata valid?"}
+    ContextGate{"QG-3 Context Quality<br/>Pinned spec, BOM, rules and line context valid?"}
     Infer["Run versioned preprocessing and vision inference<br/>Return per-defect locations and raw scores"]
-    Valid{"Output schema valid and result<br/>within the attempt deadline?"}
+    Valid{"QG-2 Edge Quality<br/>Approved model, preprocessing and inference healthy?<br/>Valid output within deadline?"}
     Confidence["Apply validated score interpretation<br/>Calibrated estimates where supported<br/>Record model and calibration versions"]
     Uncertain["Assess validated ambiguity and novelty signals<br/>Image quality, model uncertainty and view disagreement"]
-    Board["Aggregate evidence across required views<br/>Preserve correlated-view handling, multiple defects<br/>and inspected-region coverage"]
+    Board["Aggregate evidence across required views<br/>Product context, correlated views and multiple defects"]
+    RiskAssessment["Probabilistic risk assessment<br/>Validated uncertainty plus severity, product criticality<br/>and approved business-loss policy"]
+    DecisionGate{"QG-4 Decision Quality<br/>Valid evidence, complete context and policy applied?"}
     Critical{"Approved critical-defect or<br/>mandatory rejection rule satisfied?"}
     Reject{"Other approved severity or<br/>tolerance rejection rule satisfied?"}
     Abstain{"Uncertain, unfamiliar, conflicting<br/>or insufficient acceptance evidence?"}
     Accept{"Complete inspection satisfies<br/>all approved acceptance conditions?"}
-    Fail["FAIL<br/>Record rejected criteria and evidence"]
-    Review["REVIEW<br/>Record abstention reasons and priority"]
+    Fail["REJECT - BRD FAIL<br/>Record rejected criteria and evidence"]
+    Review["HOLD - BRD REVIEW<br/>Record abstention reasons and priority"]
     Pass["PASS<br/>Record acceptance evidence and coverage"]
     Invalid["UNAVAILABLE / INVALID processing status<br/>No automatic acceptance<br/>Approved manual / hold / stop procedure"]
     Persist["Persist original evidence, predictions and status<br/>Initial disposition, pinned release and audit<br/>Commit pending action in local outbox"]
     Durable{"Durable recording succeeded?"}
     Emergency["Independent operational fallback<br/>Storage or edge failure procedure<br/>Reconcile evidence when service is restored"]
-    Action["Map disposition to approved physical action<br/>REVIEW is not itself a PLC action<br/>Validate board state, command ID and expiry"]
+    Action["Map disposition to approved physical action<br/>HOLD / REVIEW requires an approved physical procedure<br/>Validate board state, command ID and expiry"]
     Integrated{"Physical control integration selected?"}
     Dispatch["Dispatch command once logically<br/>Retries require idempotency and state reconciliation"]
     Ack{"Acknowledgement and observed state agree?"}
@@ -28,15 +31,19 @@ flowchart TD
     Override["Append human decision with actor and reason<br/>Preserve original AI result and prior version"]
     Fence{"Disposition authorized, current<br/>and applicable to board location?"}
     Stale["Reject stale or conflicting action<br/>Retain audit and escalate"]
-    Label["Separate label verification and adjudication<br/>Operational override alone is not ground truth"]
+    Label["QG-5 Label Quality - verification and adjudication<br/>Agreement, completeness and critical-case checks<br/>Failed labels escalate; override alone is not ground truth"]
 
     Start --> Pin --> Ready
-    Ready -->|"Yes"| Infer
+    Ready -->|"Yes"| ContextGate
+    ContextGate -->|"Yes"| Infer
+    ContextGate -->|"No"| Invalid
     Ready -->|"No"| Invalid
     Infer --> Valid
     Valid -->|"No"| Invalid
     Valid -->|"Yes"| Confidence
-    Confidence --> Uncertain --> Board --> Critical
+    Confidence --> Uncertain --> Board --> RiskAssessment --> DecisionGate
+    DecisionGate -->|"Pass"| Critical
+    DecisionGate -->|"Fail"| Review
     Critical -->|"Yes"| Fail
     Critical -->|"No"| Reject
     Reject -->|"Yes"| Fail

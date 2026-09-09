@@ -2,7 +2,7 @@ flowchart TB
     Evidence[("Authorized production evidence<br/>PASS / FAIL / REVIEW and unavailable cases<br/>Camera settings, release IDs and downstream outcomes")]
     Sampling["Representative sampling policy<br/>Random PASS audits plus targeted difficult cases<br/>Record selection probability and sampling scope"]
     Annotate["Quality-owned annotation<br/>Defect taxonomy, regions, severity and label policy"]
-    Adjudicate{"Verified label and permitted reuse?"}
+    Adjudicate{"QG-5 Label Quality<br/>Agreement, critical review, complete labels<br/>Guidelines and permitted reuse satisfied?"}
     Quarantine["Quarantine disputed, corrupt or restricted samples<br/>Resolve disagreement or exclude with reason"]
     Version[("Immutable dataset manifest<br/>Image hashes, label versions and lineage<br/>Board, batch, time and line grouping keys")]
     Split["Group-aware split and leakage validation<br/>Related views and repeated boards remain together"]
@@ -13,7 +13,7 @@ flowchart TB
     Tune["Tune model, calibration and aggregation<br/>Approved cost and quality tradeoffs<br/>No tuning against the final acceptance partition"]
     Candidate[("Candidate inspection package<br/>Compatible model, runtime, transforms, calibration<br/>Taxonomy, capture constraints and QC recipe")]
     Test["Independent evaluation evidence<br/>Per-defect and board errors with uncertainty bounds<br/>Calibration, robustness, review rate and coverage<br/>Target-hardware end-to-end load and fault results"]
-    Gate{"Approved acceptance contract met<br/>for every required scope and slice?"}
+    Gate{"QG-6 Evaluation Quality<br/>Independent recall / FN, calibration / localization<br/>Golden dataset, regression, slices and hardware accepted?"}
     Rework["Investigate failure and revise candidate or scope<br/>Refresh acceptance set when tuning contaminated it"]
     ShadowPermit["Authorize observation-only shadow trial<br/>Resource budget and isolated command path"]
     Shadow["Shadow on intended line<br/>Active approved package remains authoritative<br/>Collect independent ground truth"]
