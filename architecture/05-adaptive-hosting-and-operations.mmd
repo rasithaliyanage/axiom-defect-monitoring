@@ -1,0 +1,76 @@
+flowchart TB
+    subgraph MODEL["MODEL-DRIVEN — approved artifacts and executable specifications"]
+        Registry[("Approved artifact registry<br/>Vision and operational models; runtime images<br/>Evaluation, signatures and compatibility manifests")]
+        Spec[("Versioned infrastructure and serving specifications<br/>Hardware profiles, reservations, quotas and placement<br/>Network policy, budgets and recovery procedures")]
+        Owner["Platform / Operations owner<br/>Quality and Automation for inspection-impacting changes"]
+        Envelope["Approved action envelope<br/>Permitted actions, scope, limits, cooldown and expiry"]
+        Owner --> Envelope
+        Registry --> Spec
+    end
+
+    subgraph PROB["PROBABILISTIC — operational evidence and forecasts"]
+        Observe["Observed telemetry<br/>Load, queues, latency, storage, health and deployment state"]
+        Forecast["Validated demand and operational-risk models<br/>Prediction intervals, scope and freshness<br/>Model and telemetry versions recorded"]
+        Reliable{"Evidence fresh, model supported<br/>and uncertainty within approved bounds?"}
+        Baseline["Abstain from predictive action<br/>Use approved static reserve / baseline controller<br/>Escalate insufficient capacity"]
+        Observe --> Forecast --> Reliable
+        Reliable -->|"No"| Baseline
+    end
+
+    subgraph ADAPT["ADAPTIVE — propose, constrain, execute and verify"]
+        Plan["Capacity / recovery proposal<br/>Expected effect, uncertainty, cost and affected workloads"]
+        Gate{"Policy checks pass and action<br/>inside pre-authorized envelope?"}
+        Human["Human plan review<br/>Inspect evidence; approve, revise or reject<br/>Quality review if model behavior is affected"]
+        Execute["Scoped desired-state reconciler<br/>Action ID, expiry, least privilege and audit<br/>Recheck current state before execution"]
+        Reject["Reject or defer action<br/>Retain current approved state<br/>Invoke approved operational fallback if needed"]
+        Check{"Post-action health, capacity and<br/>inspection constraints satisfied?"}
+        Recover["Authorized rollback / recovery procedure<br/>Compatible state, fenced execution and escalation"]
+        Record[("Adaptive action ledger<br/>Proposal, approval, execution and outcome<br/>Model, policy and infrastructure versions")]
+        Reliable -->|"Yes"| Plan --> Gate
+        Envelope -.-> Gate
+        Spec -.-> Gate
+        Gate -->|"Yes"| Execute
+        Gate -->|"No: outside scope or requires approval"| Human
+        Human -->|"Approved and policy-valid"| Execute
+        Human -->|"Rejected or expired"| Reject
+        Execute --> Record
+        Check -->|"Yes"| Record
+        Check -->|"No"| Recover
+        Recover --> Record
+        Baseline -->|"Capacity exception"| Human
+    end
+
+    subgraph HOST["HOSTING DATA PLANE — isolated workload classes"]
+        Central["Enterprise application and inference support<br/>Bounded replica scaling and worker concurrency<br/>Approved locality and availability domains"]
+        Training["Training / evaluation / optional assistant pools<br/>Quota-controlled CPU / GPU scheduling<br/>Never consume reserved inspection capacity"]
+        EdgeRelease["Edge fleet release channel through DMZ<br/>Factory polls verified manifests<br/>Maintenance window and attempt-boundary activation"]
+        Edge["Reserved edge inspection runtime<br/>Pinned package and tested hardware profile<br/>Local spool, offline operation and known-good package"]
+        Execute -->|"Authorized IT resource changes"| Central
+        Execute -->|"Bounded job scheduling"| Training
+        Execute -->|"Separately approved edge release"| EdgeRelease
+        EdgeRelease --> Edge
+        Central -->|"Observed result"| Check
+        Training -->|"Observed result"| Check
+        Edge -->|"Status through DMZ"| Check
+        Central -.-> Observe
+        Training -.-> Observe
+        Edge -.->|"Buffered telemetry through DMZ"| Observe
+    end
+
+    Owner -->|"Suspend new adaptive actions"| Execute
+    Record -->|"Outcome review and policy tuning proposals"| Owner
+    Record -->|"Verified examples for offline model improvement"| Retrain
+    Retrain["Operational model lifecycle<br/>Time-separated evaluation, forecast interval coverage<br/>Shadow recommendations and platform approval"]
+    Retrain --> Registry
+    Registry -.-> Forecast
+
+    classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
+    classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
+    classDef data fill:#e7f4e8,stroke:#39784a,color:#14321b;
+    classDef service fill:#e8f1ff,stroke:#3267a8,color:#172b45;
+    classDef risk fill:#ffe5e5,stroke:#b83e3e,color:#4a1515;
+    class Forecast,Plan,Retrain ai;
+    class Owner,Envelope,Reliable,Gate,Human,Check gate;
+    class Registry,Spec,Record data;
+    class Execute,Central,Training,EdgeRelease,Edge service;
+    class Baseline,Reject,Recover risk;

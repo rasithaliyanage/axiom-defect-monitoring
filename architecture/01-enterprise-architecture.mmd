@@ -1,0 +1,238 @@
+flowchart TB
+    subgraph BUSINESS["BUSINESS AND QUALITY AUTHORITY"]
+        Owners["Quality / Manufacturing / Product<br/>Own scope, targets, fallback and acceptance"]
+        Contracts["Versioned acceptance contracts<br/>Defect taxonomy, supported variants and views<br/>Quality limits, deadlines and review rules: TBD"]
+        Owners --> Contracts
+    end
+
+    subgraph OT["FACTORY OT NETWORK - repeat per production line"]
+        Camera["Industrial cameras and controlled lighting<br/>Versioned capture configuration"]
+        Identity["Board identity / barcode / batch<br/>Board type and revision where available"]
+        PLC["Optional PLC / line controller<br/>Position, interlocks and physical routing"]
+        subgraph EDGE["INDUSTRIAL INSPECTION COMPUTER - local deadline boundary"]
+            Capture["Camera SDK adapter<br/>Correlate trigger, board and required views"]
+            Coordinator["Model-aware inspection coordinator<br/>Select approved package by board / revision<br/>Pin attempt, runtime profile and deadline"]
+            InputGate["Input and scope validation<br/>Image quality, complete views and supported recipe"]
+            Prep["Versioned preprocessing<br/>Geometry and image-coordinate mapping"]
+            Vision["Probabilistic vision service - Python / ONNX Runtime<br/>Defect classes, locations and raw scores"]
+            Uncertainty["Validated confidence and uncertainty processing<br/>Calibration where supported<br/>Ambiguity and unfamiliar-input signals"]
+            Aggregate["Validated board evidence aggregation<br/>Multiple defects and correlated views<br/>Coverage and reason codes"]
+            Policy["Deterministic QC policy<br/>Approved severity, tolerance and abstention rules<br/>PASS / FAIL / REVIEW"]
+            Fallback["Invalid, unavailable or overdue inspection<br/>Approved manual inspection / hold / stop procedure"]
+            Local[("Local PostgreSQL and durable image spool<br/>Evidence, predictions, dispositions and outbox")]
+            Control["Line control adapter<br/>Command ID, expiry and board-state checks<br/>Acknowledgement and reconciliation"]
+            Sync["Synchronization and polling worker<br/>Idempotency, retries, checksums and bounded storage"]
+            Package["Approved immutable inspection package<br/>Model, preprocessing, calibration and recipe<br/>Compatibility manifest and previous approved version"]
+            Installer["Release verifier and installer<br/>Authenticate manifest and verify compatibility<br/>Activate only at an attempt boundary"]
+            ReviewFence["Human disposition validation<br/>Authority, record version, expiry and current board state"]
+        end
+        Camera --> Capture
+        Identity --> Capture
+        PLC -->|"Trigger and position if selected"| Capture
+        Capture --> Coordinator
+        Coordinator --> InputGate
+        InputGate -->|"Usable and supported"| Prep
+        InputGate -->|"Invalid or unsupported"| Fallback
+        Prep --> Vision
+        Vision -->|"Valid output within deadline"| Uncertainty
+        Vision -->|"Failure or timeout"| Fallback
+        Uncertainty --> Aggregate
+        Aggregate --> Policy
+        Policy -->|"Initial disposition and evidence"| Local
+        Fallback -->|"Record failure when storage is available"| Local
+        Fallback -->|"Independent approved operational procedure"| Owners
+        Local -->|"Committed pending action"| Control
+        Control -->|"Validated command if integrated"| PLC
+        PLC -->|"Acknowledgement and observed state"| Control
+        Control -->|"Delivery or reconciliation status"| Local
+        Local --> Sync
+        Sync -->|"Authorized disposition response"| ReviewFence
+        ReviewFence -->|"Valid: append before action"| Local
+        ReviewFence -->|"Stale or conflicting: escalate"| Fallback
+        Sync -->|"Downloaded release"| Installer
+        Installer -->|"Verified package"| Package
+        Package -.-> Coordinator
+        Package -.-> InputGate
+        Package -.-> Prep
+        Package -.-> Vision
+        Package -.-> Uncertainty
+        Package -.-> Aggregate
+        Package -.-> Policy
+    end
+
+    subgraph DMZ["INDUSTRIAL DMZ - controlled OT / IT boundary"]
+        Gateway["NGINX integration gateway<br/>Mutual TLS and allowlisted HTTPS<br/>Factory-initiated uploads and polling only"]
+    end
+
+    subgraph IT["ENTERPRISE IT - asynchronous application boundary"]
+        Users["Operators / inspectors / managers / administrators"]
+        IdP["Enterprise identity provider<br/>OIDC SSO and privileged-user MFA"]
+        UI["Angular / TypeScript application<br/>Original images, overlays, review and history"]
+        LB["NGINX reverse proxy / load balancer"]
+        subgraph APP["SPRING BOOT MODULAR APPLICATION - replicated instances"]
+            Ingest["Inspection ingestion API<br/>Schema, identity and idempotency checks<br/>Track evidence completeness"]
+            Review["Human review and override module<br/>Assignment, reasons, concurrency and escalation"]
+            Config["Configuration and release API<br/>Only approved manifests and authorized dispositions"]
+            Reports["Authorized history and reporting API<br/>Verified versus predicted quality and data freshness"]
+            Outbox["Transactional outbox publisher"]
+        end
+        MQ["RabbitMQ durable queues<br/>Retry and dead-letter handling"]
+        Workers["Integration workers<br/>Idempotent delivery and controlled replay"]
+        MES["Optional MES / quality system"]
+        Notify["Alerts and reviewer escalation"]
+        Users --> UI
+        UI -.->|"Sign-in"| IdP
+        IdP -.->|"Validated identity; backend role and line checks"| APP
+        UI -->|"HTTPS"| LB
+        LB --> Review
+        LB --> Reports
+        LB --> Config
+        Outbox --> MQ
+        MQ --> Workers
+        Workers --> MES
+        Workers --> Notify
+    end
+
+    subgraph DATA["PROTECTED DATA AND EVIDENCE PLATFORM"]
+        DB[("PostgreSQL primary and standby<br/>Attempts, predictions, reviews, rules and outbox")]
+        Objects[("S3-compatible object storage<br/>Images, annotations, datasets and artifacts")]
+        Replica[("Reporting replica / views<br/>Visible freshness")]
+        Audit[("Restricted append-only audit archive<br/>Actor, reason and version lineage")]
+        Backup[("Encrypted database and object backups<br/>Retention, holds and tested recovery")]
+    end
+
+    subgraph LEARN["GOVERNED MODEL AND DATA LIFECYCLE - isolated from production"]
+        Sample["Adaptive authorized sampling<br/>Uncertainty-ranked cases plus representative PASS audits<br/>Record selection probabilities and label budget"]
+        Labels["Quality-owned labeling and adjudication<br/>Override is not automatically a training label"]
+        Datasets["Versioned dataset manifests<br/>Grouped splits, provenance and leakage checks"]
+        Experiments["Reproducible experiments<br/>Train and tune using training / validation splits"]
+        Eval["Independent acceptance evaluation<br/>Per-defect and board metrics, uncertainty bounds<br/>Robustness, coverage and target-hardware latency"]
+        Approval["Quality and release approval<br/>Scope, evidence and rollback criteria"]
+        Registry["Immutable approved release registry<br/>Signed or authenticated compatible manifest"]
+        Rollout["Controlled shadow and staged rollout<br/>Candidates cannot actuate<br/>Approved promotion and rollback"]
+        Sample --> Labels
+        Labels --> Datasets
+        Datasets --> Experiments
+        Experiments --> Eval
+        Datasets -->|"Frozen independent test partition"| Eval
+        Eval --> Approval
+        Approval --> Registry
+        Registry --> Rollout
+    end
+
+    subgraph ENGINEERING["AI NATIVE ENGINEERING - separate development authority"]
+        Context["Versioned engineering context<br/>Requirements, schemas, fixtures and task constraints"]
+        Assist["AI-assisted requirements, code and tests<br/>Scoped tools and approved data access"]
+        Engineer["Engineer review and independent verification"]
+        CI["Git / Jenkins evidence pipeline<br/>Build, scan, contract, integration and hardware tests"]
+        Release["Authorized application and infrastructure release<br/>Immutable artifacts, declarative specifications<br/>Tests, resource profiles and recovery plan"]
+        Context --> Assist
+        Assist --> Engineer
+        Engineer --> CI
+        CI --> Release
+    end
+
+    subgraph HOSTING["AI NATIVE HOSTING - bounded adaptive platform"]
+        Fleet["Model-aware fleet and serving manager<br/>Approved package / hardware compatibility<br/>Edge reservations and central worker pools"]
+        Desired["Versioned desired-state repository<br/>Infrastructure, runtime images, quotas and placement<br/>Approved scaling and recovery envelopes"]
+        Forecast["Validated operational prediction models<br/>Demand, saturation and failure-risk estimates<br/>Prediction intervals and freshness"]
+        Planner["Adaptive capacity and recovery planner<br/>Candidate action, evidence and expected impact<br/>Abstain when uncertain or outside scope"]
+        PlatformGate["Deterministic action-policy gate<br/>Budget, availability, isolation and cooldown checks<br/>Human approval outside authorized envelope"]
+        PlatformOwner["Platform / Operations owner<br/>Approve plans and envelopes<br/>Suspend automation and review outcomes"]
+        Reconcile["Scoped infrastructure reconciler<br/>Apply authorized desired state<br/>Audit, verify and roll back eligible changes"]
+        Desired --> Fleet
+        Forecast --> Planner --> PlatformGate
+        PlatformGate -->|"Pre-authorized action"| Reconcile
+        PlatformGate -->|"Exception or uncertainty"| PlatformOwner
+        PlatformOwner -->|"Explicit scoped approval"| Reconcile
+        Reconcile --> Desired
+        Reconcile -->|"Observed deployment result"| PlatformOwner
+    end
+
+    subgraph OPS["CROSS-CUTTING OPERATIONS AND GOVERNANCE"]
+        Telemetry["OpenTelemetry / Prometheus / Grafana<br/>Equipment, latency, commands, queues and storage<br/>Edge telemetry buffered through DMZ"]
+        QualityMetrics["Verified quality and business monitoring<br/>Slice metrics, sampling coverage and label lag<br/>Review workload, drift signals and cost per board"]
+        Triage["Accountable incident and drift triage<br/>Check equipment, data, model, rules and workflow"]
+        Security["OT segmentation, least privilege and secrets<br/>Artifact authenticity and dataset protection"]
+        Recovery["Tested fallback and recovery procedures<br/>Edge replacement, restore, failover and rollback"]
+    end
+
+    subgraph OPTIONAL["OPTIONAL P2 - quality investigation assistance"]
+        Copilot["Evidence-grounded assistant<br/>Read-only tools, citations and abstention<br/>No disposition or production-control authority"]
+        Retrieval["Permission-filtered retrieval<br/>Approved procedures and evidence APIs"]
+        Copilot --> Retrieval
+        Retrieval --> Reports
+    end
+
+    Sync -->|"Uploads and polls over HTTPS mTLS"| Gateway
+    Gateway -->|"Inspection and evidence uploads"| Ingest
+    Gateway -->|"Poll releases"| Config
+    Gateway -->|"Poll review dispositions"| Review
+    Gateway -->|"Responses to factory polls"| Sync
+    Ingest --> DB
+    Ingest --> Objects
+    Review -->|"Append disposition and outbox atomically"| DB
+    Review -->|"Authorized evidence reads"| Objects
+    Config --> DB
+    Config -->|"Approved artifacts"| Objects
+    DB --> Outbox
+    DB --> Replica
+    Reports --> Replica
+    Reports --> Objects
+    Workers --> Audit
+    DB --> Backup
+    Objects --> Backup
+    Objects -->|"Authorized evidence only"| Sample
+    DB -->|"Review and sampling provenance"| Sample
+    Registry -->|"Release artifacts"| Objects
+    Rollout -->|"Approved activation scope"| Config
+    Contracts -.-> Policy
+    Contracts -.-> Eval
+    Contracts -.-> Context
+    CI -->|"Software and integration evidence"| Approval
+    Release -.->|"Controlled IT deployment"| APP
+    Release -.->|"Approved edge software via release channel"| Config
+    Release -->|"Reviewed infrastructure specification"| Desired
+    Registry -.->|"Approved manifests and resource profiles"| Fleet
+    Fleet -->|"Edge assignments through existing polling path"| Config
+    Fleet -.->|"Authorized IT runtime placement"| APP
+    Fleet -.->|"Bounded asynchronous capacity"| Workers
+    Contracts -.-> PlatformGate
+    Telemetry --> Forecast
+    QualityMetrics --> Planner
+    Desired -.-> PlatformGate
+    Reconcile -.->|"Outcome telemetry"| Telemetry
+    Security -.-> Reconcile
+    Gateway -.-> Telemetry
+    APP -.-> Telemetry
+    DB -.-> Telemetry
+    MQ -.-> Telemetry
+    Replica --> QualityMetrics
+    Labels -->|"Verified ground truth"| QualityMetrics
+    Telemetry --> Triage
+    QualityMetrics --> Triage
+    Triage -->|"Investigated improvement candidate"| Sample
+    Triage -->|"Authorized recovery request"| Recovery
+    Triage --> Notify
+    Security -.-> Gateway
+    Security -.-> ENGINEERING
+    Security -.-> LEARN
+    Recovery -.-> Backup
+    Recovery -.-> Rollout
+    UI -->|"Optional investigation request"| Copilot
+
+    classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
+    classDef policy fill:#fff0cc,stroke:#ad7600,color:#302400;
+    classDef data fill:#e7f4e8,stroke:#39784a,color:#14321b;
+    classDef service fill:#e8f1ff,stroke:#3267a8,color:#172b45;
+    classDef risk fill:#ffe5e5,stroke:#b83e3e,color:#4a1515;
+    classDef optional fill:#f4f4f4,stroke:#777777,color:#333333,stroke-dasharray:5 5;
+    class Vision,Uncertainty,Aggregate,Experiments,Eval,Assist,Forecast,Planner ai;
+    class Owners,Contracts,Policy,Approval,Engineer,ReviewFence,Package,Installer policy;
+    class Local,DB,Objects,Replica,Audit,Backup,Datasets,Registry data;
+    class Capture,Coordinator,InputGate,Prep,Control,Sync,Gateway,UI,LB,Ingest,Review,Config,Reports,Outbox,Workers,CI service;
+    class Fallback,Triage,Recovery risk;
+    class Copilot,Retrieval optional;
+    class PlatformGate,PlatformOwner policy;
+    class Desired data;
+    class Fleet,Reconcile service;

@@ -1,0 +1,73 @@
+flowchart TB
+    Evidence[("Authorized production evidence<br/>PASS / FAIL / REVIEW and unavailable cases<br/>Camera settings, release IDs and downstream outcomes")]
+    Sampling["Representative sampling policy<br/>Random PASS audits plus targeted difficult cases<br/>Record selection probability and sampling scope"]
+    Annotate["Quality-owned annotation<br/>Defect taxonomy, regions, severity and label policy"]
+    Adjudicate{"Verified label and permitted reuse?"}
+    Quarantine["Quarantine disputed, corrupt or restricted samples<br/>Resolve disagreement or exclude with reason"]
+    Version[("Immutable dataset manifest<br/>Image hashes, label versions and lineage<br/>Board, batch, time and line grouping keys")]
+    Split["Group-aware split and leakage validation<br/>Related views and repeated boards remain together"]
+    Train[("Training partition")]
+    Validate[("Validation partition<br/>Model selection, thresholds and calibration")]
+    Holdout[("Frozen independent acceptance partition<br/>Representative real images and slice counts")]
+    Experiment["Reproducible model experiments<br/>Code, data, environment and hardware recorded<br/>Architecture choice based on feasibility"]
+    Tune["Tune model, calibration and aggregation<br/>Approved cost and quality tradeoffs<br/>No tuning against the final acceptance partition"]
+    Candidate[("Candidate inspection package<br/>Compatible model, runtime, transforms, calibration<br/>Taxonomy, capture constraints and QC recipe")]
+    Test["Independent evaluation evidence<br/>Per-defect and board errors with uncertainty bounds<br/>Calibration, robustness, review rate and coverage<br/>Target-hardware end-to-end load and fault results"]
+    Gate{"Approved acceptance contract met<br/>for every required scope and slice?"}
+    Rework["Investigate failure and revise candidate or scope<br/>Refresh acceptance set when tuning contaminated it"]
+    ShadowPermit["Authorize observation-only shadow trial<br/>Resource budget and isolated command path"]
+    Shadow["Shadow on intended line<br/>Active approved package remains authoritative<br/>Collect independent ground truth"]
+    ShadowGate{"Shadow evidence and operational<br/>readiness accepted by Quality?"}
+    Approve["Quality approval and authorized release decision<br/>Record scope, evidence, approvers and rollback triggers"]
+    Registry[("Immutable approved registry<br/>Authenticated manifest and artifact hashes<br/>Previous approved compatible release retained")]
+    Stage["Controlled staged activation<br/>Factory polls through DMZ<br/>Verify compatibility and activate between attempts"]
+    Monitor["Monitor service, verified quality and outcomes<br/>Per-line and variant slices, sample counts and label lag<br/>Drift signals and review capacity"]
+    Triage{"Investigated unacceptable behavior<br/>under approved incident criteria?"}
+    Continue["Continue approved operation<br/>Expand only after rollout gate acceptance"]
+    Rollback["Authorized rollback or approved fallback<br/>Compatible prior release; reconcile in-flight attempts"]
+    Improvement["Governed improvement backlog<br/>Equipment, data, rules, model or workflow hypothesis"]
+    Policy["Quality-owned acceptance contracts<br/>Limits and statistical method: TBD<br/>FR / AI / AC traceability"]
+    Software["Reviewed software and integration evidence<br/>Security, schema, durability and recovery checks"]
+
+    Evidence --> Sampling --> Annotate --> Adjudicate
+    Adjudicate -->|"No"| Quarantine
+    Quarantine -->|"Resolved and authorized"| Annotate
+    Adjudicate -->|"Yes"| Version
+    Version --> Split
+    Split --> Train
+    Split --> Validate
+    Split --> Holdout
+    Train --> Experiment
+    Experiment --> Tune
+    Validate --> Tune
+    Tune --> Candidate
+    Candidate --> Test
+    Holdout --> Test
+    Software --> Test
+    Policy -.-> Tune
+    Policy -.-> Test
+    Test --> Gate
+    Gate -->|"No"| Rework
+    Rework --> Experiment
+    Rework -->|"Additional representative evidence needed"| Sampling
+    Gate -->|"Yes"| ShadowPermit
+    ShadowPermit --> Shadow --> ShadowGate
+    ShadowGate -->|"No"| Rework
+    ShadowGate -->|"Yes"| Approve
+    Approve --> Registry --> Stage --> Monitor --> Triage
+    Triage -->|"No"| Continue
+    Continue --> Monitor
+    Triage -->|"Yes"| Rollback
+    Triage -->|"Confirmed improvement need"| Improvement
+    Improvement --> Sampling
+    Improvement -->|"Model hypothesis"| Experiment
+    Monitor -->|"Sampled evidence, not automatic labels"| Evidence
+
+    classDef data fill:#e7f4e8,stroke:#39784a,color:#14321b;
+    classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
+    classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
+    classDef risk fill:#ffe5e5,stroke:#b83e3e,color:#4a1515;
+    class Evidence,Version,Train,Validate,Holdout,Candidate,Registry data;
+    class Experiment,Tune,Test,Shadow ai;
+    class Adjudicate,Gate,ShadowPermit,ShadowGate,Approve,Policy,Triage gate;
+    class Quarantine,Rework,Rollback risk;

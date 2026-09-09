@@ -1,0 +1,84 @@
+Use case: infographic-diagram.
+Create a polished, highly legible landscape enterprise architecture infographic for the project documented in AI_NATIVE_PROBABILISTIC_ARCHITECTURE_MERMAID.md. High resolution, ideally 3840 x 2160. White background, crisp flat technical icons, aligned rounded panels, navy typography, purple probabilistic/ML modules, amber policy/human gates, green data, blue enterprise services, red exception callouts. Professional architecture review presentation, generous spacing, no decorative sci-fi imagery. Prioritize readable accurate labels and uncluttered connectors. This is a faithful executive-level synthesis, not every node in the detailed Mermaid.
+
+Exact title: "AI NATIVE SOLUTION ARCHITECTURE"
+Subtitle: "Board Defect Inspection | Probabilistic perception • Governed decisions • Continuous improvement"
+Top-right badge: "PROPOSED DESIGN — Targets TBD"
+
+Layout: top slim governance ribbon, middle main runtime row occupying 50% of canvas in three panels (wide factory OT left, narrow industrial DMZ center, enterprise IT right); lower row three panels (data & evidence, governed learning, AI Native engineering); bottom cross-cutting operations strip. Clear arrowheads and concise labels.
+
+Top governance ribbon:
+"BUSINESS & QUALITY AUTHORITY"
+"Approved scope • Defect taxonomy • Quality limits • Review rules • Failure policy"
+Dashed configuration connection to QC policy and learning approval.
+
+Main left panel heading "FACTORY OT — LOCAL INSPECTION"
+Small industrial camera and barcode icons feed a sequence of six compact clearly numbered boxes arranged as a readable two-row snake with explicit arrow directions:
+"1 Capture & identify" / "Camera SDK • Board / attempt ID"
+"2 Validate & preprocess" / "Required views • Image quality • Supported scope"
+"3 Probabilistic vision" / "Defect classes • Locations • Raw scores"
+"4 Uncertainty & aggregation" / "Validated calibration • Ambiguity • Multi-view evidence"
+"5 Approved QC policy" / "Severity • Tolerance • Abstention"
+"6 Persist before dispatch" / "Local PostgreSQL • Image spool • Outbox"
+Box5 has three small outcome chips "PASS" green, "FAIL" red, "REVIEW" amber, all feed persist.
+Below persist small "Line control adapter" with "Command ID • Expiry • State checks" connected bidirectionally to "Optional PLC" with labels "Command" and "Acknowledgement". Do not draw model-to-PLC connection.
+Below probabilistic boxes a purple package card "Approved inspection package" with "Model • Transforms • Calibration • Recipe • Rollback", dashed configuration connections to inference and policy.
+Red exception strip inside OT: "Invalid / unavailable → Approved manual inspection, hold or stop"
+Small note: "Low confidence does not imply PASS"
+At OT right edge a "Sync & polling" box connected to durable local evidence.
+
+Narrow center panel heading "INDUSTRIAL DMZ"
+Shield/gateway icon and text "NGINX gateway", "HTTPS • Mutual TLS", "Allowlisted endpoints".
+Blue arrow OT Sync toward enterprise ingestion labelled "Evidence uploads".
+Purple dashed arrow logically returning from enterprise configuration via gateway to OT sync/package labelled "Approved packages / review responses".
+Note exact: "Factory-initiated connections"
+Small boundary note: "No direct browser-to-PLC access"
+
+Main right panel heading "ENTERPRISE IT"
+People icon "Operators • Quality • Managers".
+"Angular review & dashboards" with "Original images • Overlays • History"
+Small connected identity badge "OIDC SSO • MFA • RBAC".
+Below UI "Spring Boot application" containing three cards:
+"Ingestion API" / "Validate • Deduplicate"
+"Review & override" / "Authorize • Reason • Audit"
+"Configuration & reporting" / "Approved releases • Freshness".
+The ingestion API connects downward to the data panel. Review returns dispositions only via DMZ polling route.
+Small bottom enterprise row "RabbitMQ + workers → Optional MES / QMS • Alerts".
+Optional small dashed-outline card "Optional investigation assistant" / "Read-only evidence • Citations • Abstention" connected only to reporting, not OT controls.
+
+Lower left panel heading "DATA & EVIDENCE"
+Four green icon cards:
+"PostgreSQL" / "Attempts • Reviews • Versions"
+"Object storage" / "Images • Datasets • Artifacts"
+"Audit archive" / "Actor • Reason • Lineage"
+"Encrypted backups" / "Retention • Restore drills"
+Small caption "Preserve AI outcome and human decision"
+
+Lower center panel heading "GOVERNED LEARNING"
+Six small stages connected unambiguously:
+"Sample & verify" → "Version datasets" → "Train & evaluate" → "Quality approval" → "Shadow & stage" → "Monitor & improve".
+Captions beneath:
+"PASS audits + FAIL / REVIEW samples"
+"Grouped splits • Independent test set"
+"Per-defect metrics • Uncertainty bounds • Hardware latency"
+"Approved compatible package • Rollback"
+A purple loop arrow from Monitor & improve back to Sample & verify; clearly label "Verified feedback".
+Approved learning releases return to enterprise configuration (then via DMZ). No direct learning-to-PLC link.
+Small amber note: "Retraining does not authorize deployment"
+
+Lower right panel heading "AI NATIVE ENGINEERING"
+Five connected steps:
+"Approved context" → "AI-assisted work" → "Engineer review" → "CI + evaluation" → "Authorized release"
+Captions "Requirements • Schemas • Fixtures" and "Git / Jenkins • Tests • Scans • Evidence"
+Small note "Scoped tools • No standing production authority"
+
+Bottom strip heading "OPERATIONS, SECURITY & RESILIENCE"
+Four segments:
+"Observability" / "Latency • Storage • Queues • Command status"
+"Verified quality" / "Recall • Escapes • Review load • Label lag"
+"Security" / "OT / IT isolation • Least privilege • Artifact integrity"
+"Recovery" / "Offline buffer • Fallback • Restore • Rollback"
+Footer small text: "Solid arrows: runtime / evidence   Dashed arrows: configuration / deployment"
+Footer constraint: "Quality thresholds, throughput, latency and availability require approval."
+
+Constraints: accurate spelled text, high contrast, no invented numerical probabilities or performance promises. Raw scores are not automatically calibrated probabilities. Clearly separate probabilistic perception, deterministic QC policy, physical command execution, human review and offline governed learning. Keep optional generative assistance visibly optional. No autonomous online learning or self-approved deployment. Do not use vendor logos.
