@@ -102,6 +102,25 @@ flowchart TB
             Audit[("Audit and lineage<br/>Restricted immutable history and end-to-end traceability")]
             Govern["Model governance and compliance evidence<br/>Approval workflows, risk management<br/>Internal / external audit; applicable obligations to confirm"]
         end
+        subgraph L11["11. ADAPTIVE UI LAYER - AI-rendered enterprise interface"]
+            UIUser["Operator / inspector / manager<br/>Task intent, explicit preferences and layout controls"]
+            UIContext["Authorized UI context service<br/>Role, task, permitted evidence and workflow state<br/>Filter data before model access"]
+            UIModel["Approved UI composition model<br/>Generate structured screen / component specification<br/>Select layout, evidence panels and approved actions"]
+            UICatalog[("Versioned UI contract and component catalogue<br/>Approved widgets, action IDs and required evidence<br/>Accessibility and interaction constraints")]
+            UIValidate{"UI specification validation<br/>Schema, component / action allowlists, permissions<br/>Mandatory evidence and workflow invariants satisfied?"}
+            UIRender["AI-rendered UI via deterministic renderer<br/>Approved Angular components from validated specification<br/>Stable focus, draft preservation and pinned active review"]
+            UIFallback["Standard validated interface<br/>Model timeout, invalid output or user-selected fallback"]
+            UIAction["Backend action gateway<br/>Reauthorize user and validate current record / board state<br/>Explicit user submission; existing workflow owns execution"]
+            UIUser --> UIContext --> UIModel --> UIValidate
+            UICatalog -.-> UIModel
+            UICatalog -.-> UIValidate
+            UIValidate -->|"Valid"| UIRender
+            UIValidate -->|"Invalid / uncertain"| UIFallback
+            UIModel -->|"Timeout / unavailable"| UIFallback
+            UIRender -->|"Displayed interface"| UIUser
+            UIFallback -->|"Displayed interface"| UIUser
+            UIUser -->|"Explicit action through either interface"| UIAction
+        end
     end
 
     Trusted -->|"Persisted evidence"| Sync
@@ -129,6 +148,16 @@ flowchart TB
     Govern -.-> Approval
     Govern -.-> CentralContext
     Govern -.-> Decision
+    Access -.-> UIContext
+    Review -->|"Permission-filtered review task"| UIContext
+    DecisionRecord -->|"Authorized original outcome and evidence"| UIContext
+    Monitor -->|"Authorized operational view"| UIContext
+    UIAction -->|"Existing authorized review workflow"| Annotation
+    UIAction -->|"Authorized read requests"| UIContext
+    UIRender -.->|"UI version and interaction telemetry"| Monitor
+    UIAction -->|"Actor, action and UI specification version"| Audit
+    Govern -.-> UICatalog
+    Deploy -.->|"Separately evaluated and approved UI model"| UIModel
 
     classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
     classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
@@ -138,3 +167,7 @@ flowchart TB
     class QG1,QG2,QG3,QG4,QG5,QG6,Approval,Decision,EdgeDecision gate;
     class Trusted,Cache,CentralContext,DecisionRecord,Feedback,Registry,Audit data;
     class CaptureFailure,EdgeFailure,ContextFailure,DecisionHold,Escalate risk;
+    class UIModel ai;
+    class UIValidate,UIAction gate;
+    class UICatalog data;
+    class UIFallback risk;

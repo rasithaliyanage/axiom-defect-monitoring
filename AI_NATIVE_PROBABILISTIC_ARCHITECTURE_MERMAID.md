@@ -6,7 +6,7 @@ Target visual structure: [ARCH DIAGRAM WITH EDGE.png](<ARCH DIAGRAM WITH EDGE.pn
 
 Based on [Business Requirements Document.docx](<Business Requirements Document.docx>), [Solution architecture.png](<Solution architecture.png>) and [AI_NATIVE_GAP_ANALYSIS.docx](AI_NATIVE_GAP_ANALYSIS.docx). The gap analysis supplies the proposed extensions; it does not convert BRD discovery questions into approved requirements.
 
-This revision extends AI Native design from detection through hosting using four perspectives: **Model-Driven, Probabilistic, Adaptive, and Human in the Loop**. It contains five complementary Mermaid diagrams. Diagram 1 follows the expected ten-layer edge–enterprise architecture with QG-1 through QG-6; diagrams 2–4 expand decision, learning and engineering; diagram 5 defines adaptive hosting and operations. Standalone `.mmd` files with the same code are provided in `architecture/`. Predictive hosting and bounded operational adaptation are proposed extensions requested in this revision, not requirements already approved in the BRD.
+This revision extends AI Native design from detection through hosting using four perspectives: **Model-Driven, Probabilistic, Adaptive, and Human in the Loop**. It contains six complementary Mermaid diagrams. Diagram 1 preserves the expected layers 1–10 and QG-1 through QG-6, and adds **Layer 11: Adaptive UI (AI-rendered interface)** as the user interaction layer; diagrams 2–4 expand decision, learning and engineering; diagram 5 defines adaptive hosting and operations; diagram 6 details model-driven UI composition. Standalone `.mmd` files with the same code are provided in `architecture/`. Predictive hosting and Adaptive UI are user-requested extensions, not requirements already approved in the BRD. Existing layer numbering and responsibilities remain unchanged.
 
 ## 1. Architecture interpretation
 
@@ -39,6 +39,7 @@ Angular/TypeScript, Java/Spring Boot, Python/ONNX Runtime, PostgreSQL, RabbitMQ 
 | Engineering and evaluation | AI-assisted tasks grounded in approved context and executable contracts | Generated output is a hypothesis until verified | Feedback improves task context, test coverage and candidate implementation | Engineers and QA independently review outputs and evidence. |
 | Delivery and hosting | Immutable package, infrastructure specification and demand/risk model | Forecast intervals and risk estimates accompany capacity proposals | Bounded central scaling, scheduling and authorized rollback with cooldowns | Platform owners approve envelopes; Quality approves model-affecting changes. |
 | Operations and recovery | Versioned anomaly models, dependency maps and runbooks | Incident hypotheses include uncertainty and supporting telemetry | Low-risk pre-authorized runbooks; otherwise escalate; verify the result | Operators can stop adaptation, approve exceptions and restore known-good operation. |
+| Adaptive UI | Approved UI composition model, component catalogue and schema | Validate generated UI specifications; abstain or fall back on ambiguous requests | Compose views from role, task, evidence and explicit preferences at safe interaction boundaries | Users retain decision authority, can pin layouts and switch to a standard interface. |
 
 These are target capabilities with acceptance gates. Learned image-quality, ranking or operational models must earn deployment through evidence; deterministic baseline checks and static capacity reserves remain available when models are absent, stale or unreliable.
 
@@ -197,6 +198,25 @@ flowchart TB
             Audit[("Audit and lineage<br/>Restricted immutable history and end-to-end traceability")]
             Govern["Model governance and compliance evidence<br/>Approval workflows, risk management<br/>Internal / external audit; applicable obligations to confirm"]
         end
+        subgraph L11["11. ADAPTIVE UI LAYER - AI-rendered enterprise interface"]
+            UIUser["Operator / inspector / manager<br/>Task intent, explicit preferences and layout controls"]
+            UIContext["Authorized UI context service<br/>Role, task, permitted evidence and workflow state<br/>Filter data before model access"]
+            UIModel["Approved UI composition model<br/>Generate structured screen / component specification<br/>Select layout, evidence panels and approved actions"]
+            UICatalog[("Versioned UI contract and component catalogue<br/>Approved widgets, action IDs and required evidence<br/>Accessibility and interaction constraints")]
+            UIValidate{"UI specification validation<br/>Schema, component / action allowlists, permissions<br/>Mandatory evidence and workflow invariants satisfied?"}
+            UIRender["AI-rendered UI via deterministic renderer<br/>Approved Angular components from validated specification<br/>Stable focus, draft preservation and pinned active review"]
+            UIFallback["Standard validated interface<br/>Model timeout, invalid output or user-selected fallback"]
+            UIAction["Backend action gateway<br/>Reauthorize user and validate current record / board state<br/>Explicit user submission; existing workflow owns execution"]
+            UIUser --> UIContext --> UIModel --> UIValidate
+            UICatalog -.-> UIModel
+            UICatalog -.-> UIValidate
+            UIValidate -->|"Valid"| UIRender
+            UIValidate -->|"Invalid / uncertain"| UIFallback
+            UIModel -->|"Timeout / unavailable"| UIFallback
+            UIRender -->|"Displayed interface"| UIUser
+            UIFallback -->|"Displayed interface"| UIUser
+            UIUser -->|"Explicit action through either interface"| UIAction
+        end
     end
 
     Trusted -->|"Persisted evidence"| Sync
@@ -224,6 +244,16 @@ flowchart TB
     Govern -.-> Approval
     Govern -.-> CentralContext
     Govern -.-> Decision
+    Access -.-> UIContext
+    Review -->|"Permission-filtered review task"| UIContext
+    DecisionRecord -->|"Authorized original outcome and evidence"| UIContext
+    Monitor -->|"Authorized operational view"| UIContext
+    UIAction -->|"Existing authorized review workflow"| Annotation
+    UIAction -->|"Authorized read requests"| UIContext
+    UIRender -.->|"UI version and interaction telemetry"| Monitor
+    UIAction -->|"Actor, action and UI specification version"| Audit
+    Govern -.-> UICatalog
+    Deploy -.->|"Separately evaluated and approved UI model"| UIModel
 
     classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
     classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
@@ -233,6 +263,10 @@ flowchart TB
     class QG1,QG2,QG3,QG4,QG5,QG6,Approval,Decision,EdgeDecision gate;
     class Trusted,Cache,CentralContext,DecisionRecord,Feedback,Registry,Audit data;
     class CaptureFailure,EdgeFailure,ContextFailure,DecisionHold,Escalate risk;
+    class UIModel ai;
+    class UIValidate,UIAction gate;
+    class UICatalog data;
+    class UIFallback risk;
 ```
 
 Operational interpretation: local inspection can continue during a central outage only while approved equipment, configuration, evidence capacity and the agreed local review/fallback procedure remain available. If the edge itself or its durable storage fails, the independent Manufacturing-approved procedure must work without relying on the failed application. No browser, assistant or training service connects directly to the PLC.
@@ -525,7 +559,7 @@ Persist images durably before committing references. Track partial uploads and c
 
 Quality must approve taxonomy, supported scope, metric definitions, per-defect limits, uncertainty/review policy, statistical acceptance and labeling authority. Manufacturing and Automation must approve throughput, the capture-to-action deadline, review/failure routing, equipment behavior and selected PLC/MES interfaces. Operations and Security must establish availability, offline duration, RTO/RPO, retention, network access and release permissions. Finance and Product must validate costs and benefits.
 
-The six recall values supplied in the expected image are recorded in section 10; they remain unconfirmed acceptance targets. Other numerical thresholds remain TBD. Calibration, uncertainty and unfamiliar-input methods must demonstrate value against their compute and review costs. The hosting platform must implement model-aware deployment, declared resource profiles, operational prediction, bounded adaptation and human oversight. Its substrate may be managed VMs or a container platform selected through benchmarking and operational review. A runtime LLM, vector database or cloud-dependent inspection path is not required to meet the four perspectives.
+The six recall values supplied in the expected image are recorded in section 10; they remain unconfirmed acceptance targets. Other numerical thresholds remain TBD. Calibration, uncertainty and unfamiliar-input methods must demonstrate value against their compute and review costs. The hosting platform must implement model-aware deployment, declared resource profiles, operational prediction, bounded adaptation and human oversight. Its substrate may be managed VMs or a container platform selected through benchmarking and operational review. Layer 11 adds a runtime UI composition model, potentially an LLM, outside the inspection critical path; the local inspection path remains independent of it.
 
 Production acceptance must exercise representative defects and variants, peak load, missing views, model/camera failure, central disconnection, full local storage, duplicate events, lost PLC acknowledgements, concurrent reviews, stale commands, restored evidence and compatible rollback. A diagram describes intended controls; passing evidence establishes readiness.
 
@@ -665,6 +699,82 @@ Track the expected outcomes: higher product quality, lower escape rate, reduced 
 
 ### 10.1 Supporting-view alignment and acceptance
 
-Diagram 2 expands layers 1–6 and operational review with QG-1 through QG-5. Diagram 3 expands layers 7–8 with QG-5 and QG-6. Diagram 4 supports AI-assisted delivery of the ten layers, retaining optional read-only assistance. Diagram 5 expands layer 9 hosting and fleet operations under layer 10 governance. PostgreSQL, object storage, durable queues, DMZ and backup controls remain implementation responsibilities even where the expected overview groups them into broader layers.
+Diagram 2 expands layers 1–6 and operational review with QG-1 through QG-5. Diagram 3 expands layers 7–8 with QG-5 and QG-6. Diagram 4 supports AI-assisted delivery, retaining optional read-only assistance. Diagram 5 expands layer 9 hosting and fleet operations under layer 10 governance. Diagram 6 expands the added Adaptive UI layer 11. PostgreSQL, object storage, durable queues, DMZ and backup controls remain implementation responsibilities even where the expected overview groups them into broader layers.
+
+## 11. Adaptive UI layer — AI-rendered interface (diagram 6)
+
+Layer 11 adds model-driven interface composition to the existing architecture. The model handles how an authorized task is presented: it selects approved components, arranges evidence, chooses suitable charts and exposes permitted workflow actions through a structured UI specification. A deterministic frontend renderer materializes that specification into the interface. This is runtime AI-rendered UI, beyond using AI to generate frontend code during development.
+
+The existing layers 1–10 continue to own inspection, decisions, review, learning, hosting and governance. Layer 11 presents those capabilities. It is distinct from the optional investigation assistant: the UI composition model controls presentation; an investigation assistant, when enabled, provides separately validated advisory content inside an approved component.
+
+```mermaid
+flowchart TD
+    User["User intent and explicit preferences<br/>Operator, inspector or manager"]
+    Context["Backend-authorized context builder<br/>User / role / line scope, current task and record version<br/>Permitted evidence, workflow state and approved data bindings"]
+    Contract[("Approved UI package<br/>Composition model + prompt / template version<br/>Component catalogue, schema, action IDs and layout policy")]
+    Compose["UI composition model<br/>Produce declarative UI specification<br/>Layout, widgets, evidence bindings and action references"]
+    Validate{"Deterministic validation<br/>Schema, allowlists, permission scope, mandatory content<br/>Accessibility and workflow constraints satisfied?"}
+    Boundary{"Safe to change layout?<br/>No active edit / submission or user accepts update?"}
+    Render["Deterministic component renderer<br/>Render validated model-composed interface<br/>Use authoritative data bindings for facts and outcomes"]
+    Keep["Keep pinned current interface<br/>Preserve focus, drafts and selected board<br/>Offer update after task completion"]
+    Fallback["Standard approved UI<br/>Usable without the composition model<br/>Preserve current task and unsent draft"]
+    Action["User explicitly submits an approved action"]
+    Backend["Existing backend action gateway<br/>Authorize again; validate record version, board state and expiry<br/>Execute through existing review / reporting services"]
+    Audit[("UI and action audit<br/>UI model, contract and specification versions<br/>User, record, action and outcome")]
+    Feedback["User feedback and measured task outcomes<br/>Correction requests, usability, accessibility and errors"]
+    Eval["Offline UI evaluation and governed improvement<br/>Representative tasks, adversarial input and replay<br/>Human UX / Quality / Security acceptance"]
+
+    User --> Context --> Compose --> Validate
+    Contract -.-> Compose
+    Contract -.-> Validate
+    Validate -->|"Valid"| Boundary
+    Validate -->|"Invalid or unsupported"| Fallback
+    Compose -->|"Timeout / model unavailable / abstention"| Fallback
+    Boundary -->|"Yes"| Render
+    Boundary -->|"No"| Keep
+    Keep -->|"Safe boundary or explicit user acceptance"| Boundary
+    Render -->|"Displayed view"| User
+    Fallback -->|"Displayed view"| User
+    User -->|"Pin layout / use standard view"| Fallback
+    User --> Action --> Backend --> Audit
+    Backend -->|"Updated authoritative workflow state"| Context
+    Render -->|"Specification identity and telemetry"| Audit
+    User --> Feedback --> Eval
+    Audit -->|"Authorized samples"| Eval
+    Eval -->|"Approved compatible UI release"| Contract
+
+    classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
+    classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
+    classDef data fill:#e7f4e8,stroke:#39784a,color:#14321b;
+    classDef risk fill:#ffe5e5,stroke:#b83e3e,color:#4a1515;
+    class Compose,Eval ai;
+    class Validate,Boundary,Backend gate;
+    class Contract,Audit data;
+    class Fallback risk;
+```
+
+### 11.1 Composition and interaction boundaries
+
+| Concern | Adaptive UI behavior |
+| --- | --- |
+| Operator task | Compose a concise board status, evidence and escalation view from authorized context. |
+| Inspector task | Present original images, overlays, uncertainty, model/context versions, reasons and authorized decision controls. |
+| Manager task | Compose approved charts and summaries using backend-computed metrics with visible freshness and scope. |
+| Adaptation | Update at task boundaries or on explicit request; pin active reviews and preserve drafts, focus and board identity. Users can retain the current layout or select the standard UI. |
+| Generated output | Return a bounded declarative component specification, not executable JavaScript, arbitrary HTML, SQL or newly invented API endpoints. All components and action IDs come from approved contracts. |
+| Authority | Model-generated visibility or buttons never grant permission. Backend authorization, existing review checks and QG-1 through QG-6 remain unchanged. The UI model cannot submit a disposition or command equipment. |
+| Required evidence | Policy fixes the fields and controls that must be shown for a workflow. The model cannot conceal critical defects, remove uncertainty, substitute a fabricated outcome or relabel authoritative quality states. |
+| Data access | Filter context before inference. Use authorized data references and scoped caching; treat user text and retrieved content as untrusted. Cache keys include role/line/task scope and contract version; never reuse another user's evidence. |
+| Resilience | Timeout, invalid output, excessive complexity or unsupported request selects the approved standard UI. Neither model latency nor an interface refresh blocks edge inspection. Existing offline/manual review procedures still apply. |
+
+### 11.2 UI specification, evaluation and release
+
+The UI specification records its ID, model and prompt/template version, component/schema version, task/record reference, authorized data-binding IDs, layout, approved action references, mandatory-content policy and expiry. Preserve enough evidence to reconstruct what was displayed when a user acted. Avoid logging unnecessary sensitive prompt content.
+
+Evaluate task completion, review accuracy, mandatory-evidence visibility, accessibility, action correctness, role/line isolation, injection resistance, layout stability, rendering latency, fallback reliability and cost per completed task. A model's self-reported confidence is not an acceptance check: use independent validation and measured task outcomes. UI success metrics must not reward hiding difficult cases or encouraging unwarranted PASS decisions.
+
+Release the composition model, prompt/template, catalogue and renderer compatibility contract as an approved UI package. Reuse the existing governed evaluation, deployment and rollback infrastructure with UI-specific tests; vision-model recall tests do not validate a UI model. Human UX, Quality and Security review precedes scoped rollout. Verified feedback can propose improvements, but live interactions do not automatically retrain or deploy the UI model.
+
+This added layer supports FR-009 through FR-012 and reporting requirements while leaving the BRD acceptance logic intact. UI validation is a presentation control; it does not replace or renumber the six existing quality gates. Its hosting runs in isolated enterprise support capacity under layer 9, with layer 10 access, data-protection and audit controls.
 
 In addition to existing fault tests, exercise every quality-gate failure, stale/wrong BOM or spec revision, disconnected context synchronization, permitted versus prohibited last-known-good use, disabled local decisions, bounded re-capture, specialist-model selection, correlated evidence, label disagreement, regression failures and central decisions arriving after board movement. Gate outcomes, context versions and model-routing choices must be reconstructable from the inspection record.
