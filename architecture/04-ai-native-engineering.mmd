@@ -1,0 +1,57 @@
+flowchart LR
+    subgraph DEV["DEVELOPMENT AND VALIDATION ENVIRONMENT"]
+        Sources["Approved BRD decisions and architecture<br/>Schemas, fixtures, acceptance criteria, infrastructure and runbooks"]
+        Context["Versioned engineering context pack<br/>Task scope, permitted tools and protected data policy"]
+        Engineer["Engineer / BA / QA / ML practitioner<br/>Own task intent and expected behavior"]
+        AI["AI engineering assistant<br/>Draft requirements, models, implementation, tests<br/>Infrastructure specifications and evidence summaries"]
+        Sandbox["Scoped repository and test environment<br/>No production credentials or unrestricted data export"]
+        Review["Human review of changes<br/>Independent expected results and threat analysis"]
+        Git["Reviewed version-controlled change<br/>Code, configuration and context references"]
+        CI["Reproducible CI and infrastructure evidence<br/>Build, scans, contracts, integration and deployment simulation<br/>Model evaluation and resource benchmarks when affected"]
+        Gate{"Applicable acceptance evidence<br/>and release authorization complete?"}
+        Release["Controlled artifact promotion<br/>Application release or governed model pipeline"]
+        Metrics["Engineering outcome measures<br/>Accepted cycle time, review effort, rework<br/>Escaped defects and tool cost"]
+        Sources --> Context
+        Engineer --> Context
+        Context --> AI
+        AI --> Sandbox
+        Sandbox --> Review
+        Review -->|"Revision needed"| AI
+        Review -->|"Accepted"| Git
+        Git --> CI --> Gate
+        Gate -->|"No: remediate"| Review
+        Gate -->|"Yes"| Release
+        Review --> Metrics
+        CI --> Metrics
+    end
+
+    subgraph SUPPORT["OPTIONAL READ-ONLY QUALITY ASSISTANCE - enterprise IT"]
+        User["Authenticated operator or quality analyst"]
+        Auth["Backend user, role and line authorization"]
+        Orchestrator["Bounded investigation assistant<br/>Question interpretation and approved read tools"]
+        Tools["Permission-enforcing evidence and reporting APIs<br/>Validated queries calculate counts and trends"]
+        Documents["Permission-filtered approved procedures<br/>Document identity, revision and freshness"]
+        Model["Language model using authorized retrieved evidence<br/>Retrieved text treated as untrusted input"]
+        Check["Answer and citation checks<br/>Evidence IDs, grounding and sensitive-data controls"]
+        Answer["Evidence-linked explanation or explicit abstention<br/>User verifies operational relevance"]
+        Evaluate["Assistant evaluation and monitoring<br/>Correct retrieval, access denial, grounding<br/>Injection resistance, latency and cost"]
+        User --> Auth --> Orchestrator
+        Orchestrator --> Tools
+        Orchestrator --> Documents
+        Tools --> Model
+        Documents --> Model
+        Model --> Check --> Answer
+        Answer --> User
+        Check -.-> Evaluate
+    end
+
+    Authority["Authority boundary<br/>Assistant output cannot override inspections,<br/>approve packages, change QC rules or command PLCs"]
+    Release -->|"Authorized deployment process only"| Authority
+    Answer -.->|"Advisory output only"| Authority
+
+    classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
+    classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
+    classDef optional fill:#f4f4f4,stroke:#777777,color:#333333,stroke-dasharray:5 5;
+    class AI,Model ai;
+    class Engineer,Review,Gate,Auth,Authority gate;
+    class Orchestrator,Tools,Documents,Check,Answer,Evaluate optional;

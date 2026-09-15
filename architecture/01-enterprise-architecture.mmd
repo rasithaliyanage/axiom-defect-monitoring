@@ -1,0 +1,173 @@
+flowchart TB
+    subgraph EDGE["EDGE - factory / on-premises: low latency and operational continuity"]
+        subgraph L1["1. DATA CAPTURE AND INGESTION LAYER - Edge"]
+            Source["Manufacturing line<br/>Cameras, board ID / scanner / PLC<br/>Sensors and capture metadata"]
+            QG1{"QG-1 Ingestion Quality<br/>Complete image; focus, lighting, orientation<br/>Board metadata, source health, time and sequence valid?"}
+            CaptureFailure["Quarantine or bounded re-capture<br/>Preserve failure reason and attempt lineage"]
+            Source --> QG1
+            QG1 -->|"Fail"| CaptureFailure
+        end
+        subgraph L2["2. EDGE AI PROCESSING LAYER - On-site"]
+            Preprocess["Edge preprocessing<br/>Denoise, normalize, align / crop and ROI extraction"]
+            EdgeInfer["Optimized edge AI inference<br/>Approved runtime: ONNX Runtime / TensorRT candidate<br/>Defects, local anomaly / OOD and scores"]
+            QG2{"QG-2 Edge Quality<br/>Preprocessing, model version, inference health<br/>Deadline and output schema valid?"}
+            EdgeFailure["Hold / bounded re-process<br/>Unavailable inspection invokes approved fallback"]
+            Trusted[("Trusted evidence - durable local spool and DB<br/>Raw / processed images, results and metadata<br/>Pinned release, context and outbox")]
+            EdgeDecision["Optional local decision execution<br/>Approved local layers 5 and 6 including QG-4<br/>Require QG-1 / QG-2 / QG-3; PASS / HOLD / REJECT"]
+            EdgeAction["Persist disposition before line action<br/>Command ID, expiry, board-state fence<br/>Optional PLC acknowledgement and reconciliation"]
+            QG1 -->|"Pass"| Preprocess
+            Preprocess --> EdgeInfer --> QG2
+            QG2 -->|"Fail"| EdgeFailure
+            QG2 -->|"Pass"| Trusted
+            EdgeDecision -->|"Commit decision and pending action"| Trusted
+            Trusted -->|"Committed authorized actions only"| EdgeAction
+        end
+        subgraph L3["3. CONTEXT AND REFERENCE LAYER - Edge + Enterprise"]
+            Cache[("Local critical-context cache<br/>Board specs, BOM / component library<br/>Inspection rules and versioned last-known-good context")]
+            ContextSync["Context synchronization<br/>Version, checksum, expiry and compatibility checks<br/>Explicit permitted fallback policy"]
+            QG3{"QG-3 Context Quality<br/>Product / revision and spec version valid?<br/>Component reference and line / machine context complete?"}
+            ContextFailure["Hold / exception<br/>No silent use of incompatible or expired context"]
+            Cache --> QG3
+            ContextSync --> Cache
+            QG3 -->|"Fail"| ContextFailure
+            QG3 -->|"Pass: pinned context"| EdgeInfer
+        end
+    end
+
+    subgraph BOUNDARY["EDGE - ENTERPRISE SECURE SYNCHRONIZATION"]
+        Sync["Factory-initiated gateway / DMZ<br/>Authenticated encrypted uploads and polling<br/>Evidence, context, models, policies, configuration and logs<br/>Retry, deduplication, checksums and bounded buffering"]
+    end
+
+    subgraph ENTERPRISE["ENTERPRISE - central platform: governance, learning, optimization and fleet management"]
+        CentralContext[("Central context store - Layer 3<br/>Authoritative product specs, component library / variants<br/>Manufacturing line, machine and process context<br/>Traceable revisions and approval")]
+        subgraph L4["4. AI MODEL LAYER - Enterprise + Edge deployment"]
+            Orchestrate["Model orchestration<br/>Approved routing / selection by product and scope<br/>Optional validated ensemble; edge / central placement"]
+            Pipeline["Vision AI pipeline<br/>Image understanding, defect detection, classification<br/>Component / area localization and prediction scores"]
+            Specialists["Specialized models<br/>Missing / wrong / misaligned component<br/>Solder bridge, damaged component, scratch<br/>Unknown / anomaly detection"]
+            ModelResult["Versioned model evidence<br/>Class, location, raw score and supported scope<br/>Central re-analysis is separate from initial edge result"]
+            Orchestrate --> Pipeline --> ModelResult
+            Specialists -.-> Pipeline
+        end
+        subgraph L5["5. PROBABILISTIC REASONING AND RISK LAYER"]
+            Aggregate["Evidence aggregation<br/>Model outputs, image quality, product context<br/>Historical evidence with provenance; correlated views"]
+            Calibrate["Probability calibration<br/>Validated temperature scaling / Platt / isotonic candidate<br/>No assumption that raw scores are probabilities"]
+            Uncertainty["Uncertainty quantification<br/>Aleatoric and epistemic estimates where validated<br/>Ambiguity, unfamiliar inputs and abstention"]
+            Risk["Risk assessment<br/>Defect severity, product criticality and business impact<br/>Versioned validated risk / loss policy"]
+            ModelResult --> Aggregate --> Calibrate --> Uncertainty --> Risk
+        end
+        subgraph L6["6. DECISION LAYER - AI evidence + business rules"]
+            Decision["Decision engine<br/>Product-specific policies, rules and approved thresholds"]
+            QG4{"QG-4 Decision Quality<br/>Model evidence valid; risk within policy bounds?<br/>Required context present; policy applied; action authorized?"}
+            DecisionOutput["PASS: continue under approved policy<br/>HOLD: review / approved hold procedure<br/>REJECT: confirmed defect under approved rules"]
+            DecisionRecord[("Decision record<br/>Initial and subsequent outcomes, reasoning and versions<br/>Evidence, context, audit and action applicability")]
+            DecisionHold["Gate failure: HOLD / human review<br/>Invalid evidence is not proof of a defective board"]
+            Risk --> Decision --> QG4
+            QG4 -->|"Pass"| DecisionOutput --> DecisionRecord
+            QG4 -->|"Fail"| DecisionHold --> DecisionRecord
+        end
+        subgraph L7["7. HUMAN-IN-THE-LOOP LAYER"]
+            Review["Review queue<br/>Uncertain, high-risk and unknown cases<br/>Severity / deadline-aware assignment"]
+            Annotation["Annotation tools and reviewer workflow<br/>Original evidence, boxes / component IDs<br/>Second-level checks, reasons and override authority"]
+            QG5{"QG-5 Label Quality<br/>Reviewer agreement and critical-case review?<br/>Complete labels; annotation guidelines satisfied?"}
+            Feedback[("Validated feedback<br/>Verified labels, comments and adjudication<br/>Final disposition stored separately from training eligibility")]
+            Escalate["Escalate label disagreement / incomplete review"]
+            DecisionHold --> Review
+            DecisionOutput -->|"HOLD or authorized dispute"| Review
+            Review --> Annotation --> QG5
+            QG5 -->|"Pass"| Feedback
+            QG5 -->|"Fail"| Escalate
+            Annotation -->|"Authorized operational decision, independent of label approval"| DecisionRecord
+        end
+        subgraph L8["8. MODEL LIFECYCLE AND MLOPS LAYER"]
+            Data["Training data management<br/>Representative PASS audits + targeted sampling<br/>Curation, versioning, grouped splits and leakage control"]
+            Train["Model training and experimentation<br/>Reproducible runs, validation and calibration"]
+            QG6{"QG-6 Evaluation Quality<br/>Independent per-defect recall / FN tests<br/>Calibration, localization, regression and slice checks<br/>Golden dataset and target-hardware performance?"}
+            Approval["Quality release approval<br/>Scope, evidence, compatible runtime / context<br/>Risk acceptance and rollback plan"]
+            Registry[("Model registry<br/>Approved models, metadata and calibration<br/>Context compatibility and immutable package manifest")]
+            Deploy["Controlled deployment<br/>Champion / challenger, observation-only shadow<br/>Staging, fleet activation and rollback"]
+            Data --> Train --> QG6
+            QG6 -->|"Fail: iterate; preserve test independence"| Train
+            QG6 -->|"Pass"| Approval --> Registry --> Deploy
+            Feedback --> Data
+        end
+        subgraph L9["9. OBSERVABILITY, MONITORING AND OPERATIONS LAYER"]
+            Monitor["Real-time monitoring<br/>Throughput, latency, health and verified quality<br/>Label lag, sampling coverage and SLO / SLA evidence"]
+            Drift["Drift and anomaly detection<br/>Image, data, performance and concept-drift signals"]
+            Alerts["Alerts and notifications<br/>Threshold breaches, uncertainty and anomalies"]
+            Incident["Incident management and operations dashboard<br/>Diagnose, mitigate, verify, escalate and rollback<br/>Adaptive hosting control loop: diagram 5"]
+            Monitor --> Drift --> Alerts --> Incident
+        end
+        subgraph L10["10. GOVERNANCE, SECURITY AND COMPLIANCE LAYER - cross-cutting"]
+            Access["Access control and data protection<br/>RBAC, least privilege, encryption, retention<br/>Anonymization where applicable and OT isolation"]
+            Audit[("Audit and lineage<br/>Restricted immutable history and end-to-end traceability")]
+            Govern["Model governance and compliance evidence<br/>Approval workflows, risk management<br/>Internal / external audit; applicable obligations to confirm"]
+        end
+        subgraph L11["11. ADAPTIVE UI LAYER - AI-rendered enterprise interface"]
+            UIUser["Operator / inspector / manager<br/>Task intent, explicit preferences and layout controls"]
+            UIContext["Authorized UI context service<br/>Role, task, permitted evidence and workflow state<br/>Filter data before model access"]
+            UIModel["Approved UI composition model<br/>Generate structured screen / component specification<br/>Select layout, evidence panels and approved actions"]
+            UICatalog[("Versioned UI contract and component catalogue<br/>Approved widgets, action IDs and required evidence<br/>Accessibility and interaction constraints")]
+            UIValidate{"UI specification validation<br/>Schema, component / action allowlists, permissions<br/>Mandatory evidence and workflow invariants satisfied?"}
+            UIRender["AI-rendered UI via deterministic renderer<br/>Approved Angular components from validated specification<br/>Stable focus, draft preservation and pinned active review"]
+            UIFallback["Standard validated interface<br/>Model timeout, invalid output or user-selected fallback"]
+            UIAction["Backend action gateway<br/>Reauthorize user and validate current record / board state<br/>Explicit user submission; existing workflow owns execution"]
+            UIUser --> UIContext --> UIModel --> UIValidate
+            UICatalog -.-> UIModel
+            UICatalog -.-> UIValidate
+            UIValidate -->|"Valid"| UIRender
+            UIValidate -->|"Invalid / uncertain"| UIFallback
+            UIModel -->|"Timeout / unavailable"| UIFallback
+            UIRender -->|"Displayed interface"| UIUser
+            UIFallback -->|"Displayed interface"| UIUser
+            UIUser -->|"Explicit action through either interface"| UIAction
+        end
+    end
+
+    Trusted -->|"Persisted evidence"| Sync
+    Sync -->|"Authorized context response"| ContextSync
+    Sync -->|"Poll context"| CentralContext
+    Sync -->|"Uploaded evidence for central analysis"| Orchestrate
+    CentralContext -->|"Versioned context"| Aggregate
+    QG3 -->|"Required local context gate"| EdgeDecision
+    QG2 -->|"Valid local model evidence"| EdgeDecision
+    Orchestrate -.->|"Approved model assignments through release channel"| Deploy
+    Deploy -->|"Approved edge packages via polling"| Sync
+    Registry -.-> Specialists
+    DecisionRecord -->|"Authorized disposition response via polling"| Sync
+    Sync -->|"Local authority / expiry / board-state validation"| EdgeDecision
+    Trusted -.->|"Local telemetry uploaded through gateway"| Sync
+    Sync --> Monitor
+    DecisionRecord --> Monitor
+    Feedback -->|"Verified ground truth"| Monitor
+    Incident -->|"Investigated improvement request"| Data
+    Incident -->|"Authorized rollback request"| Deploy
+    DecisionRecord --> Audit
+    Deploy --> Audit
+    Access -.-> Sync
+    Access -.-> Review
+    Govern -.-> Approval
+    Govern -.-> CentralContext
+    Govern -.-> Decision
+    Access -.-> UIContext
+    Review -->|"Permission-filtered review task"| UIContext
+    DecisionRecord -->|"Authorized original outcome and evidence"| UIContext
+    Monitor -->|"Authorized operational view"| UIContext
+    UIAction -->|"Existing authorized review workflow"| Annotation
+    UIAction -->|"Authorized read requests"| UIContext
+    UIRender -.->|"UI version and interaction telemetry"| Monitor
+    UIAction -->|"Actor, action and UI specification version"| Audit
+    Govern -.-> UICatalog
+    Deploy -.->|"Separately evaluated and approved UI model"| UIModel
+
+    classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
+    classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
+    classDef data fill:#e7f4e8,stroke:#39784a,color:#14321b;
+    classDef risk fill:#ffe5e5,stroke:#b83e3e,color:#4a1515;
+    class EdgeInfer,Orchestrate,Pipeline,Specialists,Aggregate,Calibrate,Uncertainty,Risk,Train ai;
+    class QG1,QG2,QG3,QG4,QG5,QG6,Approval,Decision,EdgeDecision gate;
+    class Trusted,Cache,CentralContext,DecisionRecord,Feedback,Registry,Audit data;
+    class CaptureFailure,EdgeFailure,ContextFailure,DecisionHold,Escalate risk;
+    class UIModel ai;
+    class UIValidate,UIAction gate;
+    class UICatalog data;
+    class UIFallback risk;

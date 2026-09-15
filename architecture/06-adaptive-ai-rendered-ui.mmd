@@ -1,0 +1,43 @@
+flowchart TD
+    User["User intent and explicit preferences<br/>Operator, inspector or manager"]
+    Context["Backend-authorized context builder<br/>User / role / line scope, current task and record version<br/>Permitted evidence, workflow state and approved data bindings"]
+    Contract[("Approved UI package<br/>Composition model + prompt / template version<br/>Component catalogue, schema, action IDs and layout policy")]
+    Compose["UI composition model<br/>Produce declarative UI specification<br/>Layout, widgets, evidence bindings and action references"]
+    Validate{"Deterministic validation<br/>Schema, allowlists, permission scope, mandatory content<br/>Accessibility and workflow constraints satisfied?"}
+    Boundary{"Safe to change layout?<br/>No active edit / submission or user accepts update?"}
+    Render["Deterministic component renderer<br/>Render validated model-composed interface<br/>Use authoritative data bindings for facts and outcomes"]
+    Keep["Keep pinned current interface<br/>Preserve focus, drafts and selected board<br/>Offer update after task completion"]
+    Fallback["Standard approved UI<br/>Usable without the composition model<br/>Preserve current task and unsent draft"]
+    Action["User explicitly submits an approved action"]
+    Backend["Existing backend action gateway<br/>Authorize again; validate record version, board state and expiry<br/>Execute through existing review / reporting services"]
+    Audit[("UI and action audit<br/>UI model, contract and specification versions<br/>User, record, action and outcome")]
+    Feedback["User feedback and measured task outcomes<br/>Correction requests, usability, accessibility and errors"]
+    Eval["Offline UI evaluation and governed improvement<br/>Representative tasks, adversarial input and replay<br/>Human UX / Quality / Security acceptance"]
+
+    User --> Context --> Compose --> Validate
+    Contract -.-> Compose
+    Contract -.-> Validate
+    Validate -->|"Valid"| Boundary
+    Validate -->|"Invalid or unsupported"| Fallback
+    Compose -->|"Timeout / model unavailable / abstention"| Fallback
+    Boundary -->|"Yes"| Render
+    Boundary -->|"No"| Keep
+    Keep -->|"Safe boundary or explicit user acceptance"| Boundary
+    Render -->|"Displayed view"| User
+    Fallback -->|"Displayed view"| User
+    User -->|"Pin layout / use standard view"| Fallback
+    User --> Action --> Backend --> Audit
+    Backend -->|"Updated authoritative workflow state"| Context
+    Render -->|"Specification identity and telemetry"| Audit
+    User --> Feedback --> Eval
+    Audit -->|"Authorized samples"| Eval
+    Eval -->|"Approved compatible UI release"| Contract
+
+    classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
+    classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
+    classDef data fill:#e7f4e8,stroke:#39784a,color:#14321b;
+    classDef risk fill:#ffe5e5,stroke:#b83e3e,color:#4a1515;
+    class Compose,Eval ai;
+    class Validate,Boundary,Backend gate;
+    class Contract,Audit data;
+    class Fallback risk;
