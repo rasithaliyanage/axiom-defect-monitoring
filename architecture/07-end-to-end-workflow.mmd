@@ -1,0 +1,63 @@
+flowchart TD
+    Start(["PCB arrives at inspection station"])
+    Capture["1. CAPTURE — Layer 1<br/>Cameras, Board ID/PLC, sensors, metadata"]
+    QG1{"QG-1 Ingestion Quality"}
+    Quarantine1["Quarantine / bounded re-capture"]
+    Edge["2. EDGE INFERENCE — Layer 2<br/>Preprocess + Edge Inference (approved model)"]
+    QG2{"QG-2 Edge Quality"}
+    Reprocess["HOLD / bounded re-process"]
+    Context["3. CONTEXT LOOKUP — Layer 3<br/>Local cache + Central context store (BOM, spec, line context)"]
+    QG3{"QG-3 Context Quality"}
+    ContextHold["HOLD / exception"]
+    Model["4. MODEL ORCHESTRATION & VISION PIPELINE — Layer 4<br/>Understand → Detect → Classify → Localize"]
+    Risk["5. PROBABILISTIC RISK ASSESSMENT — Layer 5<br/>Calibration + uncertainty + risk scoring"]
+    Decision["6. DECISION — Layer 6<br/>Policy + thresholds applied"]
+    QG4{"QG-4 Decision Quality"}
+    DecisionHold["HOLD / human review"]
+    Outcome{"Decision outcome"}
+    Pass(["PASS"])
+    HoldReview["BRD REVIEW"]
+    RejectFail["BRD FAIL"]
+    HITL["7. HUMAN-IN-THE-LOOP REVIEW — Layer 7<br/>Review queue, annotation, second reviewer"]
+    QG5{"QG-5 Label Quality"}
+    Escalate["Escalate — expert review required"]
+    Feedback["Validated feedback<br/>linked to original case"]
+    MLOps["8. MODEL LIFECYCLE / MLOPS — Layer 8<br/>Versioned data → train & experiment (background, continuous)"]
+    QG6{"QG-6 Evaluation Quality"}
+    Iterate["Iterate"]
+    Registry["Quality approval + model registry<br/>Shadow / staged deployment"]
+    Physical["9. PHYSICAL ACTION<br/>Release / Hold / Reject on the line"]
+    AuditEnd(["Decision Record + evidence + labels + versions persisted"])
+
+    Start --> Capture --> QG1
+    QG1 -->|Fail| Quarantine1 --> Capture
+    QG1 -->|Pass| Edge --> QG2
+    QG2 -->|Fail| Reprocess --> Edge
+    QG2 -->|Pass| Context --> QG3
+    QG3 -->|Fail| ContextHold
+    QG3 -->|Pass| Model --> Risk --> Decision --> QG4
+    QG4 -->|Fail| DecisionHold --> HITL
+    QG4 -->|Pass| Outcome
+    Outcome -->|PASS| Pass --> Physical
+    Outcome -->|HOLD| HoldReview --> HITL
+    Outcome -->|REJECT| RejectFail --> HITL
+    HITL --> QG5
+    QG5 -->|Fail| Escalate --> HITL
+    QG5 -->|Pass| Feedback
+    Feedback -->|"Confirms / overrides outcome"| Physical
+    Feedback -.->|"Training data"| MLOps
+    MLOps --> QG6
+    QG6 -->|Fail| Iterate --> MLOps
+    QG6 -->|Pass| Registry
+    Registry -.->|"Approved model sync — Edge-Enterprise Collaboration, mTLS"| Edge
+    Registry -.->|"Approved model sync"| Model
+    Physical --> AuditEnd
+
+    classDef gate fill:#fff0cc,stroke:#ad7600,color:#302400;
+    classDef fail fill:#ffe5e5,stroke:#b83e3e,color:#4a1515;
+    classDef pass fill:#e7f4e8,stroke:#39784a,color:#14321b;
+    classDef ai fill:#eee6ff,stroke:#7954a1,color:#211a33;
+    class QG1,QG2,QG3,QG4,QG5,QG6,Outcome gate;
+    class Quarantine1,Reprocess,ContextHold,DecisionHold,Escalate,RejectFail,Iterate fail;
+    class Pass pass;
+    class Model,Risk,MLOps,Registry ai;
