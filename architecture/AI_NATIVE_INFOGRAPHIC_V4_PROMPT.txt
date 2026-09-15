@@ -1,0 +1,20 @@
+Use case: infographic-diagram, precise-object-edit. Update the attached existing architecture infographic ONLY to incorporate the newly added Layer 11 Adaptive UI. Preserve existing title, subtitle, ten layers 1–10, six quality gates, recall target values and pending-confirmation disclaimer, sidebar panels, all existing icons, wording and connectors as faithfully as possible. Do not redesign, reorder, rewrite or remove existing content. Extend the portrait canvas DOWNWARD to add one readable panel below existing layer 10, moving only the footer down. Keep original content at its current scale rather than shrinking everything. Match existing white background, pastel panels, navy text, numbered circle style and blue/purple technical icons.
+
+New full-width bottom panel with numbered circle "11", heading exactly:
+"Adaptive UI Layer (AI-Rendered Interface)"
+Subtitle: "Model-driven presentation for operators, inspectors and managers"
+Use six clearly connected compact boxes across the new panel in two readable rows if needed:
+"Authorized context" / "Role • Task • Permitted evidence"
+→ "UI composition model" / "Generate structured UI specification"
+→ "UI validation" / "Schema • Permissions • Required evidence"
+→ "Component renderer" / "Approved widgets • Authoritative data"
+→ "Adaptive interface" / "Role-aware views • Pinned active reviews"
+→ "Explicit user action" / "Backend authorization • Existing workflows".
+A small dashed support card "Approved UI package" / "Model • Prompt • Component catalogue • Layout policy" feeds UI model and validation.
+A clearly labelled exception branch from UI validation/model to a small amber card "Standard UI fallback" / "Invalid output • Timeout • User choice".
+A compact note: "Preserve drafts and focus • Adapt at safe task boundaries".
+A compact authority note: "UI model composes presentation; users authorize actions."
+Another short note: "Feedback → UI evaluation → Human approval → Controlled release".
+Refer to existing functions by small labelled text "Uses layers 6–7 • Hosted by 9 • Governed by 10", without long arrows across the original diagram.
+Do not add a seventh quality gate or renumber any existing gate/layer.
+Keep original footer intact but move it below new layer. Preserve all existing ten-layer content, including hosting and the supplied target table. This is an incremental append to the existing infographic, not a redesign. Ensure added text is correctly spelled and legible.

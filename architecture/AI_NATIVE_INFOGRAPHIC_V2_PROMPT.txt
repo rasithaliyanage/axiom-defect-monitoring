@@ -1,0 +1,50 @@
+Use case: infographic-diagram. Redesign and update the attached project architecture infographic to reflect the new end-to-end AI Native architecture. Preserve its professional white-background flat technical style, navy headings, blue services, purple AI, amber human/policy gates, green storage. You may substantially reorganize the layout to fit the new hosting layer legibly. Large landscape high resolution, crisp readable typography and simple icons. This replaces the old graphic. Do not merely append a tiny hosting footnote: hosting must occupy a full prominent horizontal tier.
+
+Title "AI NATIVE SOLUTION ARCHITECTURE"
+Subtitle "Board Defect Inspection — From detection to hosting"
+Badge "PROPOSED DESIGN • Targets TBD"
+
+Immediately beneath title four equal prominent perspective cards:
+"MODEL-DRIVEN" / "Versioned models, policies and infrastructure"
+"PROBABILISTIC" / "Calibrated estimates and uncertainty"
+"ADAPTIVE" / "Verified feedback and bounded action"
+"HUMAN IN THE LOOP" / "Review, approval and suspension"
+
+Runtime tier in three panels:
+1 wide "FACTORY OT — RESERVED EDGE RUNTIME". A single unambiguous left-to-right six-step sequence with concise labels:
+"Capture & identify" → "Validate & preprocess" → "Vision model" → "Uncertainty & evidence" → "Approved QC policy" → "Persist & dispatch".
+If necessary use two rows but ensure arrows follow this exact sequence without shortcuts. QC outputs small chips "PASS • FAIL • REVIEW". Beneath pipeline show "Pinned approved package" / "Model • Calibration • Recipe • Hardware profile" dashed into model/policy. Beneath last stage show "Local PostgreSQL + image spool" feeding "Sync & polling", and "Line adapter ↔ Optional PLC" with command/acknowledgement semantics. Note "No mid-attempt model changes". Red callout "Unavailable → Approved manual / hold / stop procedure". Never connect uncertainty directly to persistence bypassing QC.
+2 narrow "INDUSTRIAL DMZ": "NGINX • HTTPS • mTLS", "Factory-initiated uploads & polling". Evidence uploads rightwards and approved release/review responses leftwards. "No direct browser-to-PLC access".
+3 "ENTERPRISE IT": "Angular evidence & review" / "OIDC • MFA • RBAC", below "Spring Boot APIs" / "Ingestion • Review / override • Configuration • Reporting"; below "RabbitMQ + workers" / "Optional MES / QMS • Alerts". Human reviewer icon with "Authorized decisions + audit". Optional small badge "Investigation assistant: read-only".
+
+Next tier three panels:
+"DATA & EVIDENCE": "PostgreSQL • Object storage • Audit • Backups"; "Attempt → Model → Evidence → Human decision"; "Versioned datasets • Retention • Restore".
+"GOVERNED ADAPTIVE LEARNING": connected "Sample & verify → Version datasets → Train & evaluate → Quality approval → Shadow & stage"; feedback loop labelled "Verified feedback". Captions "Representative PASS audits + uncertain cases"; "Independent tests • Calibration • Per-defect quality"; "No self-approved deployment".
+"AI NATIVE ENGINEERING": connected "Approved context → AI-assisted work → Engineer review → CI + evaluation → Authorized release". Caption "Code • Models • Tests • Declarative infrastructure". "Immutable artifacts • Resource benchmarks".
+
+Full-width prominent next tier heading "AI NATIVE HOSTING & ADAPTIVE OPERATIONS".
+Main operational loop five boxes left to right:
+"Observe" / "Load • Latency • Capacity"
+→ "Forecast" / "Demand / risk models • Prediction intervals"
+→ "Plan" / "Capacity / recovery proposal"
+→ amber "Policy gate" / "Quotas • Cost • Cooldowns"
+→ "Execute & verify" / "Scoped reconciler • Audit • Rollback".
+A loop from Execute & verify back to Observe labeled "Measured outcomes".
+A small amber human box above/below policy gate "Platform owner" / "Approve exceptions • Suspend adaptation". Branch policy gate "Outside envelope" to human; human "Approved" to execute. Direct gate-to-execute labelled "Pre-authorized".
+A small red/neutral forecast branch "Uncertain / stale → Static reserve + escalation".
+Below loop three isolated workload cards:
+"Edge" / "Reserved resources • Offline • Pinned package"
+"Enterprise" / "Bounded replica / worker scaling"
+"Training & evaluation" / "Isolated CPU / GPU budgets".
+Supporting green/purple strip "Approved artifact registry + versioned desired state" / "Model / runtime compatibility • Placement • Infrastructure policy".
+Tiny hosting caption "Edge updates through DMZ at approved attempt boundaries".
+Make explicitly clear central or training autoscaling never takes edge inspection reservations.
+This is model-aware hosting on VM or container substrate, not arbitrary autonomous control.
+
+Bottom compact governance strip:
+"SECURITY & RESILIENCE" / "Least privilege • OT / IT isolation • Artifact integrity • Fallback • Recovery"
+"QUALITY & VALUE" / "Recall • Escapes • Review load • Label lag • Cost per board"
+Footer "Solid: runtime / evidence   Dashed: configuration / deployment"
+Footer "Adapt resources within approved limits; never relax quality thresholds."
+
+Minimize long cross-panel spaghetti arrows; use clear local sequences and labelled inter-tier arrows only where needed. Ensure accurate readable text, no invented numeric claims, no vendor logos. Four perspectives apply to entire architecture. Production perception is probabilistic; transactions, policy enforcement and physical interlocks remain deterministic. Human reviewers and platform owners have distinct authority. The reference is an old version for styling and baseline content; the new layout and hosting content in this prompt take precedence.
