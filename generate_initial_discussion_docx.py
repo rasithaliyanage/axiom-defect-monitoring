@@ -212,7 +212,13 @@ with zipfile.ZipFile(OUTPUT) as archive:
                    'Three Architectural Views',
                    'The UI Runtime — Deterministic and Generative Interface',
                    'DispositionControl', 'ui-composition',
-                   'What UI composition evaluations must check']:
+                   'What UI composition evaluations must check',
+                   'Structural rules this layout protects',
+                   'What is deliberately not in the tree',
+                   'Three API surfaces, not one',
+                   'Gates belong to the Domain Runtime',
+                   'How to validate this structure',
+                   'simulators/', 'policies/']:
         assert marker in text, marker
     numbers = []
     for p in root.iter(f'{{{W}}}p'):
