@@ -222,11 +222,22 @@ board-defect-inspection-ai/
 │   └── implementation-plan.md
 ├── tasks/
 │   └── tasks.md
+├── .claude/
+│   ├── rules/
+│   ├── hooks/
+│   └── agents/
 ├── edge/
 ├── backend/
 ├── ml/
 ├── frontend/
+│   ├── shell/
+│   ├── composition/
+│   └── catalogue/
 └── evals/
+    ├── inspection/
+    ├── calibration/
+    ├── ui-composition/
+    ├── safety/
     ├── datasets/
     ├── scenarios/
     └── evaluation-rubric.md
@@ -237,9 +248,12 @@ board-defect-inspection-ai/
 | `edge/` | On-line capture, preprocessing, edge inference runtime, line adapter, local evidence and outbox | 1–2, local part of 3 |
 | `backend/` | API, workflow state machine, disposition policy engine, persistence, evidence and audit store, RBAC, integration adapters (PLC / MES / Quality), action gateway | Central part of 3, plus 6, 7, 10 |
 | `ml/` | Vision pipeline, specialized defect models, calibration, training, evaluation harness, model registry integration | 4–5, 8 |
-| `frontend/` | Operator, inspector and manager interfaces, including the adaptive UI composition client | 11 |
+| `frontend/` | Operator, inspector and manager interfaces: `shell/` is the deterministic application and standard-UI fallback, `composition/` the generative pipeline and its validator, `catalogue/` the approved component vocabulary | 11 |
+| `.claude/` | The harness: rules, hooks and agent instructions — the enforcement location for behaviours CLAUDE.md can only advise | Engineering-time |
 
-Observability and hosting (Layer 9) cut across all four and are configured per environment rather than owned by one directory.
+Observability and hosting (Layer 9) cut across all four runtime directories and are configured per environment rather than owned by one of them.
+
+`.claude/` deserves particular attention. §4 notes that CLAUDE.md is guidance and not a security boundary; this directory is where that caveat is answered. Rules, hooks and permissions are the mechanisms that actually constrain what the coding agent may do, and leaving them undefined means the project's only stated controls are advisory ones.
 
 ---
 
@@ -254,8 +268,10 @@ git init
 
 mkdir -p docs specs plans tasks
 mkdir -p evals/datasets evals/scenarios
-mkdir -p edge backend ml frontend
-mkdir -p .claude
+mkdir -p evals/inspection evals/calibration evals/ui-composition evals/safety
+mkdir -p edge backend ml
+mkdir -p frontend/shell frontend/composition frontend/catalogue
+mkdir -p .claude/rules .claude/hooks .claude/agents
 
 claude
 ```
@@ -408,6 +424,11 @@ Define the evaluation strategy for:
 3. Defect localization
 4. Calibration and uncertainty
 5. Board-level disposition (PASS / FAIL / REVIEW)
+6. Adaptive UI composition (permission conformance, evidence scope,
+   schema validity, fallback integrity, representation fidelity)
+
+Treat UI composition as a model-driven surface requiring its own
+evaluations, not as conventional frontend testing.
 
 For each capability define:
 - Evaluation objective
@@ -728,7 +749,68 @@ This is why the BRD's instruction to report precision, recall, F1, false-positiv
 
 ---
 
-## 19. Deterministic vs Probabilistic Boundaries
+## 19. Three Architectural Views
+
+A recurring confusion in AI-native projects is whether "frontend and backend" is still the right way to describe the system, or whether it should be replaced by runtime terminology. The answer is that these are not competing standards — they are different views of the same system, and a serious architecture uses all of them.
+
+**Frontend/backend should not be replaced.** It remains the practical system view, it is what the delivery teams and the backlog are organized around, and discarding it buys nothing.
+
+| View | Question it answers | For this system |
+|---|---|---|
+| **System / Deployment** | What is deployed and communicating? | Edge inspection node, backend services, model serving, PostgreSQL, object storage, frontend |
+| **Logical** | What responsibilities exist? | Presentation → application/workflow → domain rules → AI capabilities → data and infrastructure |
+| **AI-Native Runtime** | What executes together at runtime? | UI Runtime → Domain Runtime → AI Runtime → Data/Services |
+| **Technology** | What implements it? | Angular, Spring Boot, Python/ONNX Runtime, PostgreSQL, RabbitMQ |
+
+The runtime view is the one that earns its place on this project, because it names the thing the other views hide: some responsibilities are probabilistic and need evaluation rather than only unit testing.
+
+```
+        OPERATOR / INSPECTOR / MANAGER
+                    │
+        ┌───────────▼───────────┐
+        │      UI RUNTIME       │
+        │  Deterministic UI     │
+        │  Generative UI        │
+        └───────────┬───────────┘
+                    │
+        ┌───────────▼───────────┐
+        │    DOMAIN RUNTIME     │
+        │  APIs, workflow state │
+        │  Disposition policy   │
+        │  Security, audit      │
+        │  Action gateway       │
+        └───────────┬───────────┘
+                    │
+        ┌───────────▼───────────┐
+        │      AI RUNTIME       │
+        │  Model gateway        │
+        │  Vision pipeline      │
+        │  Calibration          │
+        │  UI composition       │
+        └───────────┬───────────┘
+                    │
+        ┌───────────▼───────────┐
+        │    DATA / SERVICES    │
+        │  PostgreSQL, objects  │
+        │  PLC / MES / Quality  │
+        └───────────────────────┘
+
+    EDGE: capture, preprocessing and edge inference execute on-line
+          ahead of the Domain Runtime, under QG-1 and QG-2
+
+    ENGINEERING SIDE (not customer-facing runtime):
+    Harness → Claude Code → Code → Tests → Evals ──feedback──┘
+```
+
+### 19.1 Where the edge fits
+
+The reference runtime view is drawn for a browser application. This system has a tier that a web application does not: the **edge**, where capture and first-pass inference run inside the production line's latency budget. It sits ahead of the Domain Runtime rather than beside it, and it is the reason QG-1 and QG-2 exist as gates before anything central is consulted.
+
+This is also why the UI Runtime here is not the entry point to the system. A board is inspected whether or not anyone is looking at a screen; the UI Runtime is how people supervise, review and adjudicate that process.
+
+---
+
+## 20. Deterministic vs Probabilistic Boundaries
 
 A central architecture principle is to keep critical controls and state transitions deterministic while allowing models to handle bounded probabilistic tasks.
 
@@ -765,11 +847,11 @@ Everything in the left-hand column above belongs to one component. It has a name
 
 ---
 
-## 20. The Backend — Deterministic Spine and Action Gateway
+## 21. The Backend — Deterministic Spine and Action Gateway
 
-In a model-driven architecture it is easy to describe the system as layers of models and lose the application tier entirely. That would be a serious error here. The backend is not the part left over once the interesting AI work is removed; it is the component that makes every constraint in this document enforceable.
+In a model-driven architecture it is easy to describe the system as layers of models and lose the application tier entirely. That would be a serious error here. The backend is not the part left over once the interesting AI work is removed; it is the component that makes every constraint in this document enforceable. In the runtime view of §19, this is the **Domain Runtime**.
 
-### 20.1 What the backend owns
+### 21.1 What the backend owns
 
 | Responsibility | Why it cannot live in a model | Layer |
 |---|---|---|
@@ -782,7 +864,7 @@ In a model-driven architecture it is easy to describe the system as layers of mo
 | Integration adapters (MES, Quality system) | Contracts with external systems are fixed, not inferred | Integration |
 | Review queue and assignment | Who reviews what is an operational rule | 7 |
 
-### 20.2 The enforcement relationship
+### 21.2 The enforcement relationship
 
 Model contracts (§13) list forbidden actions. The backend is what refuses them. Read the two together:
 
@@ -809,7 +891,7 @@ Critical defect is never auto-PASS     Policy engine rejects the disposition;
 
 A forbidden action with no named enforcing service is an open issue, not a control. This is the single most useful review question to ask of the architecture document produced by PROMPT 07.
 
-### 20.3 Why this gets stronger, not weaker, as the AI gets better
+### 21.3 Why this gets stronger, not weaker, as the AI gets better
 
 A common assumption is that a more capable model needs less deterministic scaffolding. The opposite holds for this system. As the model takes on more of the inspection judgement, the consequences of an unbounded action grow, and the value of a narrow, auditable execution boundary grows with it. The backend is what allows the model to be improved, replaced, rolled back or run in shadow mode without renegotiating who is allowed to reject a board.
 
@@ -817,7 +899,87 @@ This is also what makes the Layer 11 principle — *"the UI model composes prese
 
 ---
 
-## 21. Evaluation Becomes a First-Class Engineering Layer
+## 22. The UI Runtime — Deterministic and Generative Interface
+
+Layer 11 of the proposed design is an *AI-rendered* interface. That makes the UI Runtime the second model-driven surface in this system, and it needs the same engineering apparatus as the inspection pipeline: a contract, an approved vocabulary, a validation gate, a fallback and its own evaluations.
+
+### 22.1 Not all of the interface should be generated
+
+The split is a deliberate design decision, not a capability limit.
+
+| Deterministic UI — always hand-built | Generative UI — model-composed |
+|---|---|
+| Sign-in and session handling | Role-aware dashboard composition |
+| Navigation and line/site selection | Review queue prioritisation and grouping |
+| The disposition control itself | Contextual explanation of why a board was held |
+| Evidence and audit views of record | Adaptive review panels for the case at hand |
+| Threshold and policy administration | Summaries and trend narration for managers |
+| Any safety- or compliance-critical control | Contextual help and guidance |
+
+The rule of thumb: if getting it wrong changes what a person is *able to do*, it is deterministic. If getting it wrong changes what a person *sees first*, it may be generated.
+
+### 22.2 The composition pipeline
+
+```
+User + role + line scope + task context
+        → Backend-authorized context builder
+        → UI composition model
+        → UI specification (structured, not code)
+        → Schema and permission validation
+        → Renderer maps types to approved components
+        → Rendered interface
+        → Explicit user action
+        → Backend action gateway (re-authorizes)
+```
+
+The model never emits executable code. It selects from an approved component vocabulary and the renderer maps each type to a known component. This is the difference between a model that *describes* an interface and a model that *is* the interface.
+
+### 22.3 An approved component vocabulary
+
+```
+Approved components
+────────────────────
+Heading            DefectOverlay        ReviewPanel
+Text               EvidenceViewer       QueueList
+StatCard           ImageCompare         TrendChart
+Alert              ConfidenceBadge      DispositionControl
+ProgressIndicator  BoardSummary         EscalationNotice
+```
+
+`DispositionControl` is the instructive case. It appears in the approved vocabulary, so the composition model may place it on a page. It cannot thereby grant anyone the right to use it: the control renders, the user submits, and the backend action gateway (§21.3) independently re-authorizes the actor, the board state and the record version before anything happens. **Rendering a control is not granting a permission.**
+
+### 22.4 Example UI contract
+
+```
+{
+  "view": "inspection_review",
+  "context": { "board_id": "...", "line": "...", "role": "inspector" },
+  "components": [
+    { "type": "BoardSummary",        "board_id": "..." },
+    { "type": "ImageCompare",        "mode": "reference_vs_captured" },
+    { "type": "DefectOverlay",       "source": "detection_evidence" },
+    { "type": "ConfidenceBadge",     "source": "calibrated_score" },
+    { "type": "ReviewPanel",         "fields": ["defect_class", "reason_code"] },
+    { "type": "DispositionControl",  "options": ["PASS", "REVIEW", "FAIL"] }
+  ]
+}
+```
+
+The renderer rejects the whole specification if it references an unknown component type, requests data outside the viewer's permitted scope, or omits a required field. Rejection is not an error state to hide — it falls back to the standard interface.
+
+### 22.5 Why our stakes are higher than the reference pattern
+
+The reference guide demonstrates generative UI on a customer landing page, where a poor composition produces a worse marketing experience. Here the same mechanism composes the interface through which an inspector dispositions a board. A mis-composed page could surface the wrong evidence next to a disposition control, or present a confident-looking summary of an uncertain result.
+
+Three consequences follow, and none of them are optional:
+
+1. **The approved-vocabulary rule is necessary but not sufficient.** It prevents code injection; it does not prevent a misleading arrangement of legitimate components.
+2. **Evidence bindings must be authoritative, not model-supplied.** A component receives a reference to evidence the backend resolves — the model never passes through the values a person will act on.
+3. **Fallback must be genuinely usable.** If the composition model is unavailable, uncertain or produces an invalid specification, the standard interface must let an inspector complete the review. Degraded composition must never become degraded authority.
+
+---
+
+## 23. Evaluation Becomes a First-Class Engineering Layer
 
 - **Deterministic tests** verify code, schemas, APIs, state transitions and PLC message contracts.
 - **Semantic/model evaluations** assess whether detection, classification and localization outputs meet quality expectations.
@@ -825,28 +987,62 @@ This is also what makes the Layer 11 principle — *"the UI model composes prese
 - **Workflow/trajectory evaluations** assess whether the system follows the intended gate sequence and escalates correctly.
 - **Golden datasets** provide repeatable scenarios against which model, preprocessing and threshold changes can be compared.
 
+**Every model-driven surface needs its own evaluations, not just the inspection pipeline.** The system has two: detection/calibration, and UI composition (§22). A generative interface that is never evaluated is an unevaluated model in production, regardless of how conventional the surrounding application looks.
+
 Example evaluation repository:
 
 ```
 evals/
-├── datasets/
-│   ├── board_inspection_cases.json
-│   ├── critical_defect_cases.json
-│   └── calibration_cases.json
+├── inspection/
+│   ├── datasets/
+│   │   ├── board_inspection_cases.json
+│   │   ├── critical_defect_cases.json
+│   │   └── multi_defect_cases.json
+│   └── scenarios/
+│       ├── degraded-image.md
+│       ├── unseen-board-revision.md
+│       ├── rare-defect.md
+│       └── inspection-system-unavailable.md
+├── calibration/
+│   ├── datasets/calibration_cases.json
+│   └── scenarios/
+│       ├── calibration-out-of-scope.md
+│       └── uncertainty-under-drift.md
+├── ui-composition/
+│   ├── datasets/view_requests.json
+│   └── scenarios/
+│       ├── unknown-component-type.md
+│       ├── out-of-scope-evidence-request.md
+│       ├── composition-timeout-fallback.md
+│       └── manager-vs-inspector-same-board.md
+├── safety/
+│   ├── critical-defect-false-negative.md
+│   ├── unsafe-automatic-disposition.md
+│   ├── permission-implied-by-rendering.md
+│   └── misleading-confident-summary.md
 ├── expected/
 │   └── expected_behaviour.json
-├── scenarios/
-│   ├── degraded-image.md
-│   ├── unseen-board-revision.md
-│   ├── rare-defect.md
-│   ├── multiple-defects.md
-│   └── inspection-system-unavailable.md
 └── evaluation-rubric.md
 ```
 
+### 23.1 What UI composition evaluations must check
+
+Conventional UI testing asks whether a component renders. These evaluations ask something different — whether the *composition decision* was sound:
+
+| Check | Failing behaviour it catches |
+|---|---|
+| Permission conformance | A view composed for an inspector exposes a manager-only control |
+| Evidence scope | The specification requests evidence outside the viewer's line or site scope |
+| Schema validity | An unknown component type, or a required field omitted |
+| Fallback integrity | On timeout or invalid output, the standard UI still permits completing the review |
+| Representation fidelity | An uncertain result is presented without its confidence or escalation state |
+| Determinism where required | A safety-critical control is generated rather than taken from the deterministic shell |
+
+The fifth is the subtle one and the reason this surface warrants safety evaluations of its own. A composition can be schema-valid, permission-correct and still mislead — by placing a confident-looking summary where the underlying result was marginal. That is a model quality failure, and only an evaluation corpus will surface it.
+
 ---
 
-## 22. Why the Specification Must Evolve
+## 24. Why the Specification Must Evolve
 
 A deterministic requirement might say:
 
@@ -869,7 +1065,7 @@ false negative on a critical defect shall be reported as a critical failure.
 
 ---
 
-## 23. The Three-Layer Model
+## 25. The Three-Layer Model
 
 ```
 Layer 1 — Claude / Model
@@ -889,7 +1085,7 @@ Layer 2 builds the system. Layer 3 runs it. Conflating them is a common and expe
 
 ---
 
-## 24. Harness Engineering — Where It Fits
+## 26. Harness Engineering — Where It Fits
 
 The initial project foundation should not be confused with a commercial product called Harness. In this context, harness engineering means deliberately designing the environment around the coding/agent system so that it can work iteratively and reliably.
 
@@ -918,7 +1114,7 @@ CLAUDE.md and the specification remain valid and important. They form part of th
 
 ---
 
-## 25. Recommended End-to-End AI-Native Engineering Lifecycle
+## 27. Recommended End-to-End AI-Native Engineering Lifecycle
 
 ```
 Business Problem
@@ -945,7 +1141,7 @@ This mirrors the model lifecycle the BRD already requires — development, valid
 
 ---
 
-## 26. Key Engineering Messages
+## 28. Key Engineering Messages
 
 1. Do not start an enterprise AI build by asking Claude Code to generate the whole application.
 2. Start with the business problem and a specification.
@@ -955,13 +1151,15 @@ This mirrors the model lifecycle the BRD already requires — development, valid
 6. AI behaviour must be specified in terms of uncertainty, evidence, evaluation and escalation.
 7. Critical business controls — disposition policy, interlocks, audit, PLC signalling — should remain deterministic, and they belong to a named backend tier rather than being distributed across the model layers.
 8. Models should operate inside explicit contracts and bounded workflows, with no direct path to physical action. A forbidden action in a model contract is only a control once a backend service is named as its enforcer.
-9. Evaluation datasets and rubrics must become first-class engineering assets, owned jointly with the Quality team.
-10. Harness engineering is the broader discipline of making agentic work reliable through context, tools, state, verification and feedback.
-11. Where the BRD is silent, the correct engineering output is an open question with a named owner — not an assumed default.
+9. Evaluation datasets and rubrics must become first-class engineering assets, owned jointly with the Quality team — and every model-driven surface needs them, the adaptive UI included.
+10. Frontend/backend is not replaced by runtime terminology; the System/Deployment, Logical and AI-Native Runtime views are used together.
+11. A generated interface selects from an approved component vocabulary and never emits executable code — but rendering a control is not granting a permission, and only the backend gateway decides what a user may actually do.
+12. Harness engineering is the broader discipline of making agentic work reliable through context, tools, state, verification and feedback, with `.claude/` as its enforcement location.
+13. Where the BRD is silent, the correct engineering output is an open question with a named owner — not an assumed default.
 
 ---
 
-## 27. Final Mental Model
+## 29. Final Mental Model
 
 ```
 Specification-Driven Engineering
@@ -993,10 +1191,15 @@ Reliable Long-Running Agentic Work
 - `specs/model-contracts.md`
 - `specs/backend-contracts.md`
 - `specs/decision-policy.md`
+- `specs/ui-contract.md`
 - `plans/implementation-plan.md`
 - `tasks/tasks.md`
+- `.claude/rules/`
+- `.claude/hooks/`
+- `frontend/catalogue/approved-components.md`
 - `evals/evaluation-rubric.md`
-- `evals/datasets/board_inspection_cases.json`
+- `evals/inspection/datasets/board_inspection_cases.json`
+- `evals/ui-composition/datasets/view_requests.json`
 
 ---
 
