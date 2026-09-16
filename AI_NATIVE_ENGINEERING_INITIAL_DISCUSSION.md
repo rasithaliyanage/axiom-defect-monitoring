@@ -200,60 +200,164 @@ The second version can be tested. The first cannot.
 
 ## 6. The Repository Structure
 
-The repository structure should reflect the architecture. Four delivery tiers matter here, and they are not the same axis: **where code runs** (edge vs. central) and **what kind of code it is** (deterministic application vs. probabilistic model). Splitting only by location hides the application tier; splitting only by kind hides the latency boundary. The structure below keeps both visible.
+The repository structure should reflect the architecture. The runtime view of §19 gives the three runtime directories — `frontend/` (UI Runtime), `backend/` (Domain Runtime) and `ai/` (AI Runtime) — and the domain adds what a web application does not need: an edge tier, a substantial model lifecycle, business-owned policy, and a way to exercise factory behaviour without a factory.
+
+### 6.1 Proposed structure
 
 ```
-board-defect-inspection-ai/
+board-defect-inspection/
 ├── CLAUDE.md
 ├── README.md
-├── docs/
-│   ├── business-problem.md
-│   ├── architecture.md
+│
+├── .claude/                    HARNESS (engineering time)
+│   ├── rules/                  project rules and constraints
+│   ├── hooks/                  enforced actions, pre/post checks
+│   ├── agents/                 specialized agent instructions
+│   └── settings.json           permissions, allowed tools
+│
+├── docs/                       shared understanding
+│   ├── business-problem.md     derived from the BRD
+│   ├── architecture.md         the four views, edge and enterprise
+│   ├── quality-gates.md        QG-1 … QG-6 and failure actions
 │   ├── security.md
-│   └── decisions.md
-├── specs/
-│   ├── spec.md
-│   ├── defect-taxonomy.md
-│   ├── quality-gates.md
-│   ├── model-contracts.md
-│   ├── backend-contracts.md
-│   └── decision-policy.md
-├── plans/
-│   └── implementation-plan.md
-├── tasks/
-│   └── tasks.md
-├── .claude/
-│   ├── rules/
-│   ├── hooks/
-│   └── agents/
-├── edge/
-├── backend/
-├── ml/
-├── frontend/
-│   ├── shell/
-│   ├── composition/
-│   └── catalogue/
-└── evals/
-    ├── inspection/
-    ├── calibration/
-    ├── ui-composition/
-    ├── safety/
-    ├── datasets/
-    ├── scenarios/
-    └── evaluation-rubric.md
+│   └── adr/                    numbered decision records
+│
+├── specs/                      what to build
+│   ├── spec.md                 functional, NFR, AI requirements
+│   ├── model-contracts.md      per-model contracts and limits
+│   ├── backend-contracts.md    service boundaries
+│   ├── api-contracts.md        line, review and admin surfaces
+│   ├── data-model.md           evidence, records, cache, registry
+│   └── ui-contract.md          generative UI specification schema
+│
+├── policies/                   BUSINESS-OWNED, versioned separately
+│   ├── defect-taxonomy.md      D001 … D006, severities
+│   ├── thresholds.md           per-defect recall, review bands
+│   ├── decision-rules.md       BR-001 … BR-005
+│   └── ui-layout-policy.md     what generative UI may compose
+│
+├── contracts/                  SHARED SCHEMAS (cross-runtime, cross-tier)
+│   ├── inspection/             attempt, finding, decision record
+│   ├── ui/                     UI specification schema
+│   └── events/                 sync and outbox message shapes
+│
+├── plans/implementation-plan.md
+├── tasks/tasks.md
+│
+├── frontend/                   UI RUNTIME
+│   └── src/
+│       ├── views/              operator, inspector, manager
+│       ├── components/approved/  approved component catalogue
+│       ├── renderer/           generative UI renderer + validation
+│       ├── fallback/           standard UI when generation fails
+│       └── api/                typed clients from contracts/
+│
+├── backend/                    DOMAIN RUNTIME
+│   ├── api/
+│   │   ├── line/               machine to machine, tight latency
+│   │   ├── review/             human facing, attributed actions
+│   │   └── admin/              privileged, separately audited
+│   ├── workflow/               inspection state machine
+│   ├── gates/                  QG-1 … QG-6 enforcement
+│   ├── rules/                  policy evaluation, BR-001 … BR-005
+│   ├── services/               one module per architecture layer
+│   ├── adapters/               PLC, MES, quality, capture source
+│   ├── persistence/            evidence, records, cache, registry
+│   ├── security/               authn, authz, override authority
+│   └── audit/                  immutable trail
+│
+├── ai/                         AI RUNTIME (serving)
+│   ├── gateway/                model invocation, version pinning
+│   ├── vision/                 understand, detect, classify, localize
+│   ├── calibration/            scores → probabilities
+│   ├── risk/                   severity, criticality, uncertainty
+│   ├── uigen/                  UI specification generation
+│   ├── prompts/                versioned prompt assets
+│   └── context/                board spec and BOM context assembly
+│
+├── ml/                         MODEL LIFECYCLE (architecture layer 8)
+│   ├── preprocessing/          SHARED with ai/vision/ at serving time
+│   ├── training/
+│   ├── experiments/
+│   ├── packaging/              model package, target hardware build
+│   ├── datasets/               manifests and pointers, never data
+│   └── registry/               approval and release records
+│
+├── edge/                       EDGE DEPLOYMENT COMPOSITION
+│   ├── compose/                which services run on the line
+│   ├── config/                 line, camera, inspection point
+│   └── offline/                cache validity, outbox behaviour
+│
+├── enterprise/                 ENTERPRISE DEPLOYMENT COMPOSITION
+│   ├── compose/
+│   └── config/
+│
+├── simulators/                 HARNESS: exercise without a factory
+│   ├── capture/                synthetic and recorded image sources
+│   ├── plc/                    signal, acknowledgement, state checks
+│   ├── mes/
+│   └── offline-mode/           enterprise unreachable
+│
+├── evals/                      HARNESS: probabilistic verification
+│   ├── inspection/             detection, classification, localization
+│   ├── calibration/            score semantics and uncertainty
+│   ├── ui-composition/         generative UI quality
+│   ├── safety/                 critical-defect and authority failures
+│   ├── expected/
+│   ├── runner/                 executable, wired into ci/
+│   └── evaluation-rubric.md
+│
+├── tests/                      cross-cutting and end to end
+├── ops/                        runbooks, dashboards, alerts, SLOs
+├── infra/                      environments, deployment, secrets policy
+└── ci/                         gate checks, eval runs, release gating
 ```
 
-| Directory | Owns | Layers |
+### 6.2 Directory reference
+
+| Directory | Holds | Tier |
 |---|---|---|
-| `edge/` | On-line capture, preprocessing, edge inference runtime, line adapter, local evidence and outbox | 1–2, local part of 3 |
-| `backend/` | API, workflow state machine, disposition policy engine, persistence, evidence and audit store, RBAC, integration adapters (PLC / MES / Quality), action gateway | Central part of 3, plus 6, 7, 10 |
-| `ml/` | Vision pipeline, specialized defect models, calibration, training, evaluation harness, model registry integration | 4–5, 8 |
-| `frontend/` | Operator, inspector and manager interfaces: `shell/` is the deterministic application and standard-UI fallback, `composition/` the generative pipeline and its validator, `catalogue/` the approved component vocabulary | 11 |
-| `.claude/` | The harness: rules, hooks and agent instructions — the enforcement location for behaviours CLAUDE.md can only advise | Engineering-time |
+| `.claude/` | Harness enforcement: rules, hooks, agent instructions, permissions — the part of the harness that *acts* rather than advises | Engineering |
+| `docs/` `specs/` | Shared understanding and what to build, including the UI specification schema | Engineering |
+| `policies/` | Quality-owned taxonomy, thresholds, decision rules and UI layout policy, versioned independently of code | Business |
+| `contracts/` | Schemas shared across runtimes and tiers; sits above `frontend/`, `backend/` and `ai/` so none of them owns the wire format | Both |
+| `frontend/` | UI Runtime: role-aware views, approved catalogue, generative renderer with validation, standard fallback | Both |
+| `backend/` | Domain Runtime: three API surfaces, workflow state, gate enforcement, policy evaluation, adapters, persistence, security, audit | Both |
+| `ai/` | AI Runtime: model gateway, vision pipeline, calibration, risk, UI generation, prompts, context assembly | Both |
+| `ml/` | Model lifecycle: shared preprocessing, training, experiments, packaging, dataset manifests, approval records | Enterprise |
+| `edge/` `enterprise/` | Composition and configuration only — never business logic | Edge / Enterprise |
+| `simulators/` | Capture, PLC, MES and offline mode, so the pipeline and the coding agent can run without a factory | Engineering |
+| `evals/` | Golden datasets, expected behaviour, scenarios, the executable runner and the rubric | Engineering |
+| `ops/` `infra/` `ci/` | Runbooks and alerts; environments and deployment; gate checks, eval runs and release gating | Engineering |
 
-Observability and hosting (Layer 9) cut across all four runtime directories and are configured per environment rather than owned by one of them.
+Observability and hosting (Layer 9) live in `ops/` and `infra/` and cut across every runtime directory rather than being owned by one.
 
-`.claude/` deserves particular attention. §4 notes that CLAUDE.md is guidance and not a security boundary; this directory is where that caveat is answered. Rules, hooks and permissions are the mechanisms that actually constrain what the coding agent may do, and leaving them undefined means the project's only stated controls are advisory ones.
+### 6.3 Structural rules this layout protects
+
+Each of these is the reason a directory sits where it does. If one is violated, the structure has stopped doing its job.
+
+- **`ml/preprocessing/` is imported by `ai/vision/` at serving time.** Preprocessing must exist once, not once in training and again in inference. Duplicated preprocessing is the classic cause of training/serving skew, and it surfaces as unexplained recall loss in production rather than as a failing test.
+- **`contracts/` sits above the three runtimes** so an edge decision and its later central re-analysis remain comparable, and so no runtime owns the wire format.
+- **`policies/` is separate from code because thresholds and taxonomy are Quality-owned.** The repository copy is the seed and default; the runtime source of truth is the policy service behind the admin surface, so changing a threshold is an audited business action rather than a deployment.
+- **`backend/adapters/` is the only place permitted to talk to line equipment**, which keeps protocol detail out of the decision path and makes every integration testable against `simulators/`.
+- **`simulators/` exists** because a coding agent with no way to exercise degraded capture, a latency breach or a disconnected enterprise will write happy-path code with confidence.
+- **`evals/runner/` is executable and wired into `ci/`.** A rubric that is not run decays within weeks.
+- **`edge/` and `enterprise/` hold composition only.** Inspection logic accumulating there means the service boundaries were drawn in the wrong place.
+- **Gates live in `backend/gates/`, never in `ai/`.** A gate implemented inside the AI Runtime would be a model checking its own work.
+
+**No directory layout enforces anything.** Three invariants in particular need tests that prove they cannot be bypassed, rather than folders that merely suggest it:
+
+1. No path from inference to line equipment that skips the decision path
+2. Evidence persisted before any action is taken on a board
+3. A HOLD is never resolved by timeout — an expiring HOLD turns a capacity problem into a quality escape
+
+### 6.4 What is deliberately not in the tree
+
+- **Image and training data.** `ml/datasets/` holds manifests and pointers; the data lives in versioned external storage with retention policy applied.
+- **Model binaries.** `ml/registry/` holds approval and release records; packages live in the registry the deployment reads from.
+- **Secrets.** `infra/` holds the policy for handling them, never values.
+- **Labelling tooling.** Reached through the review surface and the label store rather than vendored into the repository.
+- **Dependency manifests, build files and pipeline definitions**, because the technology decision is still open (Appendix C #16). These appear the moment it is settled.
 
 ---
 
@@ -267,11 +371,18 @@ cd board-defect-inspection-ai
 git init
 
 mkdir -p docs specs plans tasks
-mkdir -p evals/datasets evals/scenarios
-mkdir -p evals/inspection evals/calibration evals/ui-composition evals/safety
-mkdir -p edge backend ml
-mkdir -p frontend/shell frontend/composition frontend/catalogue
-mkdir -p .claude/rules .claude/hooks .claude/agents
+mkdir -p docs/adr specs policies contracts/{inspection,ui,events}
+mkdir -p plans tasks
+mkdir -p .claude/{rules,hooks,agents}
+mkdir -p frontend/src/{views,components/approved,renderer,fallback,api}
+mkdir -p backend/{api/{line,review,admin},workflow,gates,rules,services}
+mkdir -p backend/{adapters,persistence,security,audit}
+mkdir -p ai/{gateway,vision,calibration,risk,uigen,prompts,context}
+mkdir -p ml/{preprocessing,training,experiments,packaging,datasets,registry}
+mkdir -p edge/{compose,config,offline} enterprise/{compose,config}
+mkdir -p simulators/{capture,plc,mes,offline-mode}
+mkdir -p evals/{inspection,calibration,ui-composition,safety,expected,runner}
+mkdir -p tests ops infra ci
 
 claude
 ```
@@ -525,6 +636,14 @@ those contracts:
 4. Evidence, decision-record and audit persistence
 5. Integration adapters (PLC, MES, Quality system)
 
+Also create:
+  specs/api-contracts.md   the line, review and admin surfaces
+  specs/ui-contract.md     the generative UI specification schema
+
+The three API surfaces have different authentication models and
+availability requirements and must be specified separately, not as one
+API with role checks.
+
 For every backend service specify:
 - Purpose
 - Interface and callers
@@ -614,17 +733,20 @@ Address explicitly:
 - whether a local disposition may be issued, and under what preconditions
 - how a central re-analysis relates to a disposition already acted upon
 
-Implementation stack is already selected in PRODUCT_BACKLOG.md
-(Angular/TypeScript, Java/Spring Boot, Python/ONNX Runtime, PostgreSQL,
-S3-compatible object storage, RabbitMQ, NGINX, enterprise OIDC, managed
-Linux VMs). Design within it; do not re-litigate the stack, and do not
-introduce new infrastructure without recording the reason in
-docs/decisions.md.
+The technology stack is an OPEN DECISION (Appendix C #16).
+PRODUCT_BACKLOG.md names Angular/TypeScript, Java/Spring Boot,
+Python/ONNX Runtime, PostgreSQL, S3-compatible object storage, RabbitMQ
+and NGINX; the BRD defers infrastructure and deployment entirely.
+Do not treat either as settled. Design the architecture so the stack
+decision is substitutable, and record the decision in docs/adr/ once
+it is made.
 
 Do not implement code.
 ```
 
-> **Note on the stack.** The technology choices above are cited because the delivery backlog has already committed to them, not because this discussion selects them. The BRD is explicit that the BA team should not prescribe technology (BRD §46); that boundary is respected by treating the stack as an existing organizational constraint rather than a fresh architectural decision.
+> **Note on the stack.** There is a live contradiction here that this document cannot settle. The delivery backlog commits to a stack; the BRD (§46) explicitly defers technology and warns against prescribing it during discovery. Both positions are defensible, and they give a coding agent opposite instructions — so the architecture should be designed to survive either answer, and the question raised rather than quietly resolved. See Appendix C #16.
+>
+> There is a genuine engineering input to that decision beyond preference: the vision workload and the edge hardware target constrain the inference runtime, and those constraints should drive the choice rather than follow it.
 
 ### 14.1 The layered reference architecture
 
@@ -897,6 +1019,24 @@ A common assumption is that a more capable model needs less deterministic scaffo
 
 This is also what makes the Layer 11 principle — *"the UI model composes presentation; users authorize actions"* — implementable rather than aspirational. The adaptive UI can render anything it likes; nothing happens until an authenticated user submits an action that the gateway independently re-authorizes.
 
+### 21.4 Three API surfaces, not one
+
+The Domain Runtime is consumed by three populations with incompatible requirements. Collapsing them into a single API is one of the more consequential early mistakes available on this project, because their authentication models genuinely conflict.
+
+| Surface | Directory | Consumers | Character |
+|---|---|---|---|
+| **Line facing** | `backend/api/line/` | Capture source, PLC, MES | Machine to machine, tight latency budget, highest availability, no interactive authentication |
+| **Human facing** | `backend/api/review/` | Operators, inspectors, managers | Interactive authentication, role-aware authorization, every mutation attributed to a named user |
+| **Administrative** | `backend/api/admin/` | Quality, AI and platform owners | Most privileged: taxonomy, thresholds, rules, model approval. Separately authenticated and audited, and unreachable from the line surface |
+
+The line surface cannot require interactive authentication — production does not pause for a login — while every mutation on the review surface must be attributed to a named person. The administrative surface changes the rules the other two operate under, which is why it is separately audited and why nothing on the line can reach it.
+
+This also gives policy its runtime home. Thresholds and taxonomy are Quality-owned (§6.3): the repository copy in `policies/` is the seed, and the authoritative runtime source sits behind the admin surface. Changing a threshold is then an audited business action rather than a code deployment — and the policy version in force must be pinned into every decision record, or the audit trail cannot answer why a board was rejected under rules that have since changed.
+
+### 21.5 Gates belong to the Domain Runtime
+
+QG-1 through QG-6 are enforced in `backend/gates/`, never inside `ai/`. A gate implemented within the AI Runtime would be a model checking its own work. This is the structural expression of the same rule as §21.2: the component that produces the evidence is never the component that decides whether the evidence is acceptable.
+
 ---
 
 ## 22. The UI Runtime — Deterministic and Generative Interface
@@ -1022,8 +1162,11 @@ evals/
 │   └── misleading-confident-summary.md
 ├── expected/
 │   └── expected_behaviour.json
+├── runner/                  executable, wired into ci/
 └── evaluation-rubric.md
 ```
+
+`runner/` is not optional decoration. An evaluation suite that is not executed on every change decays within weeks, and a decayed rubric is worse than none — it provides the appearance of verification without the fact of it. Wire it into `ci/` from the first slice, even when it holds two cases.
 
 ### 23.1 What UI composition evaluations must check
 
@@ -1154,8 +1297,10 @@ This mirrors the model lifecycle the BRD already requires — development, valid
 9. Evaluation datasets and rubrics must become first-class engineering assets, owned jointly with the Quality team — and every model-driven surface needs them, the adaptive UI included.
 10. Frontend/backend is not replaced by runtime terminology; the System/Deployment, Logical and AI-Native Runtime views are used together.
 11. A generated interface selects from an approved component vocabulary and never emits executable code — but rendering a control is not granting a permission, and only the backend gateway decides what a user may actually do.
-12. Harness engineering is the broader discipline of making agentic work reliable through context, tools, state, verification and feedback, with `.claude/` as its enforcement location.
-13. Where the BRD is silent, the correct engineering output is an open question with a named owner — not an assumed default.
+12. Harness engineering is the broader discipline of making agentic work reliable through context, tools, state, verification and feedback, with `.claude/` as its enforcement location and `simulators/` as the reason an agent can exercise degraded capture, latency breaches and a disconnected enterprise instead of writing confident happy-path code.
+13. Business-owned policy — taxonomy, thresholds, decision rules — lives outside the code and is versioned separately, so that changing a threshold is an audited business action rather than a deployment.
+14. A directory layout enforces nothing. The invariants that matter need tests: no path from inference to line equipment that skips the decision path, evidence persisted before action, and no HOLD resolved by timeout.
+15. Where the BRD is silent, the correct engineering output is an open question with a named owner — not an assumed default.
 
 ---
 
@@ -1183,20 +1328,26 @@ Reliable Long-Running Agentic Work
 - `README.md`
 - `docs/business-problem.md`
 - `docs/architecture.md`
+- `docs/quality-gates.md`
 - `docs/security.md`
-- `docs/decisions.md`
+- `docs/adr/0001-record-architecture-decisions.md`
 - `specs/spec.md`
-- `specs/defect-taxonomy.md`
-- `specs/quality-gates.md`
 - `specs/model-contracts.md`
 - `specs/backend-contracts.md`
-- `specs/decision-policy.md`
+- `specs/api-contracts.md`
+- `policies/defect-taxonomy.md`
+- `policies/thresholds.md`
+- `policies/decision-rules.md`
+- `policies/ui-layout-policy.md`
 - `specs/ui-contract.md`
+- `contracts/inspection/`
 - `plans/implementation-plan.md`
 - `tasks/tasks.md`
 - `.claude/rules/`
 - `.claude/hooks/`
-- `frontend/catalogue/approved-components.md`
+- `.claude/settings.json`
+- `frontend/src/components/approved/README.md`
+- `simulators/capture/`
 - `evals/evaluation-rubric.md`
 - `evals/inspection/datasets/board_inspection_cases.json`
 - `evals/ui-composition/datasets/view_requests.json`
@@ -1234,11 +1385,27 @@ These are carried from the BRD and the proposed architecture. They are engineeri
 | 11 | Image and result retention periods | BRD §26, Q17 | Quality / Compliance |
 | 12 | Override authority and approval rights for models and thresholds | BRD §29, Q18 | Quality / Security |
 | 13 | Retry/re-capture bounds and terminal action once exhausted | Architecture diagram (bound not stated) | Solution Architecture |
-| 14 | Review/escalation SLA before a held board is force-dispositioned | Architecture diagram (no SLA stated) | Quality / Manufacturing |
+| 14 | Escalation path and staffing for a held board — **constrained**: a HOLD may never be resolved by timeout (§6.3), so the answer is an escalation route, never an expiry | Architecture diagram (no SLA stated) | Quality / Manufacturing |
 | 15 | Conflict handling when central re-analysis disagrees with an edge disposition already acted upon | Architecture diagram | Solution Architecture |
+
+Five further decisions concern the structure itself. The first two change the shape of the tree; the rest change only its contents.
+
+| # | Open decision | Why it matters | Owner |
+|---|---|---|---|
+| 16 | **Technology stack.** PRODUCT_BACKLOG.md commits to a stack; the BRD (§46) defers it. Unresolved, these give opposite instructions | The vision workload and edge hardware target should drive this, not follow it | Solution Architecture / Business |
+| 17 | **Deployment granularity.** `backend/services/` is a logical decomposition, not nine deployable services | For a first build, one deployable with enforced internal module boundaries is almost certainly right. Decide explicitly, before anyone reads the tree as a microservice mandate | Solution Architecture |
+| 18 | **Repository strategy.** Edge devices and the enterprise platform will not ship on the same cadence | A single repository works initially, but per-component release tagging is needed early and a later edge split should be anticipated rather than discovered | Solution Architecture |
+| 19 | **Policy runtime source of truth.** Confirm `policies/` is the seed and the policy service is authoritative at runtime | Also define how a policy version is pinned into a decision record — without it the audit trail cannot explain a decision made under superseded rules | Quality / Solution Architecture |
+| 20 | **Edge decision autonomy.** Whether layers 5–6 are approved to run at the edge for offline continuity | Determines how much of `ai/` and `backend/` ships to the line; depends on the unresolved answer to #6 | Quality / Manufacturing |
+
+### How to validate this structure
+
+Do not accept the layout on paper. Build the first vertical slice through it — image capture, QG-1 enforcement, and evidence persistence via the capture-source adapter and simulator, exposed only on the line surface — and watch for files that want a home the tree does not offer. That single exercise settles #17 and #19 faster than further design discussion, and a directory is cheap to redraw at that point.
 
 ---
 
 *End of initial discussion document.*
 
-*Derived from `Business Requirements Document.docx` (v1.0, discovery status) and `AI_NATIVE_SOLUTION_ARCHITECTURE_INFOGRAPHIC.png` (proposed design, validation required). Related engineering artifacts in this repository: `AI_NATIVE_USER_JOURNEYS_WORKFLOWS_GAPS.md`, `AI_NATIVE_END_TO_END_WORKFLOW.md`, `AI_NATIVE_GAP_ANALYSIS.md`.*
+*Derived from `Business Requirements Document.docx` (v1.0, discovery status) and `AI_NATIVE_SOLUTION_ARCHITECTURE_INFOGRAPHIC.png` (proposed design, validation required). The architectural views in §19 follow `02-AI_Native_Engineering_Architecture_Beginner_Guide`. The repository structure in §6, the three API surfaces in §21.4, and the structural rules and open decisions in §6.3 and Appendix C incorporate material from Vinod's `Proposed Project Structure — Board Defect Inspection (AI-Native)`.*
+
+*This is a synthesis of a proposed design, a discovery-stage BRD and a draft structure. It is not a validated reference architecture, and the design it rests on is itself marked as requiring validation. Related engineering artifacts in this repository: `AI_NATIVE_USER_JOURNEYS_WORKFLOWS_GAPS.md`, `AI_NATIVE_END_TO_END_WORKFLOW.md`, `AI_NATIVE_GAP_ANALYSIS.md`.*
