@@ -208,7 +208,11 @@ with zipfile.ZipFile(OUTPUT) as archive:
     for marker in ['PROMPT 01', 'PROMPT 10', 'Harness Engineering',
                    'Appendix C', 'Deterministic vs Probabilistic Boundaries',
                    'The Backend — Deterministic Spine and Action Gateway',
-                   'Backend action gateway', 'backend-contracts.md']:
+                   'Backend action gateway', 'backend-contracts.md',
+                   'Three Architectural Views',
+                   'The UI Runtime — Deterministic and Generative Interface',
+                   'DispositionControl', 'ui-composition',
+                   'What UI composition evaluations must check']:
         assert marker in text, marker
     numbers = []
     for p in root.iter(f'{{{W}}}p'):
@@ -219,7 +223,7 @@ with zipfile.ZipFile(OUTPUT) as archive:
         match = re.match(r'(\d+)\.\s', heading)
         if match:
             numbers.append(int(match.group(1)))
-    assert numbers == list(range(1, 28)), f'section numbering broken: {numbers}'
+    assert numbers == list(range(1, 30)), f'section numbering broken: {numbers}'
 print(f'Created {OUTPUT.name}: {OUTPUT.stat().st_size:,} bytes')
 print(f'Source: {len(SOURCE.read_text(encoding="utf-8").split()):,} words')
 print(f'{len(root.findall(".//{" + W + "}tbl"))} tables/code blocks ({code_blocks} code blocks)')
