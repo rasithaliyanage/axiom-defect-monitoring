@@ -1,0 +1,178 @@
+Customer Onboarding AI
+Task 1 — Establishing the Project Foundation
+Beginner-friendly guide to starting an AI-native project with Claude Code
+1. What This Task Is About
+We are starting the Customer Onboarding AI application from an empty Virtusa Git repository. Task 1 is deliberately not about building the web application. It is about creating the project foundation that will guide the development team and Claude Code.
+The first implementation scenario is intentionally small: a Customer Onboarding landing page using controlled Generative UI. The future runtime AI model will produce a structured UI specification, while the application controls what can actually be rendered.
+2. Starting Point: An Empty Repository
+The project starts from this internal Virtusa Git repository:
+https://git.virtusa.com/wfxainative_group/Wiley-B1/lbalasuriya_customer_onboarding.git
+Clone it and enter the project:
+git clone https://git.virtusa.com/wfxainative_group/Wiley-B1/lbalasuriya_customer_onboarding.gitcd lbalasuriya_customer_onboardinggit status
+Then start Claude Code from the repository root:
+claude
+3. Why We Do Not Start by Building the Application
+A conventional project might begin immediately with React, FastAPI, databases and APIs. Here we deliberately establish the engineering foundation first.
+Clarify the business problem before implementation.
+Define what the system should do.
+Define what the runtime AI model may and may not do.
+Give Claude Code persistent project context and engineering instructions.
+Separate deterministic software tests from probabilistic AI evaluations.
+Keep the first implementation small enough to understand and review.
+4. The Information Layers Created in Task 1
+Layer
+File
+Beginner meaning
+Business
+docs/business-problem.md
+Why are we building this? What business problem are we solving?
+System
+specs/spec.md
+What should the system do?
+Model
+specs/model-contracts.md
+What should the runtime AI model be allowed and expected to do?
+Engineering
+CLAUDE.md
+How should Claude Code work on this project?
+The key lesson is to avoid putting all project knowledge into one large prompt or document.
+5. The Exact Task 1 Prompt Given to Claude Code
+This was the complete instruction used to establish the project foundation:
+We are building an internal Virtusa Customer Onboarding AI application.This repository is currently empty.Do NOT build the application yet.First, establish the project engineering foundation for an AI-native, model-driven application.The first implementation scenario is intentionally small:Build a Customer Onboarding landing page using controlled Generative UI.The runtime AI model will generate a structured UI specification, not executable React, HTML, JavaScript, or shell commands.The application will validate the model output and render it only through an approved set of React components.This is an internal Virtusa application, so do NOT create a separate authentication subsystem for this initial implementation.Create the following project foundation:1. CLAUDE.md2. README.md3. docs/business-problem.md4. docs/architecture.md5. specs/spec.md6. specs/model-contracts.md7. tests/8. evals/9. .claude/The documentation should clearly distinguish:- Business requirements- System specification- Model contract- Claude Code engineering instructions- Deterministic software tests- AI evaluationsUse the following architecture concepts:UI Runtime- React- TypeScript- Controlled Generative UI rendererDomain Runtime- FastAPI- Python- Initial business/API layerAI Runtime- Model gateway- UI generation model- Structured model outputThe model must NOT generate executable code.The model may:- select approved UI components- arrange approved components- generate user-facing text- adapt content to context- return a valid UI specificationThe model must NOT:- execute commands- access databases directly- generate arbitrary executable code- make customer approval decisions- invent unavailable capabilities- bypass the UI component registryThe first approved component vocabulary should include:HeroHeadingTextFeatureCardFeatureGridCTAAlertInfoPanelProgressIndicatorDo not implement document processing, customer registration, validation AI, risk AI, human approval workflow, or production infrastructure yet.Do not add authentication.Do not over-engineer the project.Before creating files, inspect the repository and propose the structure you intend to create.Then create the foundation.After creating the files, explain what was created and identify the next smallest implementation task.Do not proceed to the next task automatically.
+6. Understanding the Prompt
+“Do NOT build the application yet.” Prevents Claude Code from jumping into React, FastAPI, model APIs, databases or other implementation.
+“Establish the project engineering foundation.” Makes documentation, project conventions and boundaries the first deliverable.
+“The first implementation scenario is intentionally small.” Limits the first slice to the landing page instead of attempting the entire onboarding platform.
+“Controlled Generative UI.” The runtime model describes the intended UI using structured data; the application decides what is safe to render.
+“Not executable React, HTML, JavaScript, or shell commands.” Creates a critical boundary: model output is data, not arbitrary executable instructions.
+“Internal Virtusa application — no separate authentication.” Keeps authentication outside the initial scope so the engineering method can be demonstrated without unnecessary infrastructure.
+“Clearly distinguish business, system, model, engineering, tests and evals.” Ensures different types of project truth have clear homes.
+“Do not over-engineer.” Keeps the first increment understandable and reviewable.
+“Do not proceed to the next task automatically.” Controls the agent's scope and allows a human to review each increment before continuing.
+7. What Claude Code Created
+Item
+Purpose
+CLAUDE.md
+Persistent engineering instructions for Claude Code: scope, architecture, approved components, hard boundaries and information ownership.
+README.md
+Human-facing project overview.
+.claude/settings.json
+Minimal project-level Claude Code settings; no unnecessary hooks, permissions or environment variables yet.
+docs/business-problem.md
+Business “why”: requirements, success indicators and explicit non-goals.
+docs/architecture.md
+Architectural “how”: UI, Domain and AI runtimes, trust boundaries and controlled Generative UI.
+specs/spec.md
+System “what”: functional requirements, non-functional targets, boundary behaviour and out-of-scope items.
+specs/model-contracts.md
+Runtime AI contract: context, UI specification, component vocabulary, CTA actions, refusal shape and restrictions.
+tests/README.md
+Defines the purpose of deterministic software tests.
+evals/README.md
+Defines the purpose of AI evaluations, including structured output and AI behaviour quality.
+8. The Three Runtime View
+Task 1 establishes three logical runtime areas. They describe responsibilities; they do not require three separate applications.
+Browser / Virtusa Internal User            |            v      UI Runtime  React + TypeScript Controlled GenUI Renderer            |            v     Domain Runtime       FastAPI + Python    Initial API / Logic            |            v        AI Runtime      Model Gateway     UI Generation Model    Structured Model Output
+The frontend/backend view is still useful: React is the frontend implementation and FastAPI is the backend implementation. The runtime view explains the logical responsibilities across UI, business logic and AI.
+9. What Controlled Generative UI Means
+Instead of asking the runtime model to write a web page as arbitrary code, we ask it to describe the page using a controlled structure.
+{  "page": "customer_onboarding_landing",  "components": [    {"type": "hero", "title": "Welcome to Customer Onboarding"},    {"type": "feature_grid",     "items": ["Customer Setup", "Document Check", "Risk Review"]},    {"type": "cta", "action": "start_onboarding",     "label": "Start Customer Onboarding"}  ]}
+The intended boundary is:
+AI model   ↓Structured output   ↓Application validation   ↓Approved component vocabulary   ↓Known React components   ↓Rendered UI
+The model is probabilistic, but the surrounding software provides deterministic controls.
+10. Initial Approved UI Components
+Hero
+Heading
+Text
+FeatureCard
+FeatureGrid
+CTA
+Alert
+InfoPanel
+ProgressIndicator
+The vocabulary is intentionally small. An output such as the following is outside the contract:
+{  "type": "execute_shell_command"}
+It should be rejected rather than interpreted as an instruction to execute a command.
+11. Understanding the Model Contract
+A model contract defines the boundary around runtime AI behaviour. The mindset changes from “give the LLM a prompt” to “engineer a contract around model behaviour.”
+The model may:
+Select approved components.
+Arrange approved components.
+Generate user-facing text.
+Adapt content to available context.
+Return a valid UI specification.
+The model must not:
+Generate executable code.
+Generate arbitrary HTML outside the controlled rendering model.
+Access databases directly.
+Execute unrestricted tools or commands.
+Make customer approval decisions.
+Invent unavailable capabilities.
+Bypass the component registry.
+Expose confidential information.
+12. Tests Versus AI Evals
+Area
+Question
+Example
+Deterministic tests
+Does the software behave correctly?
+A valid UI specification is accepted and rendered through approved components.
+AI evals
+Does the AI behave acceptably?
+The generated landing page is relevant, concise, safe and follows the model contract.
+Task 1 establishes the separation; it does not implement the actual test suite or evaluation harness.
+13. What Was Deliberately NOT Built
+No React application yet.
+No FastAPI application yet.
+No runtime model gateway yet.
+No authentication subsystem.
+No CI/CD setup.
+No containers.
+No database.
+No unnecessary dependencies or fixture data.
+No customer registration workflow.
+No document processing.
+No validation AI.
+No risk AI.
+No human approval workflow.
+No production infrastructure.
+These omissions are intentional. The first increment should demonstrate the engineering method, not overwhelm it with infrastructure.
+14. What the Harness Means at This Stage
+At this stage we have a Claude Code project foundation rather than a fully enforced runtime harness. CLAUDE.md supplies persistent project guidance, while the repository structure organizes business requirements, architecture, specifications, model contracts, tests and evals.
+An important distinction: CLAUDE.md is guidance and context, not a security guarantee. Stronger enforcement can later come from permissions, hooks, validation and tests.
+15. Why Task 1 Is Important for AI-Native Engineering
+Traditional software is largely based on deterministic logic written by developers. AI-native systems introduce probabilistic model behaviour. Therefore, the engineering environment must clearly define responsibilities and boundaries around that behaviour.
+Define what the model is responsible for.
+Define what the model is not allowed to do.
+Keep model output structured.
+Validate model output before using it.
+Keep deterministic software boundaries around probabilistic behaviour.
+Separate software correctness from AI behaviour quality.
+Make feedback and improvement part of the engineering lifecycle.
+16. The Engineering Flow Being Established
+Business Problem       ↓Specification       ↓Model Contract       ↓Project Foundation       ↓Claude Code       ↓Incremental Implementation       ↓Tests       ↓AI Evals       ↓Feedback       ↓Claude Code       ↓Continuous Improvement
+Task 1 establishes the foundation for this flow. The project intentionally stops after the foundation so each later increment can be reviewed.
+17. Task 1 Completion Checklist
+☐ Empty Virtusa repository cloned and opened from the project root.
+☐ Claude Code started from the repository.
+☐ Project scope defined.
+☐ Business problem documented.
+☐ Architecture documented.
+☐ System specification documented.
+☐ Runtime model contract documented.
+☐ Claude Code project instructions created.
+☐ Tests and evals separated conceptually.
+☐ Controlled Generative UI boundary defined.
+☐ Approved UI component vocabulary defined.
+☐ Out-of-scope capabilities documented.
+☐ No unnecessary application implementation introduced.
+18. Key Beginner Lessons
+A prompt is not the same as an engineering contract. A prompt gives instructions; a contract defines expected behaviour and boundaries around model output.
+Do not let the model generate arbitrary application code. For controlled Generative UI, the model describes intent using structured data and the application renders known components.
+Keep business and implementation concerns separate. Clear ownership makes the project easier for humans and AI agents to understand.
+Build in small increments. Small Claude Code tasks make failures easier to diagnose and changes easier to review.
+Tests and evals are different. Tests check deterministic software correctness; evals assess probabilistic AI behaviour.
+The engineering environment matters. Project instructions, specifications, validation, tests and evaluation mechanisms help an AI coding agent work more reliably.
+19. End of Task 1
+At the end of Task 1, we have not built the Customer Onboarding landing page. We have built the environment in which it can be built deliberately.
+Key idea: Before asking an AI agent to build the system, establish the rules, context, boundaries and structure in which it must work.

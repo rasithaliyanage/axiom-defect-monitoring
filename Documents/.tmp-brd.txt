@@ -1,0 +1,961 @@
+Business Requirements Document (BRD)
+AI-Based Automated Board Defect Inspection System
+Document Type: Business Requirements Document
+Project: AI-Based Board Defect Detection
+Prepared By: Business Analysis / AI Discovery Team
+Audience: Business Stakeholders, Manufacturing Team, Quality Team, Solution Architects, AI/ML Team, Engineering Team, Data Team
+Status: Discovery / Business Requirements
+Version: 1.0
+
+1. Executive Summary
+The manufacturing organization currently performs quality inspection of boards produced on a manufacturing line. The organization intends to investigate and implement an AI-assisted visual inspection capability using cameras to automatically identify defective boards.
+The proposed initiative will use images captured from the manufacturing process and apply AI-based analysis to determine whether a board meets the required quality standards.
+The business objective is not simply to introduce AI, but to improve the accuracy, consistency, speed, scalability, and traceability of board inspection while maintaining or improving the existing quality standards.
+The proposed capability should be able to:
+Capture images of boards at defined inspection points. 
+Analyze captured images. 
+Determine whether a board is acceptable or defective. 
+Identify predefined defect types. 
+Identify the location of a defect where required. 
+Provide confidence information for AI predictions. 
+Support human review where the AI prediction is uncertain. 
+Record inspection results for traceability and reporting. 
+Integrate with relevant manufacturing/quality systems where required. 
+The exact AI/ML technique, camera technology, deployment architecture, infrastructure, and implementation approach are not defined by this BRD and should be determined during the solution-design and AI feasibility phases.
+
+2. Business Problem
+2.1 Problem Statement
+The organization requires an improved method of identifying defective boards during manufacturing.
+The current inspection process may involve manual inspection and/or existing automated inspection mechanisms. The organization is exploring AI-based visual inspection to determine whether defects can be identified more consistently and efficiently.
+The core business problem is:
+How can the organization reliably identify defective boards during production using visual information while meeting required quality, production throughput, and operational requirements?
+
+3. Business Opportunity
+The introduction of AI-based visual inspection may provide opportunities to:
+Detect defects earlier in the manufacturing process. 
+Reduce defects escaping inspection. 
+Improve inspection consistency. 
+Reduce dependence on manual inspection. 
+Increase inspection throughput. 
+Improve inspection traceability. 
+Provide objective inspection evidence. 
+Reduce rework and scrap. 
+Create data that can be used for quality analysis. 
+Establish a foundation for future intelligent manufacturing capabilities. 
+The business case should ultimately determine whether the expected benefits justify the investment.
+
+4. Business Objectives
+The initiative should pursue the following objectives.
+BO-01 — Automated Inspection
+Provide an automated or AI-assisted mechanism for visually inspecting boards.
+BO-02 — Defect Detection
+Identify predefined board defects during production.
+BO-03 — Quality Improvement
+Reduce the probability of defective boards passing through the inspection process.
+BO-04 — Inspection Consistency
+Reduce variability associated with manual visual inspection.
+BO-05 — Production Efficiency
+Perform inspection within the required production-line throughput.
+BO-06 — Traceability
+Maintain inspection results and supporting evidence for quality investigation.
+BO-07 — Human Decision Support
+Allow human inspectors to review uncertain or disputed AI decisions where required.
+BO-08 — Continuous Improvement
+Establish a mechanism through which inspection results and human feedback can contribute to future model improvement.
+
+5. Business Goals and Success Measures
+The project should define measurable targets before implementation.
+Potential KPIs include:
+The values should be established with manufacturing and quality stakeholders rather than assumed by the technology team.
+
+6. Stakeholder Identification
+The following stakeholders should be considered.
+
+7. Current-State Analysis
+A detailed current-state analysis must be performed before defining the future solution.
+7.1 Current Manufacturing Process
+The BA team should document the complete journey of a board:
+Board enters production
+        ↓
+Manufacturing processes
+        ↓
+Inspection point
+        ↓
+Inspection
+        ↓
+PASS / FAIL
+        ↓
+Rework / Scrap / Next Stage
+
+8. Current Inspection Process
+The following information must be captured.
+Inspection method
+Manual inspection? 
+Existing AOI? 
+Camera-based inspection? 
+Multiple inspection methods? 
+Combination of automated and manual inspection? 
+Inspection personnel
+Number of inspectors 
+Skills required 
+Training requirements 
+Inspection shifts 
+Inspector workload 
+Inspection timing
+Inspection duration per board 
+Boards inspected per hour 
+Production-line speed 
+Inspection bottlenecks 
+Inspection outcomes
+PASS 
+FAIL 
+Rework 
+Scrap 
+Manual review 
+
+9. Current Pain Points
+The discovery team should establish which problems actually exist.
+Potential pain points include:
+Missed defects 
+Inconsistent inspection decisions 
+High manual inspection workload 
+Production bottlenecks 
+High inspection cost 
+Defect escapes 
+High rework cost 
+High scrap cost 
+Lack of inspection traceability 
+Difficulty analyzing historical defects 
+Lack of standardized inspection evidence 
+Each pain point should be validated rather than treated as an assumption.
+
+10. Root Cause Analysis
+The BA team should distinguish symptoms from root causes.
+For example:
+Defective board reaches customer
+          ↓
+Defect was not detected
+          ↓
+Inspection failed
+          ↓
+Why?
+          ↓
+Manual inspection / insufficient inspection capability
+          ↓
+Why?
+          ↓
+High production volume / difficult defect visibility
+The actual root cause must be established through stakeholder interviews and process observation.
+
+11. Scope
+11.1 In Scope
+The initial scope may include:
+Visual inspection of boards. 
+Camera image acquisition. 
+AI-based analysis of images. 
+Detection of agreed defect categories. 
+PASS/FAIL determination. 
+Defect classification. 
+Defect localization where required. 
+Confidence information. 
+Human review for uncertain results. 
+Inspection result recording. 
+Inspection reporting. 
+Integration with relevant manufacturing systems. 
+AI model evaluation and validation. 
+11.2 Out of Scope
+Unless explicitly included later:
+Automatic physical repair of defective boards. 
+Changes to the manufacturing process itself. 
+Replacement of unrelated quality systems. 
+Predictive maintenance of manufacturing equipment. 
+General-purpose defect detection outside the defined board types. 
+Autonomous modification of manufacturing parameters. 
+
+12. Inspection Subject Definition
+The business must define what boards the system will inspect.
+Questions:
+Which board types are included? 
+How many product variants exist? 
+Are different board revisions supported? 
+Are all board sizes supported? 
+Are both sides inspected? 
+Which manufacturing stages require inspection? 
+Are boards inspected individually or in batches? 
+
+13. Defect Taxonomy
+A formal defect catalogue must be created.
+Example:
+These are examples only. The manufacturing/quality team must define the actual taxonomy.
+
+14. Defect Severity
+Each defect should be classified according to business impact.
+Suggested categories:
+Critical
+A defect that may cause:
+Product failure 
+Safety issue 
+Customer impact 
+Significant financial impact 
+Major
+A defect that requires:
+Rework 
+Additional inspection 
+Manufacturing intervention 
+Minor
+A defect that may be acceptable within defined tolerances or requires monitoring.
+The actual classification must be provided by the Quality team.
+
+15. Functional Business Requirements
+FR-001 — Board Image Capture
+The system shall support inspection using images captured from boards at designated production inspection points.
+FR-002 — Board Identification
+The inspection process shall associate an inspection result with the relevant board identifier where such an identifier exists.
+FR-003 — Defect Detection
+The system shall identify predefined defect categories within the supported inspection scope.
+FR-004 — Board Classification
+The system shall determine whether the inspected board meets the defined quality criteria.
+Expected logical output:
+PASS
+FAIL
+REVIEW
+where applicable.
+FR-005 — Defect Classification
+For defective boards, the system shall identify the applicable defect category where classification is required.
+FR-006 — Defect Localization
+The system shall identify the location of the defect where required by the business.
+FR-007 — Confidence
+The system shall provide a confidence measure associated with an AI prediction where supported by the selected solution.
+FR-008 — Multiple Defects
+The system shall support identification of multiple defects on the same board where required.
+Example:
+Board 123
+   │
+   ├── Missing Component — 98%
+   ├── Solder Bridge — 96%
+   └── Misalignment — 91%
+FR-009 — Human Review
+The system shall support human review of results that meet defined review conditions.
+FR-010 — Human Override
+Authorized personnel shall be able to override an AI decision where business rules permit.
+FR-011 — Inspection Evidence
+The system shall retain inspection evidence required for quality investigation, subject to data-retention requirements.
+FR-012 — Inspection History
+The system shall allow authorized users to access historical inspection results.
+
+16. AI Requirements
+These requirements define what the AI needs to achieve, not how it should achieve it.
+AI-001 — Detection Performance
+The AI capability shall achieve agreed detection performance for each in-scope defect category.
+AI-002 — Critical Defects
+Critical defects shall meet a higher agreed detection threshold where required by the Quality organization.
+AI-003 — False Negatives
+The acceptable false-negative rate shall be defined for each defect category.
+A false negative is:
+Defective board
+      ↓
+AI
+      ↓
+PASS
+AI-004 — False Positives
+The acceptable false-positive rate shall be defined.
+Good board
+    ↓
+AI
+    ↓
+FAIL
+AI-005 — Confidence Thresholds
+The solution shall support appropriate handling of low-confidence predictions.
+AI-006 — Model Version
+The model version associated with an inspection result shall be identifiable.
+AI-007 — Model Validation
+Models shall be validated against an independent test dataset before production use.
+
+17. AI Performance Metrics
+The BA team should require the AI team to report appropriate metrics rather than relying solely on "accuracy."
+Potential metrics:
+Precision 
+Recall 
+F1 score 
+False-positive rate 
+False-negative rate 
+Confusion matrix 
+Per-defect performance 
+Overall board-level performance 
+Inference latency 
+Example acceptance framework:
+The actual numbers must be established through business/quality discussions.
+
+18. Training Data Requirements
+AI development requires representative data.
+The following must be identified.
+18.1 Normal Images
+The project shall identify the availability of images representing acceptable boards.
+18.2 Defect Images
+Images shall be identified for every in-scope defect category.
+18.3 Data Distribution
+The project shall document the number of available samples per defect.
+Example:
+Good boards             100,000
+Missing component         5,000
+Solder bridge             2,000
+Misalignment              1,500
+Rare defect                  20
+18.4 Data Quality
+The dataset should be evaluated for:
+Image resolution 
+Image quality 
+Labelling accuracy 
+Duplicate images 
+Lighting variations 
+Board variations 
+Defect variations 
+Camera variations 
+
+19. Ground Truth
+A reliable ground-truth process must be established.
+Questions:
+Who determines whether an image represents a defect? 
+Who verifies labels? 
+What happens when inspectors disagree? 
+What is the authoritative quality decision? 
+Can historical production records be used as ground truth? 
+The AI team should not be expected to determine business definitions of defects.
+
+20. Camera and Image Requirements
+The BRD should capture business constraints without prescribing camera technology.
+Requirements/questions include:
+Where will images be captured? 
+How many inspection points? 
+Is the board stationary or moving? 
+What is the production-line speed? 
+Is one image sufficient? 
+Are multiple views required? 
+Are both sides inspected? 
+What environmental conditions exist? 
+Is lighting controlled? 
+Are reflections present? 
+What physical space is available? 
+The solution team should translate these into camera specifications.
+
+21. Production Throughput Requirements
+The solution must support the manufacturing process.
+Required information:
+Boards / minute
+Boards / hour
+Operating hours / day
+Operating days / week
+Peak production rate
+The business must define the maximum acceptable inspection latency.
+For example:
+The inspection capability shall support a production rate of X boards per minute while maintaining the required inspection quality.
+
+22. Availability Requirements
+The business must define:
+Required operating hours. 
+Required availability. 
+Planned maintenance windows. 
+Maximum acceptable downtime. 
+Failure recovery expectations. 
+Example:
+The inspection capability shall be available during all production operating periods except approved maintenance windows.
+
+23. AI Failure / System Failure
+A critical business question is:
+What should happen if the AI inspection system is unavailable?
+Possible options:
+AI unavailable
+     │
+     ├── Continue with manual inspection
+     │
+     ├── Hold boards
+     │
+     └── Stop production
+This must be defined by manufacturing and quality stakeholders.
+
+24. Human-in-the-Loop Requirements
+The solution should support human intervention where required.
+Questions:
+Which predictions require review? 
+Who reviews them? 
+How quickly? 
+Can the reviewer see the original image? 
+Can the reviewer see the detected defect? 
+Can they override the AI decision? 
+Should the human decision be stored? 
+Should human corrections become training data? 
+
+25. Integration Requirements
+Potential integration points include:
+Production Line
+      │
+      ├── Camera
+      │
+      ├── PLC
+      │
+      ├── MES
+      │
+      ├── Quality System
+      │
+      └── AI Inspection
+Requirements/questions:
+How is the board identified? 
+How does the inspection system receive the board ID? 
+How is PASS/FAIL communicated? 
+Does the PLC require a signal? 
+Does MES require inspection results? 
+Does the Quality system require defect information? 
+Where are images stored? 
+What interfaces/protocols already exist? 
+
+26. Data Retention Requirements
+Determine:
+How long inspection results must be retained. 
+How long images must be retained. 
+Whether only failed-board images need to be retained. 
+Whether all images must be retained. 
+Storage growth expectations. 
+Archival requirements. 
+Audit requirements. 
+
+27. Reporting Requirements
+Potential reports:
+Production quality dashboard
+Boards inspected: 100,000
+PASS:              97,500
+FAIL:               2,000
+REVIEW:               500
+Defect distribution
+Missing component    35%
+Solder bridge        30%
+Misalignment         20%
+Other                15%
+Trend analysis
+Defects
+  │
+  │       ╭──╮
+  │   ╭───╯  ╰───
+  │───╯
+  └──────────────── Time
+The exact reports should be driven by stakeholder needs.
+
+28. Auditability
+Each inspection should potentially be traceable to:
+Board ID 
+Timestamp 
+Production line 
+Camera/inspection point 
+AI model version 
+AI result 
+Defect type 
+Confidence 
+Image/evidence 
+Human decision, if applicable 
+This allows:
+"Why was this board rejected?"
+to be answered later.
+
+29. Security Requirements
+Questions:
+Who can access inspection data? 
+Who can view images? 
+Who can modify thresholds? 
+Who can deploy models? 
+Who can approve models for production? 
+Who can access historical results? 
+Are production systems isolated from external networks? 
+
+30. Model Governance
+The business should require controlled AI model changes.
+Potential lifecycle:
+Model Development
+       ↓
+Validation
+       ↓
+Business/Quality Approval
+       ↓
+Production Deployment
+       ↓
+Monitoring
+       ↓
+Performance Review
+       ↓
+Retraining
+       ↓
+Validation
+       ↓
+New Version
+Requirements may include:
+Model versioning 
+Approval process 
+Deployment history 
+Rollback capability 
+Performance monitoring 
+Retraining process 
+
+31. Non-Functional Requirements
+Performance
+Inspection latency 
+Production throughput 
+Concurrent inspection capacity 
+Availability
+Production operating hours 
+Required uptime 
+Reliability
+Failure recovery 
+Fault handling 
+Fallback inspection 
+Scalability
+Additional production lines 
+Additional board types 
+Additional defect categories 
+Maintainability
+Model updates 
+Configuration changes 
+Camera replacement 
+Software updates 
+Observability
+System health 
+AI inference metrics 
+Model performance 
+Error rates 
+
+32. Business Rules
+Examples of rules that need confirmation:
+BR-001
+A board containing a critical defect shall not be automatically classified as PASS.
+BR-002
+Low-confidence predictions shall be routed for human review where required.
+BR-003
+Human overrides shall be recorded.
+BR-004
+Only approved AI models shall be used for production inspection.
+BR-005
+Inspection results shall be associated with the relevant board identifier where available.
+Again, these should be confirmed with the Quality/Manufacturing teams.
+
+33. Risks
+
+34. Assumptions
+Initial assumptions should be explicitly documented.
+Examples:
+Camera images can be captured at required inspection points. 
+Relevant defect examples can be obtained. 
+Quality experts are available to define defects. 
+Board identification is available or can be introduced. 
+Manufacturing stakeholders can define acceptable quality thresholds. 
+All assumptions must be validated.
+
+35. Dependencies
+Potential dependencies:
+Camera installation 
+Production-line access 
+Historical image availability 
+Quality data 
+Manufacturing systems 
+PLC/MES integration 
+Hardware availability 
+Data labelling resources 
+Quality-team availability 
+AI infrastructure 
+Security approval 
+
+36. Constraints
+Potential constraints to investigate:
+Production-line speed 
+Physical camera placement 
+Lighting 
+Network connectivity 
+Computing capacity 
+Manufacturing downtime 
+Data availability 
+Budget 
+Regulatory requirements 
+Existing equipment 
+Legacy integration systems 
+
+37. Business Benefits
+Benefits should be categorized.
+Quantitative
+Reduced inspection cost 
+Reduced rework 
+Reduced scrap 
+Reduced defect escapes 
+Increased throughput 
+Reduced manual inspection effort 
+Qualitative
+Consistent inspection 
+Better quality visibility 
+Improved traceability 
+Better root-cause analysis 
+Faster quality investigation 
+Improved operator experience 
+
+38. Cost Categories
+The business case should consider:
+Initial Investment
+├── Cameras
+├── Lighting
+├── Computing
+├── Software development
+├── AI model development
+├── Integration
+├── Installation
+└── Testing
+
+Ongoing Cost
+├── Infrastructure
+├── Maintenance
+├── Model retraining
+├── Camera maintenance
+├── Support
+└── Data storage
+
+39. ROI
+The business case should ultimately compare:
+                    Expected Benefits
+                         │
+              ┌──────────┴──────────┐
+              │                     │
+        Quality savings       Productivity
+              │                     │
+              └──────────┬──────────┘
+                         │
+                         ▼
+                  Total Benefit
+                         │
+                         -
+                  Total Cost
+                         │
+                         ▼
+                       ROI
+The BA team should collect the numbers; Finance/business stakeholders should validate the financial assumptions.
+
+40. Acceptance Criteria
+The solution should not be accepted based on a generic statement such as:
+"The AI works."
+Acceptance should be based on measurable criteria.
+AC-001 — Defect Detection
+The system shall detect all agreed in-scope defect categories at the agreed performance level.
+AC-002 — Critical Defects
+Critical defect detection shall meet the agreed minimum recall.
+AC-003 — False Positives
+The system shall remain within the agreed false-positive threshold.
+AC-004 — Performance
+The system shall support the required production throughput.
+AC-005 — Latency
+Inspection shall complete within the agreed maximum latency.
+AC-006 — Traceability
+Inspection results shall be associated with the relevant board and inspection metadata.
+AC-007 — Human Review
+Low-confidence results shall follow the agreed review process.
+AC-008 — Model Governance
+Only approved model versions shall be used in production.
+
+41. Open Questions
+This should remain a living section throughout discovery.
+
+42. Discovery Workshop Questions
+For your actual training exercise, I would organize the questions into workshop sessions, rather than asking 100 questions randomly.
+Workshop 1 — Business & Problem
+Ask:
+Why do you want AI-based inspection? 
+What problem are you trying to solve? 
+What happens today? 
+What doesn't work well today? 
+What is the financial impact? 
+What happens when a defect is missed? 
+What happens when a good board is rejected? 
+What does success look like? 
+
+Workshop 2 — Manufacturing Process
+Ask:
+Walk us through the lifecycle of a board. 
+Where does inspection happen? 
+How fast is the production line? 
+How many boards are produced? 
+Is the board stationary during inspection? 
+How many board types exist? 
+Are both sides inspected? 
+What happens after PASS? 
+What happens after FAIL? 
+What happens when inspection is unavailable? 
+
+Workshop 3 — Quality & Defects
+Ask:
+What constitutes a defect? 
+What defect categories exist? 
+Which are critical? 
+Which are minor? 
+Which defects must AI detect? 
+How are defects currently identified? 
+How frequently does each defect occur? 
+What is the cost of each defect? 
+What is the acceptable false-negative rate? 
+What is the acceptable false-positive rate? 
+
+Workshop 4 — Data
+Ask:
+What images already exist? 
+How many? 
+Where are they stored? 
+Are they labelled? 
+Who labelled them? 
+How accurate are the labels? 
+How many examples exist for each defect? 
+Are there different board variants? 
+Are different lighting conditions represented? 
+Are there rare defects with very few examples? 
+
+Workshop 5 — Operations & Integration
+Ask:
+How will the board be identified? 
+What systems exist today? 
+Does PLC integration matter? 
+Does MES integration matter? 
+Where should results go? 
+Where should images go? 
+How long should data be retained? 
+Who can access results? 
+Who can override AI? 
+What happens when the AI system fails? 
+
+43. Observation Plan
+Since your exercise says "Observe and Report", don't limit discovery to interviews.
+The BA team should observe the physical process.
+Record:
+Production
+Board movement 
+Conveyor speed 
+Inspection location 
+Operator activity 
+Production interruptions 
+Inspection
+What the inspector looks at 
+How long they inspect 
+What tools they use 
+How decisions are made 
+How defects are classified 
+Environment
+Lighting 
+Reflections 
+Camera positioning possibilities 
+Vibration 
+Physical constraints 
+Data
+Board identifier 
+Existing inspection records 
+Existing images 
+Existing defect reports 
+
+44. Observation Report
+Your observation report can use this structure:
+Observation
+Manual inspection is currently performed at the post-production inspection stage.
+Evidence
+Inspectors visually examine each board and determine whether the board passes the defined quality criteria.
+Impact
+Inspection time increases with production volume and may introduce variability between inspectors.
+Opportunity
+Camera-based AI inspection could potentially automate or assist visual inspection.
+Validation Required
+Historical defect data and labelled images must be assessed before determining whether AI-based inspection is technically feasible.
+This is a much stronger BA observation than:
+"We should use AI because manual inspection is slow."
+
+45. BA → Solution Team Handover
+This is the final section I would make particularly strong for your exercise.
+The BA team should hand over the following:
+Business context
+Why are we solving this problem?
+Current state
+How is it currently solved?
+Pain points
+What isn't working?
+Desired outcome
+What should improve?
+Defect taxonomy
+What exactly must be detected?
+Business rules
+What should happen when defects are detected?
+Data assessment
+What data exists?
+Operational constraints
+How fast must it operate?
+Integration needs
+What systems must interact?
+Quality metrics
+How will success be measured?
+Risks
+What could prevent success?
+Open questions
+What still needs to be resolved?
+
+46. What the Solution Team Should NOT Receive from the BA Team
+This is an important distinction for your training.
+The BA team should not prematurely prescribe:
+Use YOLO
+Use CNN
+Use Transformer
+Use AWS SageMaker
+Use Kubernetes
+Use GPU
+Use Kafka
+Use Lambda
+Use OpenCV
+Use Python
+unless those are existing organizational constraints or business requirements.
+Instead give the solution team:
+Business Problem
+       ↓
+Business Objectives
+       ↓
+Current State
+       ↓
+Desired State
+       ↓
+Functional Requirements
+       ↓
+AI Performance Requirements
+       ↓
+Data Availability
+       ↓
+Operational Constraints
+       ↓
+Integration Requirements
+       ↓
+NFRs
+       ↓
+Acceptance Criteria
+       ↓
+Risks / Assumptions / Dependencies
+Then the Solution Architect + AI team decide the HOW.
+
+47. Final Handover Package
+For your training exercise, I would actually produce four artifacts, rather than one huge document alone:
+┌──────────────────────────────────────┐
+│ 1. BRD                               │
+│ Business problem & requirements      │
+└──────────────────┬───────────────────┘
+                   │
+┌──────────────────▼───────────────────┐
+│ 2. AS-IS Process / Observation       │
+│ Current manufacturing + inspection   │
+└──────────────────┬───────────────────┘
+                   │
+┌──────────────────▼───────────────────┐
+│ 3. Data & AI Discovery Assessment    │
+│ Data, defects, AI feasibility inputs │
+└──────────────────┬───────────────────┘
+                   │
+┌──────────────────▼───────────────────┐
+│ 4. Solution Team Handover            │
+│ Requirements + constraints + gaps    │
+└──────────────────────────────────────┘
+Then the Solution Team can produce:
+BRD
+ │
+ ▼
+Solution Options
+ │
+ ├── Computer Vision approach
+ ├── AI/ML approach
+ ├── Camera strategy
+ ├── Edge/Cloud architecture
+ ├── Data pipeline
+ ├── Model training
+ ├── Model serving
+ ├── MLOps
+ ├── Integration
+ └── Security
+       │
+       ▼
+Solution Architecture
+       │
+       ▼
+POC
+       │
+       ▼
+AI Evaluation
+       │
+       ▼
+Production Solution
+That is the boundary I would use for your training exercise. It demonstrates that the BA team has properly transformed a very broad client statement—"use AI and cameras to identify defective boards"—into a well-defined business problem and measurable set of requirements, while leaving the actual AI and technical solution to the solution team.
+
+KPI | Baseline | Target
+Defect detection rate | TBD | TBD
+Defect escape rate | TBD | TBD
+False rejection rate | TBD | TBD
+Manual inspection effort | TBD | TBD
+Inspection time/board | TBD | TBD
+Production throughput | TBD | TBD
+Rework rate | TBD | TBD
+Scrap rate | TBD | TBD
+Inspection availability | TBD | TBD
+Stakeholder | Responsibility / Interest
+Business Sponsor | Business ownership and funding
+Manufacturing Manager | Production process and throughput
+Quality Manager | Quality standards and defect definitions
+Quality Inspectors | Current inspection process and human validation
+Production Operators | Day-to-day system interaction
+Process Engineers | Manufacturing process
+Hardware/Automation Team | Cameras, sensors and production equipment
+Data Team | Data collection and management
+AI/ML Team | AI model development
+Solution Architecture Team | Overall solution design
+Software Engineering Team | Application and integration
+IT/Infrastructure Team | Deployment and operations
+Security Team | Security requirements
+Compliance Team | Regulatory/audit requirements
+Management | Business case and ROI
+ID | Defect | Severity | AI Required | Localization
+D001 | Missing component | Critical | Yes | Yes
+D002 | Misaligned component | Major | Yes | Yes
+D003 | Wrong component | Critical | Yes | Yes
+D004 | Solder bridge | Critical | Yes | Yes
+D005 | Damaged component | Major | Yes | Yes
+D006 | Surface scratch | Minor | Yes | Optional
+Metric | Requirement
+Critical defect recall | ≥ agreed threshold
+Major defect recall | ≥ agreed threshold
+False positive rate | ≤ agreed threshold
+Inference latency | ≤ agreed threshold
+Board classification | ≥ agreed threshold
+Risk | Impact | Mitigation / Discovery
+Insufficient defect data | High | Data assessment
+Poor-quality images | High | Image-quality assessment
+Rare defects | High | Special detection strategy
+False negatives | Very High | Define strict critical-defect thresholds
+False positives | Medium/High | Define acceptable rate
+Changing board designs | Medium | Model lifecycle
+Lighting variation | High | Physical environment assessment
+Production latency | High | Throughput analysis
+AI downtime | High | Define fallback process
+Model degradation | High | Production monitoring
+Incorrect labels | High | Ground-truth process
+ID | Question | Owner | Status
+Q01 | What exact defects must be detected? | Quality | Open
+Q02 | What makes each defect critical/major/minor? | Quality | Open
+Q03 | What is the current defect escape rate? | Quality | Open
+Q04 | What is the current false rejection rate? | Quality | Open
+Q05 | How many boards are produced per minute? | Manufacturing | Open
+Q06 | How long is available for inspection? | Manufacturing | Open
+Q07 | How many board variants exist? | Manufacturing | Open
+Q08 | Are both sides inspected? | Manufacturing | Open
+Q09 | How many historical images exist? | Data | Open
+Q10 | Are historical images labelled? | Data | Open
+Q11 | Who owns the ground truth? | Quality | Open
+Q12 | What happens when AI is uncertain? | Quality | Open
+Q13 | What happens when AI is unavailable? | Manufacturing | Open
+Q14 | Does production need an immediate PASS/FAIL signal? | Automation | Open
+Q15 | Is PLC integration required? | Automation | Open
+Q16 | Is MES integration required? | IT/Manufacturing | Open
+Q17 | How long must images be retained? | Quality/Compliance | Open
+Q18 | Who can override an AI decision? | Quality | Open
+Q19 | What level of false negative is acceptable? | Quality | Open
+Q20 | What level of false positive is acceptable? | Quality | Open
+Q21 | What is the required system availability? | Manufacturing | Open
+Q22 | What is the budget? | Business | Open
+Q23 | What is the expected ROI? | Business/Finance | Open
+Q24 | How frequently do new board designs appear? | Manufacturing | Open
+Q25 | How will model performance be monitored after deployment? | AI/IT | Open

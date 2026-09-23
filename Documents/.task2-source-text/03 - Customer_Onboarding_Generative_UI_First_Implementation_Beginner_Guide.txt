@@ -1,0 +1,123 @@
+AI-NATIVE ENGINEERING
+First Implementation Scenario
+Controlled Generative UI for a Customer Onboarding Landing Page
+Beginner-friendly guide to Harness, Claude Code, Generative UI, Model Contracts, Tests, Evals and Feedback
+Scenario contextThis is a Virtusa internal Customer Onboarding web application. The first implementation does not need a separate authentication subsystem. Authentication can be integrated later through existing enterprise identity infrastructure if the application moves toward real deployment.
+
+
+1. What Are We Building?
+Our first implementation scenario is intentionally small. We are not building the complete Customer Onboarding platform yet. We will build the landing page as a controlled Generative UI experience. This feature becomes our laboratory for learning AI-native engineering and harness engineering with Claude Code.
+Virtusa Internal User        ↓Customer Onboarding Web Application        ↓Landing Page        ↓Controlled Generative UI
+2. Why Start With the Landing Page?
+A landing page is visible, understandable, and small enough to implement incrementally. It also gives us a concrete model-driven feature without immediately introducing the complexity of document processing or risk assessment.
+3. Controlled Generative UI
+Generative UI means an AI model can help decide what interface should be presented. In an enterprise application, however, we should not give the model unrestricted permission to generate and execute arbitrary HTML, JavaScript, or application logic.
+AI Model   ↓UI Specification / Intent   ↓UI Validator   ↓Approved Component Registry   ↓React UI Renderer   ↓Browser
+4. What Will the Landing Page Contain?
+The first version can contain a professional enterprise header, a welcome/hero section, feature cards for Customer Setup, Document Check and Risk Review, and a Start Customer Onboarding CTA. The visual design can evolve; the important part is that the composition is produced through a controlled UI specification.
+5. What Does the AI Model Generate?
+The model should not generate a React component file. It generates structured data describing the intended UI. This can be called a UI schema, UI specification, or UI intent.
+{  "page": "customer_onboarding_landing",  "title": "Customer Onboarding",  "components": [    {"type": "hero", "title": "Welcome to Customer Onboarding"},    {"type": "feature_grid", "items": [      "Customer Setup",      "Document Verification",      "Risk Review"    ]},    {"type": "cta", "action": "start_onboarding",     "label": "Start Customer Onboarding"}  ]}
+6. Why Generate a UI Specification Instead of Code?
+A structured UI specification gives the application a deterministic control point. The model can describe what it wants to display, while the application decides whether that request is valid and how it is rendered.
+AI output   ↓Schema validation   ↓Approved component?   ↓Approved action?   ↓Valid structure?   ↓Render known React components
+7. Approved Component Vocabulary
+The application will maintain a small registry of components that the model is allowed to request.
+8. What Happens When Model Output Is Invalid?
+Suppose the model asks for an unsupported component such as execute_shell_command. The renderer does not know or allow that component. Validation rejects the output and the application uses safe error or fallback handling.
+Model  ↓Invalid UI specification  ↓Validator  ↓REJECT  ↓Safe fallback / error handling
+9. The Model Contract
+Before implementing model integration, we define what the model is expected to do and what it is prohibited from doing. This contract will later live in specs/model-contracts.md.
+Purpose:Generate a structured description of the CustomerOnboarding landing page.Inputs:- Application context- User context- Available UI components- Business requirementsMAY:- Select approved components- Arrange approved components- Generate UI text- Select appropriate onboarding contentMUST NOT:- Generate executable JavaScript- Generate arbitrary HTML- Access databases directly- Execute unrestricted tools- Modify application state directly- Make approval decisions- Invent unavailable capabilities
+10. Why the Model Contract Matters
+A prompt alone is not a sufficient engineering design for a model-driven system. The contract gives us a target for implementation, testing, evaluation and governance.
+Specification → Model Contract → Implementation                    ↓              Tests + Evals                    ↓                 Feedback
+11. The Harness
+The harness is the engineering environment around Claude Code. It provides project context, instructions, constraints, verification mechanisms and state so Claude Code can work effectively over multiple iterations.
+customer-onboarding-ai/├── CLAUDE.md├── README.md├── docs/│   ├── business-problem.md│   └── architecture.md├── specs/│   ├── spec.md│   └── model-contracts.md├── .claude/│   └── rules/├── frontend/├── backend/├── tests/└── evals/    ├── datasets/    ├── scenarios/    └── rubric.md
+12. What Each Harness Element Means
+13. Claude Code's Role
+Claude Code is the AI software-engineering agent that creates and improves the project. It is not the same thing as the runtime AI model that generates the landing page.
+ENGINEERING TIMEHarness → Claude Code → Code → Tests / EvalsRUNTIMEInternal User → Web App → UI Runtime → UI Model → Controlled UI
+14. Virtusa Internal Application Assumption
+The application is an internal Virtusa application. We therefore do not need to build a separate authentication subsystem for this first scenario. We will not spend the first iteration on login screens, registration, password reset, JWT management or custom user management. If the system later becomes a real enterprise product, existing enterprise identity infrastructure can be integrated.
+Virtusa Internal User        ↓     Browser        ↓Customer Onboarding App
+15. First Runtime Architecture
+For the landing-page slice, keep the runtime architecture deliberately small. A database is not required unless the feature actually needs persistence.
+Browser  ↓React Web Application(UI Runtime)  ↓FastAPI(Domain Runtime)  ↓AI Runtime(UI Generation Model)
+16. Frontend and Backend Still Exist
+We are not replacing conventional frontend/backend architecture. React remains the practical frontend implementation and FastAPI the practical backend implementation. Runtime terminology is an additional logical view.
+17. Incremental Implementation Strategy
+We will not ask Claude Code to build the entire application in one large request. The feature is decomposed into small, verifiable increments.
+1. Repository foundation2. Project specification3. Model contract4. React application shell5. Approved UI component registry6. UI schema7. Generative UI renderer8. Model integration9. Landing page generation10. Deterministic tests11. AI evaluation cases12. Run evals and improve
+18. Why Incremental Implementation Matters
+Small increments make failures easier to diagnose, allow every change to be tested, create meaningful Git history, strengthen the harness gradually, and make evaluation feedback actionable.
+19. Deterministic Tests
+Traditional software tests check predictable behaviour. For example, if a valid UI specification contains a hero and CTA, the renderer should display those components.
+Given a valid UI specificationWHEN the renderer processes itTHEN Hero, Feature Grid and CTA renderAND unsupported components cannot execute
+20. AI Evals
+AI models are probabilistic, so unit tests alone are not enough. We also need evaluation cases that judge whether model behaviour is acceptable.
+21. Tests vs Evals
+Tests ask: 'Does the software behave correctly?' Evals ask: 'Does the AI behave acceptably?' Both are required because a perfect renderer can display a poor model decision, while a good model response can still fail because application code is broken.
+22. Feedback Loop
+Failures are useful engineering inputs. A problematic production or evaluation case can become a new evaluation scenario and lead to improvements in the model contract, prompt, context, renderer or application code.
+AI Output → Evaluation → Failure       ↓Feedback → Claude Code       ↓Tests → Evals → Improved Output
+23. Example Feedback Scenario
+Suppose the model generates 'Complete your entire onboarding process instantly.' The application does not guarantee instant completion. An evaluation flags the unsupported claim, and the team strengthens the contract and evaluation set.
+Failure ↓Add evaluation case ↓Strengthen contract / prompt ↓Claude Code ↓Tests ↓Evals ↓Improved version
+24. Complete First-Scenario Flow
+Business Problem      ↓Specification      ↓Model Contract      ↓Harness      ↓Claude Code      ↓Incremental Implementation      ↓Controlled Generative UI      ↓Tests      ↓Evals      ↓Feedback      ↓Claude Code      ↓Improvement      ↓Production
+25. What We Are NOT Building Yet
+We are deliberately postponing authentication, customer registration, document upload and document AI, cross-document validation, risk assessment, human approval workflow, complex database design and production deployment infrastructure.
+26. What Comes After the Landing Page?
+Once the engineering pattern is understood, we can expand the same discipline into the actual onboarding workflow.
+Landing Page     ↓Customer Registration     ↓Document Upload     ↓Document AI     ↓Validation AI     ↓Risk AI     ↓Human Review     ↓Final Decision     ↓Audit
+27. Beginner Mental Model
+Frontend/UI = what the user sees.Backend/Domain = what controls the business process.AI Runtime = where probabilistic intelligence is used.Generative UI = the model helps determine interface composition.Model Contract = expected and prohibited model behaviour.Harness = context, constraints, tools and verification around Claude Code.Tests = deterministic software checks.Evals = AI behaviour checks.Feedback = failures converted into the next engineering iteration.
+28. Definition of Done
+The first scenario is complete when the internal web app opens, the landing page renders, the model produces structured UI rather than executable code, only approved components render, invalid output is rejected safely, the model contract exists, deterministic tests pass, AI eval cases exist, and an evaluation failure can drive a Claude Code improvement.
+29. Final Takeaway
+We are not simply asking Claude Code to build a landing page. We are using a small feature to demonstrate a complete AI-native engineering discipline: define the business need, specify the behaviour, establish a harness and model contract, implement incrementally, control model output through deterministic boundaries, test the software, evaluate the AI, learn from feedback, and improve the system.
+Approved components for the first version
+Hero
+Heading
+Text
+FeatureCard
+FeatureGrid
+CTA
+Alert
+ProgressIndicator
+Harness elements at a glance
+Element
+Beginner explanation
+Role here
+CLAUDE.md
+Persistent project guidance for Claude Code
+How Claude should work
+spec.md
+Description of what we are building
+What the landing page must do
+model-contracts.md
+Expected/prohibited model behaviour
+What the UI model may do
+.claude/
+Additional rules and capabilities
+Engineering controls
+tests/
+Deterministic checks
+Renderer/application correctness
+evals/
+AI behaviour checks
+Model output quality
+First-scenario evaluation examples
+Standard onboarding — relevance
+New customer — suitable Start CTA
+Existing application — context adaptation
+Missing context — safe defaults
+Invalid component — constraint compliance
+Unsupported capability — no invented features
+Prompt injection — robustness
+Excessive text — usability
+Invalid JSON — schema validation
+Accessibility — acceptable UI structure
+Business Problem → Specification → Harness → Claude Code → Implementation → Tests → Evals → Feedback → Claude Code → Production

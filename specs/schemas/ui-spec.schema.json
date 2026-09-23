@@ -1,0 +1,462 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://manufacturing-ai.internal/schemas/ui-spec-1.0.json",
+  "title": "UI Specification Schema",
+  "description": "Machine-checkable contract for UI specification output from the AI generation model. Version 1.0. Implements Gate 1 structural validation: JSON parsing, schema conformance, specVersion recognition, block count, nesting depth, and string length limits. Grounding validation (Gate 3) and policy validation (Gate 4) are performed at runtime.",
+  "type": "object",
+  "required": ["specVersion", "page", "contextId", "blocks"],
+  "additionalProperties": false,
+  "properties": {
+    "specVersion": {
+      "description": "Schema version. Must be exactly '1.0'. Unrecognised versions are rejected, not coerced.",
+      "type": "string",
+      "const": "1.0"
+    },
+    "page": {
+      "description": "Page identifier. Must be 'landing' for this phase.",
+      "type": "string",
+      "const": "landing"
+    },
+    "contextId": {
+      "description": "Opaque grounded context identifier supplied by the Domain Runtime. Must equal the context id of the request. Validated at runtime (Gate 3).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "blocks": {
+      "description": "Ordered list of component blocks. Exactly 1 to 12 entries; rendered in order.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "$ref": "#/$defs/Block"
+      }
+    }
+  },
+  "$defs": {
+    "Block": {
+      "description": "A single rendered component. Discriminated by component name. Each component has its own prop schema.",
+      "oneOf": [
+        { "$ref": "#/$defs/HeroBlock" },
+        { "$ref": "#/$defs/HeadingBlock" },
+        { "$ref": "#/$defs/TextBlock" },
+        { "$ref": "#/$defs/FeatureGridBlock" },
+        { "$ref": "#/$defs/FeatureCardBlock" },
+        { "$ref": "#/$defs/CtaBlock" },
+        { "$ref": "#/$defs/AlertBlock" },
+        { "$ref": "#/$defs/InfoPanelBlock" },
+        { "$ref": "#/$defs/ProgressIndicatorBlock" }
+      ]
+    },
+    "HeroBlock": {
+      "type": "object",
+      "required": ["component", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "const": "Hero"
+        },
+        "props": {
+          "$ref": "#/$defs/HeroProps"
+        }
+      }
+    },
+    "HeroProps": {
+      "description": "Page-opening banner with eyebrow, title, subtitle, and optional call to action.",
+      "type": "object",
+      "required": ["title"],
+      "additionalProperties": false,
+      "properties": {
+        "eyebrow": {
+          "description": "Optional eyebrow text above the title.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "title": {
+          "description": "Main title of the banner.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "subtitle": {
+          "description": "Optional subtitle below the title.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "primaryAction": {
+          "description": "Optional approved action identifier. Must exist in grounded context actions (Gate 3). Validated at runtime.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "HeadingBlock": {
+      "type": "object",
+      "required": ["component", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "const": "Heading"
+        },
+        "props": {
+          "$ref": "#/$defs/HeadingProps"
+        }
+      }
+    },
+    "HeadingProps": {
+      "description": "Section heading at level 2 or 3.",
+      "type": "object",
+      "required": ["level", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "description": "Heading hierarchy level: 2 or 3.",
+          "type": "integer",
+          "enum": [2, 3]
+        },
+        "text": {
+          "description": "Heading text content.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        }
+      }
+    },
+    "TextBlock": {
+      "type": "object",
+      "required": ["component", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "const": "Text"
+        },
+        "props": {
+          "$ref": "#/$defs/TextProps"
+        }
+      }
+    },
+    "TextProps": {
+      "description": "A paragraph of body copy.",
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "description": "Body text content.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "tone": {
+          "description": "Optional visual tone: default or muted.",
+          "type": "string",
+          "enum": ["default", "muted"]
+        }
+      }
+    },
+    "FeatureGridBlock": {
+      "type": "object",
+      "required": ["component", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "const": "FeatureGrid"
+        },
+        "props": {
+          "$ref": "#/$defs/FeatureGridProps"
+        }
+      }
+    },
+    "FeatureGridProps": {
+      "description": "A two or three column arrangement of FeatureCard items. Only nesting construct in the schema; creates maximum depth of two.",
+      "type": "object",
+      "required": ["columns", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "description": "Layout column count: 2 or 3.",
+          "type": "integer",
+          "enum": [2, 3]
+        },
+        "items": {
+          "description": "Child FeatureCard entries. Exactly 2 to 6 items.",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/FeatureCardProps"
+          }
+        }
+      }
+    },
+    "FeatureCardBlock": {
+      "description": "FeatureCard as a top-level block (not nested in a grid).",
+      "type": "object",
+      "required": ["component", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "const": "FeatureCard"
+        },
+        "props": {
+          "$ref": "#/$defs/FeatureCardProps"
+        }
+      }
+    },
+    "FeatureCardProps": {
+      "description": "A titled card describing one capability or one summary item. May appear as a top-level block or inside a FeatureGrid.",
+      "type": "object",
+      "required": ["title", "body"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "description": "Card title.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "body": {
+          "description": "Card body text.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "icon": {
+          "description": "Optional icon identifier: inspection, defect, report, image, or trend.",
+          "type": "string",
+          "enum": ["inspection", "defect", "report", "image", "trend"]
+        },
+        "capabilityId": {
+          "description": "Optional context capability identifier when this card describes a system capability. Must exist in grounded context capabilities (Gate 3). Validated at runtime.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "CtaBlock": {
+      "type": "object",
+      "required": ["component", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "const": "CTA"
+        },
+        "props": {
+          "$ref": "#/$defs/CtaProps"
+        }
+      }
+    },
+    "CtaProps": {
+      "description": "A labelled action button bound to an approved action identifier.",
+      "type": "object",
+      "required": ["label", "action"],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "description": "Button label text.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "action": {
+          "description": "Approved action identifier. Must be one of: view-inspection-queue, view-defect-reports, view-ingest-activity, open-documentation, contact-support. Must also be present in grounded context actions for this request (Gate 3). Validated at runtime.",
+          "type": "string",
+          "enum": [
+            "view-inspection-queue",
+            "view-defect-reports",
+            "view-ingest-activity",
+            "open-documentation",
+            "contact-support"
+          ]
+        },
+        "variant": {
+          "description": "Optional visual variant: primary or secondary.",
+          "type": "string",
+          "enum": ["primary", "secondary"]
+        }
+      }
+    },
+    "AlertBlock": {
+      "type": "object",
+      "required": ["component", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "const": "Alert"
+        },
+        "props": {
+          "$ref": "#/$defs/AlertProps"
+        }
+      }
+    },
+    "AlertProps": {
+      "description": "An informational, warning, or critical notice, optionally tied to a defect category.",
+      "type": "object",
+      "required": ["severity", "title", "body"],
+      "additionalProperties": false,
+      "properties": {
+        "severity": {
+          "description": "Alert severity: info, warning, or critical.",
+          "type": "string",
+          "enum": ["info", "warning", "critical"]
+        },
+        "title": {
+          "description": "Alert title.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "body": {
+          "description": "Alert body text.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "defectCategoryId": {
+          "description": "Optional context defect category identifier when the alert relates to a specific defect type. Must be one of the approved categories and exist in grounded context (Gate 3). Validated at runtime.",
+          "type": "string",
+          "enum": [
+            "solder-bridge",
+            "missing-component",
+            "misaligned-component",
+            "insufficient-solder",
+            "foreign-material",
+            "surface-scratch"
+          ]
+        },
+        "alertId": {
+          "description": "Optional context alert identifier when the alert is derived from a specific recorded alert. Must exist in grounded context alerts (Gate 3). Validated at runtime.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "InfoPanelBlock": {
+      "type": "object",
+      "required": ["component", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "const": "InfoPanel"
+        },
+        "props": {
+          "$ref": "#/$defs/InfoPanelProps"
+        }
+      }
+    },
+    "InfoPanelProps": {
+      "description": "A label and value list for summary statistics drawn from context metrics.",
+      "type": "object",
+      "required": ["title", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "description": "Panel title.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "rows": {
+          "description": "List of metric rows. Exactly 1 to 8 entries.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/InfoPanelRow"
+          }
+        }
+      }
+    },
+    "InfoPanelRow": {
+      "description": "A single metric row in an InfoPanel.",
+      "type": "object",
+      "required": ["metricId", "label", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "metricId": {
+          "description": "Context metric identifier. Must exist in grounded context metrics (Gate 3). Validated at runtime.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "label": {
+          "description": "Row label text.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "value": {
+          "description": "Metric value as a string. Must equal the context Metric.value exactly (Gate 3). Validated at runtime. No schema-level length limit; the contract specifies verbatim copying only.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "unit": {
+          "description": "Optional unit string. When present, must equal the context Metric.unit exactly (Gate 3). Validated at runtime.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        }
+      }
+    },
+    "ProgressIndicatorBlock": {
+      "type": "object",
+      "required": ["component", "props"],
+      "additionalProperties": false,
+      "properties": {
+        "component": {
+          "type": "string",
+          "const": "ProgressIndicator"
+        },
+        "props": {
+          "$ref": "#/$defs/ProgressIndicatorProps"
+        }
+      }
+    },
+    "ProgressIndicatorProps": {
+      "description": "A labelled percentage bar for a context metric expressed as a percentage. The metric ID must reference a metric whose unit is '%'; the value must equal the numeric form of that metric.",
+      "type": "object",
+      "required": ["metricId", "label", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "metricId": {
+          "description": "Context metric identifier whose unit is '%'. Must exist in grounded context metrics (Gate 3). Validated at runtime.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "label": {
+          "description": "Indicator label text.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "value": {
+          "description": "Percentage value as a number, 0 to 100. Must equal the numeric form of the context Metric.value exactly (Gate 3). Validated at runtime.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "caption": {
+          "description": "Optional caption text below the indicator.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        }
+      }
+    }
+  }
+}

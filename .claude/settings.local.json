@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($p=\"D:\\\\Users\\\\MBHAGYA\\\\Documents\\\\Manufacturing-AI\"; Write-Output \"exists: $\\(Test-Path $p\\)\"; Write-Output \"item count: $\\(\\(Get-ChildItem -Force -Recurse $p -ErrorAction SilentlyContinue | Measure-Object\\).Count\\)\")"
+    ]
+  }
+}
