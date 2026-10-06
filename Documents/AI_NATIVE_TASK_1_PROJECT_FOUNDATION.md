@@ -8,7 +8,7 @@ Beginner-friendly guide to starting an AI-native project with Claude Code.
 
 **Status:** Proposed Task 1 — not yet executed. Section 7 describes what this task *should* produce, not a record of what an agent already created.
 
-**Version:** 1.0
+**Version:** 1.1 | **Date:** 16 September 2026
 
 ---
 
@@ -25,7 +25,7 @@ The first implementation scenario is intentionally small: an **inspector review 
 The application starts in a new, empty repository — separate from the analysis repository that holds the BRD, the architecture diagram and these guides. Those documents are **inputs** to Task 1, not part of the application codebase.
 
 ```
-git clone <application-repository-url>
+git clone <application-repository-url> board-defect-inspection
 cd board-defect-inspection
 git status
 ```
@@ -79,7 +79,8 @@ This is the complete instruction for establishing the project foundation:
 
 ```
 We are building an AI-Based Automated Board Defect Inspection System.
-This repository is currently empty.
+Inspect this repository first. If it is not empty, preserve existing work
+and adapt the foundation to its current structure.
 
 Do NOT build the application yet.
 
@@ -90,12 +91,17 @@ The first implementation scenario is intentionally small and READ-ONLY:
 an inspector review panel using controlled Generative UI, rendered over a
 RECORDED inspection fixture. No camera, no PLC, no live inference.
 Nothing in this first slice may change the state of a board.
+ReviewPanel fields are non-submitting; EscalationNotice routes nothing.
+No live inspection inference is needed; UI composition model integration
+is a later implementation task, not part of this foundation.
 
 The runtime AI model will generate a structured UI specification, not
 executable code. The application will validate that output and render it
 only through an approved component vocabulary.
 
 SOURCE DOCUMENTS — read before proposing anything:
+- AI_NATIVE_ENGINEERING_INITIAL_DISCUSSION.md
+- AI_NATIVE_GENERATIVE_UI_FIRST_IMPLEMENTATION.md
 - Business Requirements Document (discovery status, 25 open questions)
 - The proposed eleven-layer architecture (marked "validation required")
 
@@ -124,6 +130,10 @@ Create the following project foundation:
 13. tests/
 14. evals/
 15. .claude/
+
+Use README.md placeholders to retain otherwise empty directories in Git.
+Document the fixture format and provenance requirements now; adding the
+actual recorded fixture belongs to a later implementation task.
 
 Create ONLY the directories the first slice needs. Do not scaffold
 edge/, enterprise/, ml/, ops/, infra/ or ci/ yet — those arrive when a
@@ -181,9 +191,11 @@ requesting it must be rejected. It arrives in a later slice together with
 authentication, attribution and the backend action gateway.
 
 AUTHENTICATION:
-Not required for this slice because it is read-only. Do not build a login
-subsystem. Record in docs/adr/ that this deferral expires the moment a
-disposition can be submitted.
+Defer a new login subsystem only for the isolated fixture demonstration.
+Use an explicit simulated viewer role/scope; it is not authentication.
+Do not expose protected production evidence on this basis.
+Record in docs/adr/ that authentication, authorization and attribution
+are required before any disposition can be submitted.
 
 TECHNOLOGY STACK:
 This is an OPEN DECISION. The delivery backlog names one stack; the BRD
@@ -263,7 +275,7 @@ Do not proceed to the next task automatically.
 | `tests/README.md` | The purpose of deterministic software tests |
 | `evals/README.md` | The purpose of AI evaluations |
 
-A useful review question when the task completes: **does any file in `policies/` contain a number?** If it does, the agent invented it, and that is the first thing to remove.
+Review each policy value for provenance: **has an unapproved threshold, severity or recall target been presented as an approved rule?** Keep unresolved values as TBD with an owner and source reference. Requirement IDs, version numbers and clearly labelled source examples are not invented policy. A useful placeholder records: decision needed, owner, source question, status and approval evidence.
 
 ---
 
@@ -285,16 +297,14 @@ Task 1 establishes three logical runtime areas. They describe responsibilities; 
    Review API surface
    Evidence reference resolution
    Owns all state
-                |
-                v
-          AI Runtime
-   Model gateway (version pinned)
-   UI specification generation
-                |
-                v
-     simulators/capture/
-   Recorded inspection fixture
+          |                  |
+          v                  v
+     AI Runtime       simulators/capture/
+   Model gateway      Recorded fixture
+   UI specification   Evidence source
 ```
+
+The Domain Runtime reads the fixture and resolves evidence references; the AI Runtime proposes layout. Evidence values do not pass through the composition model.
 
 The frontend/backend view remains useful and is not being replaced. The runtime view explains the logical responsibilities across interface, business control and probabilistic intelligence.
 
@@ -367,7 +377,9 @@ A model contract defines the boundary around runtime AI behaviour. The mindset s
 
 **The model must not:** generate executable code or arbitrary markup; request components outside the catalogue; supply evidence values instead of references; state or imply a disposition; contradict the calibrated score; invent defect categories; access the database, registry or line equipment.
 
-Each prohibition should name how it is enforced. Some are structural — catalogue membership and schema validity are enforced by the renderer, and evidence scope by the backend. Others can only be measured: no validator can detect a layout that implies a verdict, so that one is enforced by evaluation cases.
+The JSON above is illustrative, not the final executable schema. Task 1 must document required fields, allowed reference paths, unknown-field handling and rejection behaviour in the shared contract. Raw scores must not be labelled as calibrated probabilities; missing calibration must remain explicit.
+
+Each prohibition should name how it is enforced. Some are structural — catalogue membership and schema validity are enforced by the renderer, and evidence scope by the backend. Others can only be measured: no validator can detect a layout that implies a verdict, so that risk is assessed through evaluation cases and review, supported by deterministic layout constraints where possible. Evals provide evidence, not a guarantee for every future output.
 
 Knowing which prohibitions are structural and which are measurable tells you where you need evals rather than tests.
 
@@ -398,7 +410,7 @@ At this stage we have a Claude Code project foundation rather than a fully enfor
 
 An important distinction: **CLAUDE.md is guidance and context, not a security guarantee.** Stronger enforcement comes later from `.claude/` permissions and hooks, from schema validation, and from tests. Task 1 creates `.claude/` with minimal settings precisely so the location exists before anything needs to be enforced there.
 
-`simulators/capture/` also belongs to the harness. It is created in Task 1 — even though it holds only a fixture — because an agent with no way to exercise degraded or unusual inputs will write confident happy-path code.
+`simulators/capture/` also belongs to the harness. It is created in Task 1 — initially as a README describing the fixture to be supplied later — because an agent with no way to exercise degraded or unusual inputs will write confident happy-path code.
 
 ---
 
@@ -493,6 +505,10 @@ Task 1 establishes the foundation for this flow. The project intentionally stops
 ---
 
 ## 19. End of Task 1
+
+After completing the checklist, the next smallest task is to review and refine the slice specification, model contract and UI schema together. Then add a recorded fixture with documented provenance, before building the standard fallback screen. Follow the incremental sequence in `AI_NATIVE_GENERATIVE_UI_FIRST_IMPLEMENTATION.md`, section 17; do not start that work as part of Task 1.
+
+The initial discussion also proposes capture + QG-1 as an architecture-validation slice. This guide follows the dedicated first-implementation document and starts with the fixture-based review panel; the capture slice remains later validation work.
 
 At the end of Task 1 we have not built the inspector review panel. We have built the environment in which it can be built deliberately.
 

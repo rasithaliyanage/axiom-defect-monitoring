@@ -1,0 +1,125 @@
+{
+  "specVersion": "1.0",
+  "page": "landing",
+  "contextId": "task4-catalogue",
+  "blocks": [
+    {
+      "component": "Hero",
+      "props": {
+        "eyebrow": "Internal tooling",
+        "title": "Board inspection activity",
+        "subtitle": "Recorded inspection records, defect reporting and ingest activity.",
+        "primaryAction": "view-inspection-queue"
+      }
+    },
+    {
+      "component": "Heading",
+      "props": {
+        "level": 2,
+        "text": "Recorded activity"
+      }
+    },
+    {
+      "component": "Text",
+      "props": {
+        "text": "Explore recorded inspection activity for the current shift.",
+        "tone": "muted"
+      }
+    },
+    {
+      "component": "FeatureGrid",
+      "props": {
+        "columns": 2,
+        "items": [
+          {
+            "title": "Inspection records",
+            "body": "Recorded inspection entries for this line.",
+            "icon": "inspection"
+          },
+          {
+            "title": "Defect reporting",
+            "body": "Recorded defect observations by category.",
+            "icon": "defect"
+          }
+        ]
+      }
+    },
+    {
+      "component": "FeatureCard",
+      "props": {
+        "title": "Inspection history",
+        "body": "Recorded inspection activity retained for later review.",
+        "icon": "report",
+        "capabilityId": "inspection-history"
+      }
+    },
+    {
+      "component": "CTA",
+      "props": {
+        "label": "Open defect reports",
+        "action": "view-defect-reports",
+        "variant": "primary"
+      }
+    },
+    {
+      "component": "CTA",
+      "props": {
+        "label": "Open ingest activity",
+        "action": "view-ingest-activity",
+        "variant": "secondary"
+      }
+    },
+    {
+      "component": "CTA",
+      "props": {
+        "label": "Open documentation",
+        "action": "open-documentation"
+      }
+    },
+    {
+      "component": "CTA",
+      "props": {
+        "label": "Contact support",
+        "action": "contact-support"
+      }
+    },
+    {
+      "component": "Alert",
+      "props": {
+        "severity": "warning",
+        "title": "Recorded observations",
+        "body": "Observations recorded during the current shift.",
+        "defectCategoryId": "solder-bridge",
+        "alertId": "alert-solder-001"
+      }
+    },
+    {
+      "component": "InfoPanel",
+      "props": {
+        "title": "Shift summary",
+        "rows": [
+          {
+            "metricId": "boards-inspected-shift",
+            "label": "Boards inspected",
+            "value": "1,284"
+          },
+          {
+            "metricId": "defect-rate-shift",
+            "label": "Defect rate",
+            "value": "2.4",
+            "unit": "%"
+          }
+        ]
+      }
+    },
+    {
+      "component": "ProgressIndicator",
+      "props": {
+        "metricId": "shift-progress",
+        "label": "Shift progress",
+        "value": 62,
+        "caption": "Recorded progress for the current shift."
+      }
+    }
+  ]
+}

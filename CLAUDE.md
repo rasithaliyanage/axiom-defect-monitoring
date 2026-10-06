@@ -10,8 +10,11 @@ AI-Based Automated Board Defect Inspection System. Internal application. AI-nati
 the runtime user interface is produced by an AI model that emits a structured specification, which the
 application validates and renders through a fixed component registry.
 
-Current phase: Phase 0, engineering foundation. Documentation and contracts only. No application code
-exists. Do not scaffold a build system, install dependencies, or create source files unless the task
+Current phase: Phase 0, engineering foundation. Two increments of application code exist — the
+validation pipeline in `services/domain/` and the controlled renderer in `apps/ui/`. Nothing else
+does: no model gateway, no API, no database, no fallback specification, no authentication.
+
+Do not scaffold a build system, install dependencies, or create source files unless the task
 explicitly asks for that increment.
 
 ## Non-negotiable rules
@@ -20,7 +23,8 @@ These rules are architectural, not stylistic. Do not relax them for convenience,
 a change that violates one — raise the conflict instead.
 
 1. The model never produces executable content. No React, no HTML, no JavaScript, no CSS, no SQL, no
-   shell. Model output is a UI specification conforming to `specs/ui-spec.schema.json` and nothing else.
+   shell. Model output is a UI specification conforming to `specs/schemas/ui-spec.schema.json` and
+   nothing else.
 2. The component registry is the only render path. A component that is not registered cannot appear on
    screen. Never introduce a dynamic render escape: no `eval`, no `new Function`, no
    `dangerouslySetInnerHTML`, no dynamic import driven by model output, no string-to-component lookup
@@ -42,24 +46,51 @@ a change that violates one — raise the conflict instead.
 
 ## Repository layout
 
+**This section is the authoritative repository layout.** Where it differs from
+`Documents/Proposed Project Structure - Board Defect Inspection (AI-Native)-Vinod.pdf`, this file
+wins; that document is a review draft with open decisions. The naming differences are deliberate and
+mapped below, not drift. See `docs/adr/0001-repository-layout.md`.
+
 Present today:
 
 ```
 CLAUDE.md                    this file
 README.md                    orientation and document map
-docs/                        business requirements and architecture
-specs/                       system specification, model contract, output schema
-tests/                       deterministic tests (strategy documented, suites to come)
-evals/                       AI evaluations and case sets
-.claude/                     Claude Code configuration for this project
-```
-
-Planned, to be created only when the corresponding increment is authorised:
-
-```
+docs/                        business requirements, architecture, quality gates, security
+docs/adr/                    numbered architecture decision records
+specs/                       system specification, model contract
+specs/schemas/               the authoritative UI specification schema
+policies/                    BUSINESS-OWNED placeholders — Quality and Manufacturing, not engineering
+plans/                       implementation plan
+tasks/                       task breakdown
 apps/ui/                     UI Runtime — React, TypeScript, renderer, component registry
-services/domain/             Domain Runtime — FastAPI, board inspection, ingest metadata, reporting
-services/domain/ai/          AI Runtime — model gateway, prompt assembly, validation pipeline
+services/domain/             Domain Runtime — validation pipeline today; board inspection API to come
+simulators/capture/          harness — recorded inspection fixtures, so slices need no factory
+tests/                       deterministic tests and shared fixtures
+evals/                       AI evaluations and case sets
+.claude/                     Claude Code configuration, rules, hooks and agent instructions
+```
+
+Role mapping to the proposed structure, so the divergence is unambiguous:
+
+| This repository | Proposed structure | Role |
+|---|---|---|
+| `apps/ui/` | `frontend/` | UI Runtime |
+| `services/domain/` | `backend/` | Domain Runtime |
+| `services/domain/ai/` | `ai/` | AI Runtime |
+| `specs/schemas/` | `contracts/ui/` | UI specification schema |
+
+`apps/*` and `services/*` are a conventional monorepo shape carrying the same responsibilities. Do not
+rename them to `frontend/` and `backend/` without a new ADR superseding 0001.
+
+Not yet created, because no authorised increment needs them:
+
+```
+services/domain/ai/          AI Runtime — model gateway, prompt assembly
+ml/                          model lifecycle — training, packaging, registry
+edge/  enterprise/           deployment composition only, never business logic
+ops/  infra/  ci/            runbooks, environments, pipeline definitions
+contracts/                   shared cross-runtime schemas, if the schema outgrows specs/schemas/
 ```
 
 The AI Runtime begins life as a bounded module inside the Domain Runtime rather than a separate
@@ -77,7 +108,7 @@ grounded context shape, or the UI specification schema requires all four of the 
 change, or the change is incomplete:
 
 1. `specs/model-contracts.md` updated.
-2. `specs/ui-spec.schema.json` updated.
+2. `specs/schemas/ui-spec.schema.json` updated.
 3. Deterministic tests added or amended under `tests/`.
 4. Eval cases added or amended under `evals/`.
 

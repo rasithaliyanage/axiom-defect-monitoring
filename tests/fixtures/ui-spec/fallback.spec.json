@@ -1,0 +1,37 @@
+{
+  "specVersion": "1.0",
+  "page": "landing",
+  "contextId": "fallback",
+  "blocks": [
+    {
+      "component": "Hero",
+      "props": {
+        "eyebrow": "Internal tooling",
+        "title": "Board inspection activity",
+        "subtitle": "A limited view is shown because the full presentation could not be prepared."
+      }
+    },
+    {
+      "component": "Alert",
+      "props": {
+        "severity": "warning",
+        "title": "Limited view",
+        "body": "Recorded inspection details are not shown here. Nothing on this page is a board quality result."
+      }
+    },
+    {
+      "component": "Heading",
+      "props": {
+        "level": 2,
+        "text": "What this means"
+      }
+    },
+    {
+      "component": "Text",
+      "props": {
+        "text": "The usual content is unavailable, so this reduced page is shown instead. No inspection record has been changed.",
+        "tone": "muted"
+      }
+    }
+  ]
+}

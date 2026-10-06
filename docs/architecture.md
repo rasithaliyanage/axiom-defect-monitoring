@@ -132,7 +132,7 @@ context that the Domain Runtime chose to include.
 Four gates, applied in order. Each rejection carries a stable machine-readable code; the code list is
 defined in `specs/model-contracts.md`.
 
-Gate 1, structural. The output parses as JSON and conforms to `specs/ui-spec.schema.json`, including
+Gate 1, structural. The output parses as JSON and conforms to `specs/schemas/ui-spec.schema.json`, including
 block count, nesting depth, and string length limits.
 
 Gate 2, registry. Every `component` value is an approved component name, and every prop is approved for

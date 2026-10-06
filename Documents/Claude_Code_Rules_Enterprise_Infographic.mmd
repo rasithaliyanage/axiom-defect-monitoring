@@ -1,0 +1,84 @@
+%% Source: Claude_Code_Rules_Enterprise_Guide.md, including Section 21.
+%% Arrows organize concepts and workflow; they do not define instruction precedence.
+%% The project-specific rule file below is proposed, not installed.
+flowchart TB
+    TITLE["CLAUDE CODE RULES<br/>Enterprise standards applied to board inspection UI development"]
+
+    subgraph CONTEXT["1. ORGANIZE ENGINEERING GUIDANCE"]
+        direction LR
+        ENTERPRISE["Enterprise standards<br/>Architecture · Security · Quality"]
+        PROJECT["CLAUDE.md<br/>Project purpose, boundaries and conventions"]
+        RULES[".claude/rules/<br/>Small, focused, verifiable instructions"]
+        GENERAL["Rules without paths<br/>General project guidance"]
+        SCOPED["Rules with paths<br/>Relevant guidance when matching files are read"]
+        ENTERPRISE -->|Inform| PROJECT
+        PROJECT -->|Detailed guidance| RULES
+        RULES --> GENERAL
+        RULES --> SCOPED
+    end
+
+    subgraph WORK["2. APPLY TO A PROJECT TASK"]
+        direction TB
+        REQUEST["Example developer request<br/>Improve CTA spacing and test its action callback"]
+        EXAMPLE["Proposed rule example — not installed<br/>.claude/rules/frontend/controlled-uispec.md<br/>Paths: apps/ui/**/* and tests/renderer_fixtures/**/*.py"]
+        CLAUDE["Claude Code<br/>Inspect existing code and make the scoped change"]
+        LIMITS["Preserve project boundaries<br/>No raw-model rendering or executable content<br/>No invented routes, live data or quality decisions"]
+        REQUEST --> CLAUDE
+        EXAMPLE -.->|Guides matching work| CLAUDE
+        LIMITS -.->|Constrains the change| CLAUDE
+    end
+
+    subgraph CONTROLS["3. PRESERVE THE IMPLEMENTED RENDERING BOUNDARY"]
+        direction TB
+        INPUT["Fixed synthetic UISpec<br/>+ complete GroundedContext"]
+        VALIDATOR["Task 3 Python validator<br/>Selected schema + grounding + deterministic policy checks"]
+        VALID{"Validation passed?"}
+        STOP["Stop fixture preparation<br/>Remove stale generated fixture and evidence"]
+        VERIFIED["Static fixture module + verification evidence<br/>Private issuance of an ApprovedUISpec handle"]
+        RENDER["Task 4 ControlledRenderer<br/>Issued-handle lookup + whole-page preflight"]
+        SUPPORTED{"Registry entries and<br/>action bindings supported?"}
+        REJECT["Reject the whole rendering<br/>No omission, substitution or repair"]
+        COMPONENTS["Explicit nine-component registry<br/>Hero · Heading · Text · FeatureCard · FeatureGrid<br/>CTA · Alert · InfoPanel · ProgressIndicator"]
+        UI["Safe React presentation<br/>Explicit DOM props · Supplied text and values<br/>Five approved action IDs · Inert demo controls"]
+        INPUT --> VALIDATOR --> VALID
+        VALID -->|No| STOP
+        VALID -->|Yes| VERIFIED --> RENDER --> SUPPORTED
+        SUPPORTED -->|No| REJECT
+        SUPPORTED -->|Yes| COMPONENTS --> UI
+    end
+
+    subgraph EVIDENCE["4. VERIFY AND REVIEW"]
+        direction LR
+        CHECKS["Required checks<br/>Renderer tests · TypeScript · Safety lint · Build<br/>Python validator and fixture-handoff tests"]
+        REPORT["Reviewable change<br/>Actual results · Changed files · Limitations<br/>Human review before further work"]
+        CHECKS --> REPORT
+    end
+
+    NOTE["Rules guide the coding assistant; code and checks enforce the boundary.<br/>VALID means presentation validation, never board PASS/FAIL or approval.<br/>This fixture demonstration has no live model or validator-to-browser transport."]
+
+    TITLE --> ENTERPRISE
+    PROJECT -.-> CLAUDE
+    GENERAL -.-> CLAUDE
+    SCOPED -.-> EXAMPLE
+    CLAUDE -.->|Maintain this existing flow| RENDER
+    CLAUDE -->|Verify the change| CHECKS
+    UI -->|Rendering and action assertions| CHECKS
+    REPORT --> NOTE
+
+    classDef title fill:#123047,color:#ffffff,stroke:#123047,stroke-width:2px;
+    classDef guidance fill:#eaf1ff,color:#19365b,stroke:#5578ad;
+    classDef work fill:#fff3d9,color:#563c0b,stroke:#b58328;
+    classDef control fill:#e4f4ef,color:#164a3b,stroke:#3e8c74;
+    classDef decision fill:#fff3d9,color:#563c0b,stroke:#b58328;
+    classDef failure fill:#fde9e7,color:#782c26,stroke:#b5574d;
+    classDef evidence fill:#eeeafa,color:#403366,stroke:#8370b5;
+    classDef note fill:#f2f4f7,color:#293747,stroke:#8995a3;
+
+    class TITLE title;
+    class ENTERPRISE,PROJECT,RULES,GENERAL,SCOPED guidance;
+    class REQUEST,EXAMPLE,CLAUDE,LIMITS work;
+    class INPUT,VALIDATOR,VERIFIED,RENDER,COMPONENTS,UI control;
+    class VALID,SUPPORTED decision;
+    class STOP,REJECT failure;
+    class CHECKS,REPORT evidence;
+    class NOTE note;

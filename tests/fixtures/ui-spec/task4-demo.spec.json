@@ -1,0 +1,27 @@
+{
+  "specVersion": "1.0",
+  "page": "landing",
+  "contextId": "task4-demo",
+  "blocks": [
+    {
+      "component": "Hero",
+      "props": {
+        "title": "Board inspection activity",
+        "subtitle": "Inspection records and defect reporting."
+      }
+    },
+    {
+      "component": "Text",
+      "props": {
+        "text": "Explore recorded inspection activity."
+      }
+    },
+    {
+      "component": "CTA",
+      "props": {
+        "label": "Open defect reports",
+        "action": "view-defect-reports"
+      }
+    }
+  ]
+}

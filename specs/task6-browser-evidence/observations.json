@@ -1,0 +1,74 @@
+{
+  "capturedBy": "Task 6 checkpoint verification pass",
+  "capturedOn": "2026-10-03",
+  "browser": "Google Chrome via Claude in Chrome extension",
+  "url": "http://localhost:5173/",
+  "services": {
+    "domainRuntime": "uvicorn services.domain.api.main:app --host 127.0.0.1 --port 8000",
+    "uiRuntime": "npm run dev (Vite, port 5173)",
+    "proxy": "Vite forwards /api and /health to 127.0.0.1:8000; no CORS middleware exists"
+  },
+  "note": "Synthetic developer-authored presentation. Not live inspection data, not a board quality result.",
+  "verified": [
+    {
+      "check": "page data comes from the Domain Runtime, not the static catalogue",
+      "evidence": "Network log recorded POST http://localhost:5173/api/v1/ui/landing-page -> 200",
+      "pass": true
+    },
+    {
+      "check": "React actually rendered (not just an HTML shell)",
+      "evidence": "All nine approved components present; 12 blocks; heading level 1 reads 'Board inspection activity'",
+      "screenshot": "wide-rendered.jpg",
+      "pass": true
+    },
+    {
+      "check": "Hero label resolved from server-owned context bindings",
+      "evidence": "Hero rendered 'Open inspection queue', a string present only in GroundedContext.actions, never in the UISpec",
+      "pass": true
+    },
+    {
+      "check": "synthetic notice visible and outside fixture-authored text",
+      "evidence": "Notice reads 'Synthetic demonstration - not live inspection data' and 'served by the Domain Runtime', with view and contextId",
+      "pass": true
+    },
+    {
+      "check": "severity conveyed as text, not colour alone",
+      "evidence": "Alert rendered the word WARNING above its title",
+      "pass": true
+    },
+    {
+      "check": "keyboard focus visible",
+      "evidence": "Tab produced a visible focus ring on the Hero action control",
+      "pass": true
+    },
+    {
+      "check": "console clean",
+      "evidence": "Only Vite HMR connect messages and the React DevTools notice. No errors or warnings",
+      "pass": true
+    },
+    {
+      "check": "no unexpected external or model traffic",
+      "evidence": "All application requests were localhost:5173. The only non-localhost entries were an unrelated Acrobat browser extension",
+      "pass": true
+    }
+  ],
+  "unverified": [
+    {
+      "check": "narrow viewport layout (max-width: 30rem media query)",
+      "reason": "resize_window reported success but the captured viewport stayed at its original width. Attempted 2026-09-30 and 2026-10-03. The attempted-narrow screenshot was byte-identical to the wide capture, confirming the resize never applied.",
+      "wouldCloseIt": "A headless browser with real viewport control (Playwright or similar). Not added, because nothing else currently requires it.",
+      "status": "UNVERIFIED - not a code defect, an environment limitation"
+    },
+    {
+      "check": "cross-browser and assistive-technology behaviour",
+      "reason": "Only Chrome was exercised. No screen reader or alternative engine was tested.",
+      "status": "UNVERIFIED"
+    }
+  ],
+  "knownObservation": {
+    "detail": "The network log shows HTTP 503 immediately before the 200 on the landing endpoint.",
+    "cause": "React StrictMode double-invokes the effect in development; the first request is aborted by the cleanup and surfaces through the Vite proxy as 503.",
+    "handling": "The stale-response guard in App.tsx discards it. The rendered result is the 200.",
+    "concern": false
+  }
+}

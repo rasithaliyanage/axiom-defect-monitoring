@@ -1,0 +1,132 @@
+{
+  "capturedBy": "Task 6 checkpoint verification pass (re-captured after error-envelope fix)",
+  "capturedOn": "2026-10-03",
+  "backend": {
+    "command": ".venv/Scripts/python.exe -m uvicorn services.domain.api.main:app --host 127.0.0.1 --port 8000",
+    "baseUrl": "http://127.0.0.1:8000"
+  },
+  "note": "Synthetic developer-authored presentation. Not live inspection data and not a board quality result.",
+  "checks": [
+    {
+      "name": "health",
+      "method": "GET",
+      "url": "http://127.0.0.1:8000/health",
+      "status": 200,
+      "body": {
+        "status": "ok"
+      },
+      "expected": {
+        "status": "ok"
+      },
+      "pass": true
+    },
+    {
+      "name": "landing success",
+      "method": "POST",
+      "url": "http://127.0.0.1:8000/api/v1/ui/landing-page",
+      "request": {
+        "page": "landing",
+        "view": "overview"
+      },
+      "status": 200,
+      "responseKeys": [
+        "bindings",
+        "meta",
+        "spec"
+      ],
+      "meta": {
+        "contextId": "task4-catalogue",
+        "source": "fixture",
+        "validation": "VALID"
+      },
+      "blockCount": 12,
+      "actionLabelCount": 5,
+      "pass": true
+    },
+    {
+      "name": "supplied grounding rejected",
+      "method": "POST",
+      "url": "http://127.0.0.1:8000/api/v1/ui/landing-page",
+      "request": {
+        "page": "landing",
+        "view": "overview",
+        "context": {
+          "metrics": []
+        }
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "code": "BAD_REQUEST",
+          "message": "Request is not a supported presentation request"
+        }
+      },
+      "pass": true
+    },
+    {
+      "name": "tutorial locale field rejected",
+      "method": "POST",
+      "url": "http://127.0.0.1:8000/api/v1/ui/landing-page",
+      "request": {
+        "page": "landing",
+        "locale": "en-US"
+      },
+      "status": 400,
+      "body": {
+        "error": {
+          "code": "BAD_REQUEST",
+          "message": "Request is not a supported presentation request"
+        }
+      },
+      "pass": true,
+      "note": "Our contract uses 'view', not 'locale'. extra=forbid rejects it."
+    },
+    {
+      "name": "wrong method",
+      "method": "GET",
+      "url": "http://127.0.0.1:8000/api/v1/ui/landing-page",
+      "status": 405,
+      "body": {
+        "error": {
+          "code": "METHOD_NOT_ALLOWED",
+          "message": "Request could not be completed"
+        }
+      },
+      "pass": true
+    },
+    {
+      "name": "unknown route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8000/api/v1/nope",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "message": "Request could not be completed"
+        }
+      },
+      "pass": true
+    }
+  ],
+  "errorEnvelopeConsistency": {
+    "claim": "every error response uses {error:{code,message}}",
+    "checked": [
+      400,
+      400,
+      405,
+      404
+    ],
+    "allUseEnvelope": true,
+    "note": "404/405 previously leaked Starlette's {\"detail\": ...}; handler now registered against the Starlette parent class."
+  },
+  "revalidationOfLiveResponse": {
+    "validator": "services.domain.validator.UISpecValidator",
+    "contextUsed": "tests/fixtures/ui-spec/full-catalogue.context.json",
+    "status": "VALID",
+    "rejectionCount": 0,
+    "exactSpecEquality": true,
+    "actionBindingsEqual": true,
+    "actionOrderPreserved": true,
+    "contextIdAssociated": true
+  }
+}

@@ -1,2 +1,4 @@
 jsonschema==4.26.0
 pydantic==2.13.5
+fastapi==0.142.1
+uvicorn==0.54.0

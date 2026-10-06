@@ -21,7 +21,7 @@ routing, user preferences, and write operations on domain data.
 
 ## Definitions
 
-UI specification — a JSON document conforming to `specs/ui-spec.schema.json` that describes a page as
+UI specification — a JSON document conforming to `specs/schemas/ui-spec.schema.json` that describes a page as
 an ordered list of approved component blocks with approved props.
 
 Grounded context — the structured payload assembled by the Domain Runtime enumerating every metric,
@@ -85,7 +85,7 @@ a `component` name and a `props` object. Only `FeatureGrid` may contain children
 
 Structural limits, enforced at Gate 1: at most 12 top-level blocks; at most 6 items in a `FeatureGrid`;
 at most 8 rows in an `InfoPanel`; at most 4000 characters of total text; individual string limits as
-given in `specs/ui-spec.schema.json`.
+given in `specs/schemas/ui-spec.schema.json`.
 
 `specVersion` is `"1.0"` for this phase. A specification whose version the runtime does not recognise
 is rejected, not coerced.

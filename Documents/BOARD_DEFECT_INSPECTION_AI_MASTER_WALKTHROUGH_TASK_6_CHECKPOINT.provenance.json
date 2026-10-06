@@ -1,0 +1,121 @@
+{
+  "reference": "Customer_Onboarding_AI_Walkthrough_Task_6_Checkpoint_Updated.docx.pdf",
+  "reference_sha256": "f15af0ea4bf3779f46cd22f31793c3d35073bc5f66fa621e20b1a3e85b4c2056",
+  "section_count": 48,
+  "prompt_records": [
+    {
+      "task": 1,
+      "source": "AI_NATIVE_TASK_1_PROJECT_FOUNDATION.md",
+      "source_sha256": "56a7cad601cdf72a5f9c94f34ec622ab6aecdeea2384a6a83862b8fc70c55447",
+      "blocks": [
+        {
+          "characters": 5619,
+          "sha256": "255f5152c805c4c472022c5dc4b10699ea1a92bbacd4e07d16266598e1e97d63"
+        }
+      ],
+      "provenance": "Verbatim stored guide blocks; not asserted to be an authenticated execution transcript."
+    },
+    {
+      "task": 2,
+      "source": "BOARD_DEFECT_INSPECTION_TASK_2_PROMPT.md",
+      "source_sha256": "982d012d4980e14527858eeb42aa6ba1d242853ca149c04389d9f747ad29c209",
+      "blocks": [
+        {
+          "characters": 6061,
+          "sha256": "718b0458414bd9e7ec629388f98574eb27d5aa6ecfe1ee2d5ae107d1dc4889af"
+        }
+      ],
+      "provenance": "Verbatim stored guide blocks; not asserted to be an authenticated execution transcript."
+    },
+    {
+      "task": 3,
+      "source": "BOARD_DEFECT_INSPECTION_TASK_3_BEGINNER_GUIDE_COMPLETE.md",
+      "source_sha256": "9df48386b99e1d047b2f87d76c6d09c5b967458675fca03c554d39d77e92527a",
+      "blocks": [
+        {
+          "characters": 1015,
+          "sha256": "728a2d2f9d51aa6ca952153f7a90d368c71c40a704dde0f6de10761ec7404f23"
+        },
+        {
+          "characters": 2434,
+          "sha256": "b2a24b977982f6444c0991026dd52575d48aec899f23fe92271ed80ca8a9740b"
+        },
+        {
+          "characters": 2110,
+          "sha256": "a62942173744be51aeada767a3c659bd742c50bc864979a40d676fb2c7127200"
+        },
+        {
+          "characters": 2288,
+          "sha256": "6a8618564bbe80f090fc65bb6b2e48e1a7229b8e101e949514cca10ea4a0de31"
+        },
+        {
+          "characters": 2179,
+          "sha256": "69a647f1a3bbe407f18d1cb0ee57af5054201c98a658fdef06c2a3fd38a6213a"
+        },
+        {
+          "characters": 963,
+          "sha256": "0839dac604e13ae79ec597fb66896f0d68d4e935694479415c2a7d1ad9553c03"
+        }
+      ],
+      "provenance": "Verbatim stored guide blocks; not asserted to be an authenticated execution transcript."
+    },
+    {
+      "task": 4,
+      "source": "BOARD_DEFECT_INSPECTION_TASK_4_BEGINNER_GUIDE_ENTERPRISE_STANDARD.md",
+      "source_sha256": "3fed2a61670837ae68e95ad84a0916019dc90d9975324499654e8e191b70a191",
+      "blocks": [
+        {
+          "characters": 887,
+          "sha256": "ab1200bb94ccf4174a2002c9c63d0add33f9dc3fc544e0532d928f5a98d3f15e"
+        },
+        {
+          "characters": 2582,
+          "sha256": "998f7aba871063bced362257a0374087c779ba44e0ce4da3657e0a4f7820c6a1"
+        },
+        {
+          "characters": 2189,
+          "sha256": "023f2d5c1373dea6e16d68c6d4c03244e66d7a7bd91306b599b7abf6a805bfeb"
+        },
+        {
+          "characters": 2539,
+          "sha256": "b3b31c5b9671c1f5d5d8611ae9bdf995ac9bf65f12efc773b8a5e36b872f0dd8"
+        },
+        {
+          "characters": 2475,
+          "sha256": "ec45b5aa930b4e3a2e98269d386810c9184702d3d45a4194c17de1d8b06eb6df"
+        },
+        {
+          "characters": 371,
+          "sha256": "6a1640451d0e5cf801539b6eb69bb6c43d35ab2acd3123e76da5be3c0164ef11"
+        }
+      ],
+      "provenance": "Verbatim stored guide blocks; not asserted to be an authenticated execution transcript."
+    },
+    {
+      "task": 5,
+      "source": "BOARD_DEFECT_INSPECTION_TASK_5_BEGINNER_GUIDE_ENTERPRISE_STANDARD.md",
+      "source_sha256": "b7b4d0cf9b0fd9cadf779dc18fd4cdb7e44e5405f4bd3ef28f1a986b1357cb97",
+      "blocks": [
+        {
+          "characters": 16356,
+          "sha256": "99def61a826391254162fb85e3e09bc6cb7e805c7b0d4a9d5b3f969f5efecc22"
+        }
+      ],
+      "provenance": "Verbatim stored guide blocks; not asserted to be an authenticated execution transcript."
+    },
+    {
+      "task": 6,
+      "source": "BOARD_DEFECT_INSPECTION_TASK_6_BEGINNER_GUIDE_ENTERPRISE_GRADE.md",
+      "source_sha256": "39978bb95b1c4f1d5fd38840933fbb2d0ff00899fcac49481ad558e8264b72ff",
+      "blocks": [
+        {
+          "characters": 22394,
+          "sha256": "09c7253c6ff59b07a0900c4b1c2d4ffedca9248db3088b0d63aadc52566429ea"
+        }
+      ],
+      "provenance": "Verbatim stored guide blocks; not asserted to be an authenticated execution transcript."
+    }
+  ],
+  "application_tests_rerun": false,
+  "git_checkpoint": "pending"
+}

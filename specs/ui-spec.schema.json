@@ -1,7 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://internal.virtusa/manufacturing-ai/schemas/ui-spec-1.0.json",
-  "title": "UI specification, version 1.0",
+  "title": "SUPERSEDED — UI specification, version 1.0 (alternative draft)",
+  "deprecated": true,
+  "$comment": "SUPERSEDED. The authoritative schema is specs/schemas/ui-spec.schema.json, which is the file services/domain/validator.py loads (see SCHEMA_PATH). This copy is not loaded by any code and imposes different bounds; the differences are tabulated in specs/TASK-3-READINESS.md. It is retained for that comparison only. Do not merge the two, and do not validate against this file.",
   "description": "Structured output contract for the UI generation model. Normative prose lives in specs/model-contracts.md. This schema covers Gate 1 (structural) and the value-set portion of Gate 2 (registry). Grounding checks (Gate 3), text policy and decision-language checks (Gate 4), and the total-text-length limit are enforced in the validation pipeline and cannot be expressed here.",
   "type": "object",
   "additionalProperties": false,

@@ -7,7 +7,7 @@ the model receives, what it must return, what it may do, what it must never do, 
 vocabulary with prop-level constraints, and how invalid output is rejected and repaired.
 
 Contract identity: `ui-generation`, version 1.0. Corresponding output schema:
-`specs/ui-spec.schema.json`, `specVersion` `"1.0"`.
+`specs/schemas/ui-spec.schema.json`, `specVersion` `"1.0"`.
 
 Changes to this document are contract changes and require the four-part change described in
 `CLAUDE.md` under Working method.
@@ -350,5 +350,5 @@ is to use the vocabulary that exists, not to invent a component.
 
 The component vocabulary, prop contracts, grounded context shape, action list, defect category list,
 text policy, and rejection codes are all contract surface. Changing any of them requires, in one
-change: this document, `specs/ui-spec.schema.json`, deterministic tests under `tests/`, and eval cases
+change: this document, `specs/schemas/ui-spec.schema.json`, deterministic tests under `tests/`, and eval cases
 under `evals/`. A change landing without all four is incomplete and should be rejected in review.

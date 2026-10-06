@@ -17,6 +17,30 @@ The strategy below includes future application-level checks. Its statement that
 all implied decision language is caught is an aspiration, not a property proven
 by the current pattern checks. Semantic evaluation remains necessary.
 
+## Task 4 implementation
+
+Renderer tests live in `apps/ui/test/` and run with `npm test` from `apps/ui`
+(Vitest, jsdom). They cover registry closure, block structure and ordering,
+action handling, grounding fidelity, accessibility, DOM safety and determinism.
+
+Shared fixtures live in `tests/fixtures/ui-spec/` as `<name>.spec.json` plus
+`<name>.context.json`. `tests/validator/test_task4_fixtures.py` runs the Task 3
+validator over each pair and asserts `status == "VALID"`; the TypeScript tests
+import the same files.
+
+There is no runtime transport and no trust token between the Python validator
+and the renderer. `ValidationResult` returns `status` and `rejections` only, not
+an approved payload. The approved-input guarantee is exactly "a passing Python
+test asserts these bytes are VALID" — no more than that.
+
+Deliberately malformed specs in `apps/ui/test/safety.test.tsx` are
+renderer-boundary probes. They are test-only and are not a production bypass;
+nothing under `apps/ui/src/` accepts raw model output.
+
+Claims not made by these tests: no renderer test proves that all implied quality
+verdicts are impossible, and the source scan for dynamic execution is a textual
+check over the render path, not a proof about the whole dependency tree.
+
 ## Purpose
 
 This directory holds deterministic software tests. They call no AI model, depend on no network, and

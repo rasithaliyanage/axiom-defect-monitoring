@@ -10,8 +10,8 @@ from xml.sax.saxutils import escape
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent
-SOURCE = ROOT / 'AI_NATIVE_GENERATIVE_UI_FIRST_IMPLEMENTATION.md'
-OUTPUT = ROOT / 'AI_NATIVE_GENERATIVE_UI_FIRST_IMPLEMENTATION.docx'
+SOURCE = ROOT / 'AI_NATIVE_TASK_1_PROJECT_FOUNDATION.md'
+OUTPUT = ROOT / 'AI_NATIVE_TASK_1_PROJECT_FOUNDATION.docx'
 W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 relationships = []
@@ -193,8 +193,8 @@ parts = {
     'word/document.xml': document,
     'word/styles.xml': styles,
     'word/_rels/document.xml.rels': rels,
-    'word/header1.xml': f'<w:hdr xmlns:w="{W}">{paragraph("BOARD DEFECT INSPECTION | First Implementation - Controlled Generative UI", "TableText")}</w:hdr>',
-    'word/footer1.xml': f'<w:ftr xmlns:w="{W}"><w:p><w:pPr><w:jc w:val="right"/></w:pPr>{run("Version 1.0 | 16 September 2026 | Page ")}<w:fldSimple w:instr="PAGE"/></w:p></w:ftr>',
+    'word/header1.xml': f'<w:hdr xmlns:w="{W}">{paragraph("BOARD DEFECT INSPECTION | Task 1 - Project Foundation", "TableText")}</w:hdr>',
+    'word/footer1.xml': f'<w:ftr xmlns:w="{W}"><w:p><w:pPr><w:jc w:val="right"/></w:pPr>{run("Version 1.1 | 16 September 2026 | Page ")}<w:fldSimple w:instr="PAGE"/></w:p></w:ftr>',
 }
 for name, xml in parts.items():
     ET.fromstring(xml)
@@ -205,13 +205,10 @@ with zipfile.ZipFile(OUTPUT) as archive:
     assert archive.testzip() is None
     root = ET.fromstring(archive.read('word/document.xml'))
     text = '\n'.join(node.text or '' for node in root.iter(f'{{{W}}}t'))
-    for marker in ['What Are We Building?', 'The Model Contract',
-                   'Approved Component Vocabulary for v1',
-                   'DispositionControl', 'simulators/capture/',
-                   'Authentication and Attribution in the First Scenario',
-                   'Definition of Done', 'Final Takeaway',
-                   'Appendix A', 'Appendix B', 'Appendix C',
-                   'Where This Differs from the Reference Guide']:
+    for marker in ['What This Task Is About', 'The Exact Task 1 Prompt',
+                   'What Task 1 Should Produce', 'DispositionControl',
+                   'simulators/capture/', 'Task 1 Completion Checklist',
+                   'End of Task 1', 'isolated fixture demonstration']:
         assert marker in text, marker
     numbers = []
     for p in root.iter(f'{{{W}}}p'):
@@ -222,8 +219,8 @@ with zipfile.ZipFile(OUTPUT) as archive:
         match = re.match(r'(\d+)\.\s', heading)
         if match:
             numbers.append(int(match.group(1)))
-    assert numbers == list(range(1, 30)), f'section numbering broken: {numbers}'
-    assert 'Appendix D' not in text, 'unexpected appendix'
+    assert numbers == list(range(1, 20)), f'section numbering broken: {numbers}'
+    assert 'Customer Onboarding AI' not in text, 'reference domain leaked'
 print(f'Created {OUTPUT.name}: {OUTPUT.stat().st_size:,} bytes')
 print(f'Source: {len(SOURCE.read_text(encoding="utf-8").split()):,} words')
 print(f'{len(root.findall(".//{" + W + "}tbl"))} tables/code blocks ({code_blocks} code blocks)')

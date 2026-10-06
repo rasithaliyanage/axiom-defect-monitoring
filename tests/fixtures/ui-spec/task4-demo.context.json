@@ -1,0 +1,17 @@
+{
+  "contextVersion": "1.0",
+  "contextId": "task4-demo",
+  "page": "landing",
+  "locale": "en-US",
+  "generatedAt": "2026-09-22T06:00:00Z",
+  "capabilities": [],
+  "defectCategories": [],
+  "metrics": [],
+  "alerts": [],
+  "actions": [
+    {
+      "id": "view-defect-reports",
+      "label": "Open defect reports"
+    }
+  ]
+}

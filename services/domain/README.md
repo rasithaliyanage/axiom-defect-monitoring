@@ -1,6 +1,100 @@
-# UISpec 1.0 deterministic validator
+# Domain Runtime
 
-Task 3 implements `UISpecValidator` in `validator.py`, typed context/results in `validation_models.py`, and explicit deterministic text checks in `text_policy.py`. There is no running service, API, renderer, model or repair loop.
+Task 3 implements `UISpecValidator` in `validator.py`, typed context/results in `validation_models.py`, and explicit deterministic text checks in `text_policy.py`.
+
+Task 6 adds the HTTP boundary in `api/` and fixture orchestration in `landing_service.py`. **This is the Domain Runtime, not the AI Runtime** — there is no model gateway, no model call and no generation anywhere in this package. The specification it serves is developer-authored and synthetic.
+
+## HTTP boundary (Task 6)
+
+Run from the repository root:
+
+```
+.venv/Scripts/python.exe -m uvicorn services.domain.api.main:app --host 127.0.0.1 --port 8000
+```
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/health` | GET | Returns exactly `{"status": "ok"}`. Process liveness only — **not** inspection or manufacturing readiness |
+| `/api/v1/ui/landing-page` | POST | Returns the validated synthetic landing presentation |
+
+**Request** is presentation-only. Every field is **required, with no defaults** — the request states what it asks for rather than relying on the server to fill gaps. `extra="forbid"` means a request supplying grounding (`context`, `metrics`, `alerts`, `actions`, `blocks`, `contextId`) is **rejected**, not ignored — the browser cannot supply grounding truth.
+
+```json
+{ "page": "landing", "view": "overview", "locale": "en-US" }
+```
+
+| Field | Values | Notes |
+|---|---|---|
+| `page` | `landing` | |
+| `view` | `overview`, `minimal` | Selects from a fixed catalogue; can never name a path |
+| `locale` | `en-US` | Compared against the server context's locale; not echoed in the response |
+
+`locale` carries one member today. The value is not invented — it is the locale already present in every server-owned context. Further locales are a business decision and are added only when that decision is made.
+
+**Success — HTTP 200:**
+
+```json
+{ "spec":     { "specVersion": "1.0", "page": "landing", "contextId": "...", "blocks": [...] },
+  "bindings": { "actionLabels": { "view-defect-reports": "Open defect reports" } },
+  "meta":     { "contextId": "...", "source": "fixture", "validation": "VALID" } }
+```
+
+`bindings` exists because `Hero.primaryAction` is an identifier and the UI specification carries no label for it — a bare spec provably cannot supply this. `meta` is informational; `validation` is **not** the client's proof and the browser adapter does not trust it.
+
+**Errors** use one sanitized envelope. Validator rejection codes are logged server-side and never serialized:
+
+```json
+{ "error": { "code": "BAD_REQUEST" | "VALIDATION_FAILED", "message": "..." } }
+```
+
+| Status | `error.code` | Cause |
+|---|---|---|
+| `400` | `BAD_REQUEST` | Unsupported request shape, or supplied grounding |
+| `404` | `NOT_FOUND` | Unknown route |
+| `405` | `METHOD_NOT_ALLOWED` | Wrong method |
+| `500` | `VALIDATION_FAILED` | A fixture failed validation. A server defect; the spec is never returned |
+
+The handler is registered against **Starlette's** `HTTPException`, not FastAPI's. FastAPI's subclasses
+it, so the parent catches both the errors our routes raise and the routing errors (404, 405) that
+Starlette raises. Registering against FastAPI's would miss routing errors and leak Starlette's
+default `{"detail": ...}` shape — which it did until it was caught by the Task 6 checkpoint review.
+
+## The presentation request (Task 6A)
+
+The route validates the transport model, then constructs an immutable domain value and passes it to
+the service explicitly:
+
+```python
+payload = ContextPayload(page=Page.LANDING, view=View.OVERVIEW)   # frozen, enum-typed
+presentation = service.presentation(payload)                      # was presentation(view: str)
+```
+
+`ContextPayload` (`request_context.py`) is the **presentation request** — what the caller asked to
+see. It is **not** the `GroundedContext`, which is server-owned and never supplied by a caller. It
+carries no metrics, alerts, actions or contextId.
+
+The domain value is constructed only *after* transport validation, so a malformed request cannot
+reach the service. The service compares the request's page against the server-owned context and
+spec; a mismatch is an internal failure (`PageMismatch` → sanitized 500) and neither the fixture nor
+the context is ever rewritten to satisfy a request.
+
+More request dimensions (line, shift, board type, locale) are expected. They are deliberately absent:
+their value sets are business-owned and undecided. When decided they become additional fields and
+enum members — the seam does not need redesigning.
+
+## Validation happens before any success response
+
+`landing_service.py` deep-copies the spec and its complete context, calls the **existing** `UISpecValidator.validate(spec, context)` unchanged, requires `VALID`, and returns exactly the object that was validated. Nothing is repaired, substituted or omitted, and no rejection code was added.
+
+Copies isolate requests from each other. **Copying is isolation, not validation** — the validator call is what makes the response safe to return.
+
+## Canonical fixtures
+
+`tests/fixtures/ui-spec/` — the same pair the offline preparation gate validates. This package owns no second copy.
+
+## CORS
+
+None. The Vite dev server proxies `/api` to port 8000, so the browser sees one origin.
 
 The current version 1.0 contract supersedes the old `view/components/type/ref` model, as confirmed for this task. The old refusal object is invalid; version 1.0 defines no refusal variant. ProgressIndicator uses `metricId`, `label` and numeric `value` matched to a context metric with unit `%`. No onboarding `steps`, `current`, `generated_for`, 30-node rule or 8 KiB limit is implemented.
 

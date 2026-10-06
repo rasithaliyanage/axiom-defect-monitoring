@@ -1,0 +1,421 @@
+/*
+ * Developer-authored styling for the demonstration shell.
+ *
+ * Minimal and readable by intent: no design system, no styling dependency, no
+ * theming layer. Class names are emitted by the approved components; no value
+ * from a specification ever becomes a style.
+ *
+ * Severity is conveyed by text in the component itself. Colour here only
+ * reinforces it, so the page stays readable without colour.
+ */
+
+:root {
+  --ink: #1b2430;
+  --ink-soft: #55616f;
+  --line: #d8dee6;
+  --surface: #ffffff;
+  --ground: #f4f6f9;
+  --accent: #1f5f8b;
+  --accent-ink: #ffffff;
+  --info: #1f5f8b;
+  --warning: #8a5a00;
+  --critical: #a32020;
+  --focus: #0b63ce;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.app {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+/* Keyboard focus must be obvious on every interactive element. */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* --- Synthetic-data notice: developer-authored, never fixture text --- */
+
+.notice {
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--accent);
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.75rem;
+}
+
+.notice-title {
+  margin: 0 0 0.35rem;
+  font-weight: 650;
+}
+
+.notice-body,
+.notice-evidence {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.notice-evidence code {
+  background: var(--ground);
+  border-radius: 3px;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+/* --- Rendered blocks --- */
+
+.uispec-block + .uispec-block {
+  margin-top: 1.5rem;
+}
+
+.hero {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1.75rem;
+}
+
+.hero-eyebrow {
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.hero-title {
+  margin: 0;
+  font-size: 1.9rem;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  margin: 0.6rem 0 0;
+  color: var(--ink-soft);
+}
+
+.heading {
+  margin: 0;
+}
+
+.heading-2 {
+  font-size: 1.4rem;
+}
+
+.heading-3 {
+  font-size: 1.15rem;
+}
+
+.text {
+  margin: 0;
+}
+
+.text-muted {
+  color: var(--ink-soft);
+}
+
+/* --- Feature grid --- */
+
+.feature-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.feature-grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.feature-grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+  height: 100%;
+}
+
+.feature-card-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.feature-card-body {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.94rem;
+}
+
+.icon {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 2px;
+  margin-bottom: 0.5rem;
+  background: var(--accent);
+}
+
+/* --- Actions --- */
+
+.hero-action,
+.cta {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 5px;
+  border: 1px solid var(--accent);
+  font: inherit;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.cta {
+  margin-top: 0;
+}
+
+.hero-action,
+.cta-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.cta-secondary {
+  background: var(--surface);
+  color: var(--accent);
+}
+
+/* --- Alert: severity is text first, colour second --- */
+
+.alert {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left-width: 5px;
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+}
+
+.alert-info {
+  border-left-color: var(--info);
+}
+
+.alert-warning {
+  border-left-color: var(--warning);
+}
+
+.alert-critical {
+  border-left-color: var(--critical);
+}
+
+.alert-severity {
+  margin: 0 0 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.alert-info .alert-severity {
+  color: var(--info);
+}
+
+.alert-warning .alert-severity {
+  color: var(--warning);
+}
+
+.alert-critical .alert-severity {
+  color: var(--critical);
+}
+
+.alert-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.alert-body {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+/* --- Info panel: values and units rendered verbatim --- */
+
+.info-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1.1rem 1.2rem;
+}
+
+.info-panel-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+.info-panel-rows {
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.info-panel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.5rem;
+}
+
+.info-panel-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.info-panel-label {
+  color: var(--ink-soft);
+}
+
+.info-panel-value {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.info-panel-unit {
+  margin-left: 0.15rem;
+  font-weight: 450;
+  color: var(--ink-soft);
+}
+
+/* --- Progress --- */
+
+.progress {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1.1rem 1.2rem;
+}
+
+.progress-label {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.progress-bar {
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+}
+
+.progress-value {
+  margin: 0.5rem 0 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.progress-caption {
+  margin: 0.25rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+/* --- Loading and failure states (developer-authored, not fixture text) --- */
+
+.state {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1.1rem 1.2rem;
+}
+
+.state-loading {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.state-failed {
+  border-color: var(--critical);
+  border-left-width: 5px;
+}
+
+.state-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  color: var(--critical);
+}
+
+.state-body,
+.state-detail {
+  margin: 0.3rem 0 0;
+  color: var(--ink-soft);
+}
+
+.state-detail {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+/* --- Error boundary --- */
+
+.boundary {
+  background: var(--surface);
+  border: 1px solid var(--critical);
+  border-left-width: 5px;
+  border-radius: 6px;
+  padding: 1.1rem 1.2rem;
+}
+
+.boundary-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  color: var(--critical);
+}
+
+.boundary-body,
+.boundary-detail {
+  margin: 0.3rem 0 0;
+  color: var(--ink-soft);
+}
+
+.boundary-detail {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 30rem) {
+  .app {
+    padding: 1rem 0.75rem 3rem;
+  }
+
+  .hero {
+    padding: 1.25rem;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .info-panel-row {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+}

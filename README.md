@@ -6,9 +6,14 @@ generated at runtime by an AI model under strict architectural control.
 
 ## Current status
 
-Phase 0 — engineering foundation only. This repository contains documentation, specifications, and
-contracts. No application code exists yet. Do not assume any runtime, dependency, or build system is
-in place.
+Phase 0 — engineering foundation. Alongside the documentation, specifications and contracts, two
+increments of application code exist:
+
+- `services/domain/` — the validation pipeline, Gates 1 to 4, with 170 deterministic tests
+- `apps/ui/` — the controlled UISpec renderer and component registry, with 56 tests
+
+Nothing else is built: no model gateway, no API, no database, no fallback specification, and no
+authentication. Do not assume any other runtime is in place.
 
 The first implementation scenario is deliberately small: a single landing page rendered through
 controlled Generative UI.
@@ -47,12 +52,21 @@ Each document has one job. Read the one that matches your question.
 | --- | --- |
 | Why does this system exist, and what must it achieve for the business? | `docs/business-problem.md` |
 | How is the system structured, and where are the trust boundaries? | `docs/architecture.md` |
+| What are the quality gates, and which numbering is which? | `docs/quality-gates.md` |
+| What is the security posture, and what is deferred until when? | `docs/security.md` |
+| Why is the repository shaped this way? | `docs/adr/` |
 | What exactly must be built, and how will we know it is correct? | `specs/spec.md` |
 | What may the model do, what must it never do, and what shape is its output? | `specs/model-contracts.md` |
-| What is the validated output schema, in machine-readable form? | `specs/ui-spec.schema.json` |
+| What is the validated output schema, in machine-readable form? | `specs/schemas/ui-spec.schema.json` |
+| What counts as a defect, and at what threshold? | `policies/` — **owned by Quality, not engineering** |
+| What is being built next, and in what order? | `plans/implementation-plan.md`, `tasks/tasks.md` |
 | How do we verify deterministic software behaviour? | `tests/README.md` |
 | How do we measure non-deterministic model behaviour? | `evals/README.md` |
 | How should Claude Code work in this repository? | `CLAUDE.md` |
+
+Two numbering schemes share a word and are unrelated: validation pipeline **Gates 1–4** apply to a UI
+specification and are implemented; inspection **QG-1…QG-6** apply to a board and are not. See
+`docs/quality-gates.md`.
 
 ## Tests and evaluations are different things
 

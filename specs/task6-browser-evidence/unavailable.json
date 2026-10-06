@@ -1,0 +1,36 @@
+{
+  "capturedBy": "Task 6 checkpoint verification pass",
+  "capturedOn": "2026-10-03",
+  "scenario": "Domain Runtime stopped while the Vite dev server kept running",
+  "method": "Stopped the uvicorn listener on port 8000, then reloaded http://localhost:5173/",
+  "purpose": "Prove a failed runtime dependency stays visible instead of being hidden behind the static catalogue.",
+  "observed": {
+    "errorRegionRole": "alert",
+    "title": "The landing page could not be loaded",
+    "body": "The Domain Runtime did not return a usable presentation. Nothing was substituted in its place.",
+    "detail": "Domain Runtime returned HTTP 500",
+    "detailExplanation": "The Vite proxy answers 500 when its target is down. The client reports transport failure rather than interpreting it.",
+    "syntheticNoticeRetained": true,
+    "renderedPagePresent": false,
+    "renderedBlockCount": 0,
+    "buttonsPresent": false
+  },
+  "assertions": [
+    {
+      "claim": "no silent fallback to the prepared static catalogue",
+      "pass": true,
+      "evidence": "No .uispec-page element and no rendered blocks. The catalogue is retained for tests only."
+    },
+    {
+      "claim": "failure is visible to the user, not swallowed",
+      "pass": true,
+      "evidence": "Error region exposed with role=alert and a developer-authored message."
+    },
+    {
+      "claim": "the error state is not a fallback UISpec or a repair loop",
+      "pass": true,
+      "evidence": "Fixed developer-authored strings. No specification was substituted, repaired or retried. The deterministic fallback specification required by CLAUDE.md rule 3 remains unbuilt (TASK-005)."
+    }
+  ],
+  "screenshot": "backend-unavailable.jpg"
+}

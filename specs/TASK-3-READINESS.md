@@ -4,6 +4,18 @@ Status: historical readiness review, followed by local Task 3 implementation. Th
 
 The remaining content records the pre-implementation findings, not a statement that the old partial schema is still the current contract. The differing schema copies and unreadable Git HEAD remain separate limitations.
 
+## Schema-path decision, resolved after Task 4
+
+The "Schema differences" row below asked for an explicit decision. It has been taken:
+`specs/schemas/ui-spec.schema.json` is the single authority, because it is the file
+`services/domain/validator.py` loads. The normative references in `CLAUDE.md`, `README.md`,
+`docs/architecture.md`, `specs/spec.md` and `specs/model-contracts.md` were corrected to point at it.
+
+`specs/ui-spec.schema.json` is retained, unloaded, and now carries `"deprecated": true` plus a
+`$comment` stating that it is superseded. **The two were not merged** and neither one's constraints
+were altered. The comparison table below therefore still describes real differences between the two
+files; it is a record, not an open action. Git HEAD is now readable (`3810dc0`, branch `wushan`).
+
 ## Definitions now present
 
 The updated `model-contracts.md` defines the `specVersion/page/contextId/blocks` response, nine components with exhaustive props, five actions, six defect category identifiers, GroundedContext, metric copying, percentage progress and stable rejection codes. `spec.md` defines the 4000-character total-text limit. These earlier missing definitions are no longer reported as absent.

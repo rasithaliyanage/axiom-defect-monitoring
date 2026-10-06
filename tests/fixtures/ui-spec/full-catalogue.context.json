@@ -1,0 +1,58 @@
+{
+  "contextVersion": "1.0",
+  "contextId": "task4-catalogue",
+  "page": "landing",
+  "locale": "en-US",
+  "generatedAt": "2026-09-22T06:00:00Z",
+  "capabilities": [
+    {
+      "id": "inspection-history",
+      "label": "Inspection history",
+      "description": "Recorded inspection activity retained for later review"
+    }
+  ],
+  "defectCategories": [
+    {
+      "id": "solder-bridge",
+      "label": "Solder bridge"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "boards-inspected-shift",
+      "label": "Boards inspected",
+      "value": "1,284",
+      "asOf": "2026-09-22T06:00:00Z"
+    },
+    {
+      "id": "defect-rate-shift",
+      "label": "Defect rate",
+      "value": "2.4",
+      "unit": "%",
+      "asOf": "2026-09-22T06:00:00Z"
+    },
+    {
+      "id": "shift-progress",
+      "label": "Shift progress",
+      "value": "62",
+      "unit": "%",
+      "asOf": "2026-09-22T06:00:00Z"
+    }
+  ],
+  "alerts": [
+    {
+      "id": "alert-solder-001",
+      "defectCategoryId": "solder-bridge",
+      "severity": "warning",
+      "headline": "Recorded observations",
+      "detectedAt": "2026-09-22T06:00:00Z"
+    }
+  ],
+  "actions": [
+    { "id": "view-inspection-queue", "label": "Open inspection queue" },
+    { "id": "view-defect-reports", "label": "Open defect reports" },
+    { "id": "view-ingest-activity", "label": "Open ingest activity" },
+    { "id": "open-documentation", "label": "Open documentation" },
+    { "id": "contact-support", "label": "Contact support" }
+  ]
+}
