@@ -30,7 +30,7 @@ Never answer from this file. Open the source and cite it.
 | Is this component or prop approved, and what rejection code applies? | `specs/model-contracts.md` |
 | What must the system do, and which VR covers it? | `specs/spec.md` |
 | What is actually enforced? | `services/domain/validator.py` — `UISpecValidator.validate(spec, context)`, four gates |
-| What can actually render? | `apps/ui/src/renderer/registry.ts`, `renderUISpec.tsx`, `types.ts` |
+| What can actually render? | `apps/ui/src/renderer/` — `registry.ts`, `renderUISpec.tsx`, `types.ts` |
 | How does approved input reach the renderer? | `apps/ui/src/renderer/approved.ts`, and `apps/ui/README.md` |
 | Is it covered? | `tests/validator/`, `apps/ui/test/` |
 

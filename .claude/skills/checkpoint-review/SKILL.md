@@ -54,7 +54,8 @@ Attribute changes honestly: a modified file is not evidence *this* task modified
 mtimes against when the work was done before blaming the wrong change.
 
 **5. Run the regression suites.** Use the `verify-project` skill rather than restating its
-procedure. Report the actual numbers, never a baseline quoted from a document.
+procedure; its `verify-project/references/schema-checks.md` covers the schema reporting. Report the actual numbers,
+never a baseline quoted from a document.
 
 **6. Security pass.** Dangerous APIs, arbitrary component resolution, model SDK, secrets, bypassed
 boundaries. Distinguish a real hit from a match inside a comment or a test probe string.
@@ -65,10 +66,39 @@ Report any change, however small; "none" is the usual and expected answer.
 **8. Generated artifacts.** Confirm `__pycache__`, `.pytest_cache`, `node_modules`, `dist/`, `.env`
 and logs are untracked. Locally present and ignored is fine; tracked is a finding.
 
-**9. Scope.** Does the change set match what the task declared? Both directions matter — work that
+**9. Application smoke checks — optional, and only when the change could affect them.** Skip this
+for a documentation or engineering-time change and say you skipped it; running it proves nothing
+about a Markdown edit. Run it when the diff touches the API, the renderer, the client or the proxy.
+
+The established procedure is in `apps/ui/README.md`, and `specs/task6-browser-evidence/README.md`
+is the worked example of what the output looked like last time.
+
+```bash
+# repository root
+.venv/Scripts/python.exe -m uvicorn services.domain.api.main:app --host 127.0.0.1 --port 8000
+
+curl http://127.0.0.1:8000/health                          # {"status":"ok"}
+curl http://127.0.0.1:8000/api/v1/inspection/queue          # records + meta
+curl "http://127.0.0.1:8000/api/v1/inspection/queue?line=line-z"   # 400, Unknown line
+curl http://127.0.0.1:8000/api/v1/inspection/board/BRD-nope # 404, BOARD_NOT_FOUND
+
+curl -H 'Content-Type: application/json'      -d '{"page":"landing","view":"overview","locale":"en-US"}'      http://127.0.0.1:8000/api/v1/ui/landing-page           # 200
+```
+
+Check the failure paths, not just the happy one — a rejection that returns the wrong code or echoes
+caller text is the kind of regression a 200 never reveals.
+
+For the browser layer, `npm run dev` in `apps/ui` and confirm the page renders from the Domain
+Runtime rather than a fixture. Note that Vite may bind IPv6-only, so a `127.0.0.1:5173` probe can
+report nothing while the server is running — use `localhost:5173`.
+
+**Stop every service you started** and confirm the listeners are released. Leaving a port held is
+a side effect a review should not have.
+
+**10. Scope.** Does the change set match what the task declared? Both directions matter — work that
 crept in, and work that was declared but is missing.
 
-**10. Report.** Files added and modified, lines changed, suite results, findings, and anything
+**11. Report.** Files added and modified, lines changed, suite results, findings, and anything
 unexpected. State what you could not verify.
 
 ## Stop conditions

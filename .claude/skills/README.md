@@ -68,4 +68,9 @@ right way to do it here is not obvious from the repository alone. Follow the exi
 `<name>/SKILL.md`, frontmatter carrying `name`, a `description` that says *when to use it*, and
 `allowed-tools`.
 
+When one step needs more room than a procedure should give it, put the detail in
+`<name>/references/<topic>.md` and have the step link to it — `verify-project` does this for schema
+checking, where four distinct checks get routinely collapsed into one. Keep `SKILL.md` readable
+start to finish; a reference is for depth the main path does not need inline.
+
 Keep the set small. Three skills that are read beat ten that are skimmed.

@@ -53,8 +53,12 @@ Return to the repository root afterwards.
 
 **4. Schema checks.** `tests/validator/test_task4_fixtures.py` and `test_fallback_spec.py` validate
 the fixture pairs and the fallback against the loaded schema. Separately confirm the schema parses
-and meta-validates as Draft 2020-12. Keep those two results distinct: parsing is not validation, and
-neither is grounding.
+and meta-validates as Draft 2020-12.
+
+Parsing, meta-validation, instance validation and full four-gate validation are four different
+checks that routinely get collapsed into one. [`references/schema-checks.md`](references/schema-checks.md)
+has the distinctions, the exact commands and the reporting shape. Read it before reporting a schema
+result as a single line.
 
 **5. Security checks.** `npm run lint` is the render-path scan; `apps/ui/test/safety.test.tsx` holds
 the injection and execution probes. Also confirm no secret, key or credential entered the diff.
