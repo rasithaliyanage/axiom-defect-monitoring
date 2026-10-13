@@ -25,9 +25,9 @@ system.
   Claude Code                               Browser
    ├── CLAUDE.md          present            └── UI Runtime        React + TypeScript
    ├── .claude/rules/     present                 ├── controlled renderer
-   ├── .claude/hooks/     dir only, empty         └── component registry
-   ├── .claude/agents/    dir only, empty    Domain Runtime        FastAPI + Python
-   ├── Skills             not present            ├── grounded context assembly
+   ├── .claude/skills/    present                 └── component registry
+   ├── .claude/hooks/     dir only, empty    Domain Runtime        FastAPI + Python
+   ├── .claude/agents/    dir only, empty        ├── grounded context assembly
    ├── Plugins            not present            └── validation pipeline  ← authoritative
    └── Agent SDK          not present        AI Runtime            not present
 ```
@@ -36,6 +36,17 @@ system.
 before anything ships. They bind by being read: a rule is advice a reviewer can check, not a
 mechanism. Their failure mode is a bad change getting written, which review and tests are there to
 catch.
+
+Two kinds exist today, and they divide by the question they answer. **Rules** (`.claude/rules/`)
+answer *how should Claude Code behave* — do not weaken a test, do not bypass validation. **Skills**
+(`.claude/skills/`) answer *what task can be performed, and how is it performed here* — run the
+verification suites, review a specification-contract change, review a proposed checkpoint. The rule
+governs; the skill performs, and defers the behavioural question to the rule that owns it.
+
+Neither is a mechanism. A skill looks more like machinery than a rule does, which makes this worth
+saying twice: a skill's `allowed-tools` list is coarse, so a skill that must run the test suites
+holds far more capability than running tests requires. When a skill states it will not commit, that
+is an instruction being honoured rather than a capability being withheld.
 
 **Runtime controls govern how probabilistic model output is allowed to affect the application.**
 They act on data, while the system runs. They bind by executing: the schema, the validator and the
@@ -52,11 +63,15 @@ Only the runtime column stops anything at runtime. `.claude/rules/README.md` sta
 boundary from the other side, and `CLAUDE.md` is explicit that it is guidance, not a security
 boundary.
 
-**Current status, stated plainly:** of the engineering-time primitives, only `CLAUDE.md` and
-`.claude/rules/` exist. `.claude/hooks/` and `.claude/agents/` hold READMEs describing candidates
-and nothing executable. No Skill, Plugin or Agent SDK integration exists. Of the runtime column, the
-AI Runtime does not exist either — the specifications served today are developer-authored fixtures
-that passed the validator offline.
+**Current status, stated plainly:** of the engineering-time primitives, `CLAUDE.md`,
+`.claude/rules/` and `.claude/skills/` exist. `.claude/hooks/` and `.claude/agents/` hold READMEs
+describing candidates and nothing executable. No Plugin or Agent SDK integration exists. Of the
+runtime column, the AI Runtime does not exist either — the specifications served today are
+developer-authored fixtures that passed the validator offline.
+
+Hooks are the next primitive that would change the picture rather than extend it, because a hook is
+executed by the harness instead of read. That is the point at which an engineering-time constraint
+stops being advice. `.claude/hooks/README.md` lists the candidates.
 
 ## Runtime topology
 
@@ -232,8 +247,9 @@ AD-7. Metric values are copied, never computed, by the model. Exact-match valida
 grounded context makes fabricated or drifted figures mechanically detectable.
 
 AD-8. Engineering-time guidance is kept separate from runtime enforcement, and is never described as
-enforcement. `.claude/rules/` carries focused behavioural guidance for Claude Code; the schema, the
-validator, the registry and the tests carry what the system actually enforces. A rule that matters
+enforcement. `.claude/rules/` carries focused behavioural guidance and `.claude/skills/` carries
+reusable engineering-time capabilities; the schema, the validator, the registry and the tests carry
+what the system actually enforces. A rule that matters
 enough to be mechanical should become a test or a hook rather than stay prose. Keeping the two
 columns visibly distinct is what stops "the rules say not to" from being mistaken for "the system
 will not let you".

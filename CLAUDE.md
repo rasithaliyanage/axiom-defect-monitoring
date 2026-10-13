@@ -49,6 +49,30 @@ The seven above are the architectural constraints. How to act on them day to day
 Those files are behavioural guidance and cite this one; where they disagree with it, this file wins.
 Read `.claude/rules/README.md` first: it explains what a rule can and cannot bind.
 
+## Engineering-time layers
+
+Five distinct things, easiest to keep straight by what each one answers:
+
+| | Answers | Lives in |
+|---|---|---|
+| **This file** | What should Claude Code know about the project? | `CLAUDE.md` |
+| **Rules** | How should Claude Code behave? | `.claude/rules/` |
+| **Skills** | What task can Claude Code perform, and how is it performed here? | `.claude/skills/` |
+| **Specifications** | What is the system required to do? | `specs/`, `docs/` |
+| **Runtime code** | What does the application actually enforce? | validator, schema, registry |
+
+The first four guide; only the last one stops anything. A rule governs behaviour, a skill performs
+a task, and a skill defers the behavioural question to the rule that owns it.
+
+Three skills exist:
+
+- `verify-project` — run the existing verification suites and report what actually happened.
+- `review-uispec` — review a specification-contract change against the authoritative sources.
+- `checkpoint-review` — review a proposed checkpoint and stop at the report.
+
+`.claude/skills/README.md` says when to reach for each. Their instructions stay in their own files;
+do not copy them here.
+
 ## Repository layout
 
 **This section is the authoritative repository layout.** Where it differs from
@@ -73,7 +97,7 @@ services/domain/             Domain Runtime — validation pipeline today; board
 simulators/capture/          harness — recorded inspection fixtures, so slices need no factory
 tests/                       deterministic tests and shared fixtures
 evals/                       AI evaluations and case sets
-.claude/                     Claude Code configuration, rules, hooks and agent instructions
+.claude/                     Claude Code configuration, rules, skills, hooks and agent instructions
 ```
 
 Role mapping to the proposed structure, so the divergence is unambiguous:
