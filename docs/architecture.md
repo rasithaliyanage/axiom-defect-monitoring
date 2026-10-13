@@ -26,7 +26,7 @@ system.
    ├── CLAUDE.md          present            └── UI Runtime        React + TypeScript
    ├── .claude/rules/     present                 ├── controlled renderer
    ├── .claude/skills/    present                 └── component registry
-   ├── .claude/hooks/     dir only, empty    Domain Runtime        FastAPI + Python
+   ├── .claude/hooks/     present            Domain Runtime        FastAPI + Python
    ├── .claude/agents/    dir only, empty        ├── grounded context assembly
    ├── Plugins            not present            └── validation pipeline  ← authoritative
    └── Agent SDK          not present        AI Runtime            not present
@@ -37,16 +37,35 @@ before anything ships. They bind by being read: a rule is advice a reviewer can 
 mechanism. Their failure mode is a bad change getting written, which review and tests are there to
 catch.
 
-Two kinds exist today, and they divide by the question they answer. **Rules** (`.claude/rules/`)
+Three kinds exist today, and they divide by the question they answer. **Rules** (`.claude/rules/`)
 answer *how should Claude Code behave* — do not weaken a test, do not bypass validation. **Skills**
 (`.claude/skills/`) answer *what task can be performed, and how is it performed here* — run the
-verification suites, review a specification-contract change, review a proposed checkpoint. The rule
-governs; the skill performs, and defers the behavioural question to the rule that owns it.
+verification suites, review a contract change, review a proposed checkpoint. **Hooks**
+(`.claude/hooks/`) answer *what should happen automatically, on an event* — when the UI
+specification schema is edited, re-check it. The rule governs; the skill performs; the hook fires
+on its own.
 
-Neither is a mechanism. A skill looks more like machinery than a rule does, which makes this worth
-saying twice: a skill's `allowed-tools` list is coarse, so a skill that must run the test suites
-holds far more capability than running tests requires. When a skill states it will not commit, that
-is an instruction being honoured rather than a capability being withheld.
+Rules and skills are not mechanisms. A skill looks more like machinery than a rule does, which
+makes this worth saying twice: a skill's `allowed-tools` list is coarse, so a skill that must run
+the test suites holds far more capability than running tests requires. When a skill states it will
+not commit, that is an instruction being honoured rather than a capability being withheld.
+
+A hook is different in kind: it is **executed rather than read**, so it runs whether or not anyone
+remembered, and a change cannot talk it out of running. That makes it the most reliable
+engineering-time control available here, and the one whose design deserves the most care — it runs
+with the developer's permissions and without a prompt. The hook that exists is configured in exec
+form so no shell parses its input, treats the incoming file path as data to compare rather than a
+path to open, and reuses the existing validator instead of adding a second one.
+
+Reliable is not the same as preventive, and which it is depends on the event. The hook here is
+bound to `PostToolUse`, which runs *after* a successful tool call: it performs automatic
+post-action validation and reports a failure back to Claude Code for corrective action. It does not
+undo the edit that already completed. `PreToolUse` is the event for preventing an action before it
+executes; no such hook exists in this repository.
+
+It is still not runtime enforcement. A hook runs on a developer's machine while software is being
+written. Delete it and the application's guarantees are unchanged — which is the clearest way to
+see that the two columns are genuinely different things.
 
 **Runtime controls govern how probabilistic model output is allowed to affect the application.**
 They act on data, while the system runs. They bind by executing: the schema, the validator and the
@@ -64,14 +83,14 @@ boundary from the other side, and `CLAUDE.md` is explicit that it is guidance, n
 boundary.
 
 **Current status, stated plainly:** of the engineering-time primitives, `CLAUDE.md`,
-`.claude/rules/` and `.claude/skills/` exist. `.claude/hooks/` and `.claude/agents/` hold READMEs
-describing candidates and nothing executable. No Plugin or Agent SDK integration exists. Of the
-runtime column, the AI Runtime does not exist either — the specifications served today are
+`.claude/rules/`, `.claude/skills/` and one hook in `.claude/hooks/` exist. `.claude/agents/` holds
+a README describing candidates and nothing executable. No Plugin or Agent SDK integration exists.
+Of the runtime column, the AI Runtime does not exist either — the specifications served today are
 developer-authored fixtures that passed the validator offline.
 
-Hooks are the next primitive that would change the picture rather than extend it, because a hook is
-executed by the harness instead of read. That is the point at which an engineering-time constraint
-stops being advice. `.claude/hooks/README.md` lists the candidates.
+The hook's own automatic invocation by Claude Code has not been observed end to end in this
+environment; it is configured and individually tested. `.claude/hooks/README.md` is explicit about
+that limit, and lists the remaining candidates.
 
 ## Runtime topology
 
@@ -247,9 +266,13 @@ AD-7. Metric values are copied, never computed, by the model. Exact-match valida
 grounded context makes fabricated or drifted figures mechanically detectable.
 
 AD-8. Engineering-time guidance is kept separate from runtime enforcement, and is never described as
-enforcement. `.claude/rules/` carries focused behavioural guidance and `.claude/skills/` carries
-reusable engineering-time capabilities; the schema, the validator, the registry and the tests carry
-what the system actually enforces. A rule that matters
+enforcement. `.claude/rules/` carries focused behavioural guidance, `.claude/skills/` reusable
+engineering-time capabilities, and `.claude/hooks/` automatic event-driven checks; the schema, the
+validator, the registry and the tests carry what the system actually enforces. A hook is executed
+rather than read, which makes it the most reliable of the three — automatic, though for a
+`PostToolUse` hook automatic means post-action validation and feedback, not prevention. It is still
+not a runtime control, because it runs while the software is written rather than while it serves a
+user. A rule that matters
 enough to be mechanical should become a test or a hook rather than stay prose. Keeping the two
 columns visibly distinct is what stops "the rules say not to" from being mistaken for "the system
 will not let you".

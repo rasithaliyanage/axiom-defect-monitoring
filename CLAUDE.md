@@ -51,18 +51,21 @@ Read `.claude/rules/README.md` first: it explains what a rule can and cannot bin
 
 ## Engineering-time layers
 
-Five distinct things, easiest to keep straight by what each one answers:
+Six distinct things, easiest to keep straight by what each one answers:
 
-| | Answers | Lives in |
+| | Answers | Binds by |
 |---|---|---|
-| **This file** | What should Claude Code know about the project? | `CLAUDE.md` |
-| **Rules** | How should Claude Code behave? | `.claude/rules/` |
-| **Skills** | What task can Claude Code perform, and how is it performed here? | `.claude/skills/` |
-| **Specifications** | What is the system required to do? | `specs/`, `docs/` |
-| **Runtime code** | What does the application actually enforce? | validator, schema, registry |
+| **This file** | What should Claude Code know about the project? | being read |
+| **Rules** (`.claude/rules/`) | How should Claude Code behave? | being read |
+| **Skills** (`.claude/skills/`) | What task can it perform, and how is it performed here? | being read |
+| **Hooks** (`.claude/hooks/`) | What should happen automatically, on an event? | **being executed** |
+| **Specifications** (`specs/`, `docs/`) | What is the system required to do? | review |
+| **Runtime code + tests** | What does the application actually enforce? | executing, and failing |
 
-The first four guide; only the last one stops anything. A rule governs behaviour, a skill performs
-a task, and a skill defers the behavioural question to the rule that owns it.
+A rule governs behaviour, a skill performs a task and defers the behavioural question to the rule
+that owns it, and a hook runs on its own whether or not anyone remembered. Hooks are the first of
+these that is executed rather than read — but a hook is still engineering-time. Only the last row
+is what the running application enforces for a user.
 
 Three skills exist:
 
@@ -72,6 +75,12 @@ Three skills exist:
 
 `.claude/skills/README.md` says when to reach for each. Their instructions stay in their own files;
 do not copy them here.
+
+One hook exists: a `PostToolUse` check that re-validates `specs/schemas/ui-spec.schema.json`
+whenever it is edited, reusing the existing validator rather than adding a second one. Because
+`PostToolUse` runs after a successful tool call, it reports a failure back for correction; it does
+not undo the edit. `.claude/hooks/README.md` covers what it does, what it refuses to do, and why
+it is safe to run automatically.
 
 ## Repository layout
 

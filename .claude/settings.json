@@ -4,5 +4,23 @@
     "allow": [],
     "ask": [],
     "deny": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.venv/Scripts/python.exe",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/check_uispec_schema.py"
+            ],
+            "timeout": 30,
+            "statusMessage": "Re-checking the UI specification schema"
+          }
+        ]
+      }
+    ]
   }
 }
