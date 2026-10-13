@@ -75,12 +75,23 @@ Runtime AI remains absent in both flows. The target cannot be declared complete 
 
 ## 4. ContextPayload in Simple Terms
 
-| Field | Exact supported value | Meaning |
-| --- | --- | --- |
-| page | landing | Requested presentation page |
-| locale | en-US | Required supported presentation locale |
+| Field | Exact supported value | Meaning | Introduced |
+| --- | --- | --- | --- |
+| page | landing | Requested presentation page | Task 6 |
+| view | overview, minimal | Named view over the fixed fixture catalogue | Task 6 |
+| locale | en-US | Required supported presentation locale | Task 6A |
 
-Both are required JSON POST body fields. There are no dormant defaults, onboarding enums, manufacturing line/shift/board-type fields or client grounding. ContextPayload is a small presentation request, not the full GroundedContext.
+All three are required JSON POST body fields. There are no dormant defaults, onboarding enums, manufacturing line/shift/board-type fields or client grounding. `ContextPayload` is a small presentation request, not the full GroundedContext.
+
+The implemented payload is therefore:
+
+```json
+{ "page": "landing", "view": "overview", "locale": "en-US" }
+```
+
+`view` is retained from Task 6 because it selects `overview` or `minimal` from the canonical catalogue; removing it to match a two-field proposal would have deleted working behaviour. Removing the **defaults** from `page` and `view` was the substantive change in this increment — an omitted field is now rejected rather than silently supplied.
+
+Verified live: the full request returns 200; omitting any field, sending `locale: "fr-FR"`, sending `page: "dashboard"`, or adding any unknown field each return a sanitized 400.
 
 The server retains the complete context with identity, fixed synthetic timestamps, capabilities, metrics, alerts, categories and actions. Python validation still receives that complete server-owned context. VALID never means board quality approval.
 
@@ -125,6 +136,9 @@ by explicit decision recorded in the readiness note; see section 15 for what was
 | Contract protection (§13) | **PASS** | `model-contracts.md`, both schemas, `spec.md`, renderer, registry, types, components and canonical fixtures all last modified before Task 6A |
 | `approved.ts` unchanged (§13) | **No conflict here** | The transport adapter has lived inside `approved.ts` since Task 6; Task 6A did not modify it |
 | Dependencies (§14) | **PASS** | Zero added by Task 6A. The only additions against HEAD are `fastapi`, `uvicorn`, `httpx` from Task 6 |
+| Payload contract | **Implemented** | `{page, view, locale}`, all required, no defaults, `extra="forbid"`; verified live against accepted and nine rejected bodies |
+| Read-only inspection endpoints | **Implemented after 6A** | `GET /api/v1/inspection/queue` with optional `line` and `limit`, and `GET /api/v1/inspection/board/{boardId}`. No request body; board identity and capture metadata only, no quality determination. Satisfies part of FR-9 |
+| Parameter boundary | **Implemented after 6A** | Parameters permitted on the inspection reads only. A query string on the landing POST is ignored, never honoured — pinned by `tests/api/test_inspection_parameters.py` |
 | Staging / commit / push | Not performed | Deliberate — this remains a verification pass |
 | Remote synchronization | Not established | No fetch or push performed; no synchronization claimed |
 
@@ -167,8 +181,16 @@ Target backend is 127.0.0.1:8001; preserve unrelated listeners. Tests below rema
 | POST exact landing/en-US | 200 complete existing envelope | Not run |
 | POST extra lineId | 422 invalid_request | Not run |
 | POST locale fr-FR or unsupported page | 422 invalid_request | Not run |
-| POST with query parameters | 422 invalid_request | Not run |
+| POST with query parameters | See note | Not run |
 | GET landing route | 405 method_not_allowed | Not run |
+
+The query-parameter row carries the tutorial's expectation, not this repository's behaviour. Here a
+query string on the landing POST is **ignored, not rejected**: the request returns `200` with a
+byte-identical specification, which is the property that actually matters — a caller cannot steer
+what the renderer is given. Parameters are accepted only on the read-only
+`GET /api/v1/inspection/queue` (`line`, `limit`) and `GET /api/v1/inspection/board/{boardId}`, where
+an unrecognised value, an out-of-bounds limit or an unknown parameter is a `400`. See the
+divergences table in section 15 for the `422`/`400` envelope difference generally.
 
 Success must retain {spec, source, rejections, contextId, actions}, source fixture, empty rejections and exact canonical spec/bindings. Revalidate response.spec against the complete canonical server context. Prove rejected requests never reach the service with isolated route tests; HTTP status alone does not demonstrate that internal property.
 
@@ -405,7 +427,10 @@ POST /api/v1/ui/landing-page:
 {} -> 422 invalid_request.
 {"page":"landing","locale":"en-US"} -> 200 exact envelope.
 Extra lineId, missing fields, unsupported locale/page -> 422.
-Any query parameters -> 422; GET landing -> 405.
+Query parameters on the landing POST must not change the response; confirm
+an identical specification with and without one. GET landing -> 405.
+Exercise the read-only inspection reads separately: unfiltered, filtered,
+over-bounded, with an unknown filter value and with an unknown parameter.
 Verify response.spec with complete canonical context and exact bindings.
 Use route tests to prove invalid input never reaches the domain service.
 Do not add production test switches or arbitrary fixture/path inputs.

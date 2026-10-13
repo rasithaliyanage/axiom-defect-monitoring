@@ -106,11 +106,11 @@
     {
       "task": 6,
       "source": "BOARD_DEFECT_INSPECTION_TASK_6_BEGINNER_GUIDE_ENTERPRISE_GRADE.md",
-      "source_sha256": "39978bb95b1c4f1d5fd38840933fbb2d0ff00899fcac49481ad558e8264b72ff",
+      "source_sha256": "37bd1bfc3abaa49e38fd1302497748871a01b72289edebb019df78ae77d2c7d8",
       "blocks": [
         {
           "characters": 22394,
-          "sha256": "09c7253c6ff59b07a0900c4b1c2d4ffedca9248db3088b0d63aadc52566429ea"
+          "sha256": "b5cc26b996f4d282454bcf924a822246f5185900dd3e911cfd327ac042c327ca"
         }
       ],
       "provenance": "Verbatim stored guide blocks; not asserted to be an authenticated execution transcript."

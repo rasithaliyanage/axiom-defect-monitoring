@@ -88,7 +88,7 @@ def main():
     content = STEM.with_suffix('.md').read_text(encoding='utf-8-sig')
     assert [int(x) for x in re.findall(r'^## (\d+)\.', content, re.M)] == list(range(1, 26))
     prompt = re.search(r'```prompt\n(.*?)```', content, re.S)[1]
-    assert len(re.findall(r'^={50}\n[A-Z /-]+\n={50}$', prompt, re.M)) == 19
+    assert len(re.findall(r'^={50}\n[A-Z /-]+\n={50}$', prompt, re.M)) == 20
     document = el('document')
     body = el('body', document)
     code = False
@@ -189,7 +189,7 @@ def main():
     if original_hash is not None:
         assert original_hash == hashlib.sha256(SOURCE.read_bytes()).hexdigest()
     print('Created editable DOCX and checked ZIP/XML integrity.')
-    print('Verified all 25 guide sections and all 19 prompt blocks; prompt text retained.')
+    print('Verified all 25 guide sections and all 20 prompt blocks; prompt text retained.')
     if original_hash is not None:
         print('Source PDF unchanged; SHA-256: ' + original_hash)
 

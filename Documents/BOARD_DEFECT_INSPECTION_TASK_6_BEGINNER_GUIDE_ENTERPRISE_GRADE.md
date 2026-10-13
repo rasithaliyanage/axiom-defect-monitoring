@@ -73,6 +73,12 @@ tests/domain_api/               proposed API/service checks
 
 Use __init__.py only where package/import conventions require it. Do not scaffold a second top-level api/, frontend/, backend/ or ui/ project. Fixture ownership/location must be decided before moving files; no duplicate mutable sources of truth.
 
+**As built, where it differs from the proposal above.** API tests live under `tests/api/`, not
+`tests/domain_api/`. Private issuance lives in `apps/ui/src/renderer/approved.ts`, not
+`src/approved.ts`. The canonical fixture pairs live in `tests/fixtures/ui-spec/`, and
+`apps/ui/src/generated/fixtures.ts` is produced from them by the preparation gate. The paths above
+are retained as the pre-implementation plan; these are the ones to use.
+
 ## 6. API Contract and Readiness Decisions
 
 | Decision | Current evidence | Required resolution |
@@ -84,7 +90,124 @@ Use __init__.py only where package/import conventions require it. Do not scaffol
 | Errors | Validator returns status/rejections; no HTTP error contract is implemented | Agree HTTP status and sanitized error body separately from validator codes |
 | Fixture location | Five retained spec/context pairs are under apps/ui/fixtures | Select a single canonical source and a safe local packaging/loading strategy; retain preparation and regression coverage |
 
-GET /health returning a small fixed status is a proposal for liveness only. It must not imply manufacturing availability or quality readiness. No endpoint in this section is claimed to exist.
+GET /health returning a small fixed status is a proposal for liveness only. It must not imply manufacturing availability or quality readiness.
+
+### 6.1 As delivered — the implemented payload contract
+
+The decisions above were resolved during implementation. This is what the running service accepts, recorded here so the guide matches the code rather than the proposal.
+
+```text
+POST /api/v1/ui/landing-page
+Content-Type: application/json
+
+{ "page": "landing", "view": "overview", "locale": "en-US" }
+```
+
+| Field | Allowed values | Introduced |
+| --- | --- | --- |
+| page | landing | Task 6 |
+| view | overview, minimal | Task 6 |
+| locale | en-US | Task 6A |
+
+**Every field is required and has no default.** `extra="forbid"` on the Pydantic transport model means any unknown field is rejected rather than ignored — which is how supplied grounding (`context`, `metrics`, `alerts`, `actions`, `blocks`, `contextId`) is refused. The browser cannot assert grounding truth.
+
+`view` selects from a fixed catalogue; it can never name a path. `locale` is compared against the server-owned context's own locale and is **not echoed** in the response, so no locale echo may be claimed.
+
+Success returns the agreed envelope:
+
+```json
+{ "spec": { "...validated UISpec..." },
+  "bindings": { "actionLabels": { "view-defect-reports": "Open defect reports" } },
+  "meta": { "contextId": "task4-catalogue", "source": "fixture", "validation": "VALID" } }
+```
+
+`bindings` exists because `Hero.primaryAction` is an identifier and the UI specification carries no label for it — a bare UISpec provably cannot supply it. `meta.validation` is informational; the browser adapter does not treat it as proof.
+
+### 6.2 Error contract, as delivered
+
+Every failure uses one sanitized envelope. Validator rejection codes are logged server-side and never serialized.
+
+```json
+{ "error": { "code": "BAD_REQUEST", "message": "..." } }
+```
+
+| Status | code | Cause |
+| --- | --- | --- |
+| 400 | BAD_REQUEST | Unsupported request shape, missing field, or supplied grounding |
+| 404 | NOT_FOUND | Unknown route |
+| 405 | METHOD_NOT_ALLOWED | Wrong method |
+| 500 | VALIDATION_FAILED | A fixture failed validation. A server defect; the spec is never returned |
+| 500 | INSPECTION_DATA_UNAVAILABLE | An inspection fixture could not be read |
+
+The handler is registered against **Starlette's** `HTTPException`, not FastAPI's. FastAPI's subclasses it, so the parent catches both route-raised errors and routing errors; registering against FastAPI's alone leaked Starlette's default `{"detail": ...}` on 404 and 405 until that was corrected.
+
+### 6.3 Read-only inspection endpoints
+
+`specs/spec.md` FR-9 specifies read-only endpoints for inspection records, ingest metadata and defect
+summaries. Two are implemented:
+
+```text
+GET /api/v1/inspection/queue?line={line}&limit={n}      both parameters optional
+
+{ "records": [ { "boardId": "BRD-2026-000148", "line": "line-a",
+                 "inspectionPoint": "post-reflow",
+                 "recordedAt": "2026-09-22T06:12:00Z" } ],
+  "meta": { "source": "fixture", "count": 1, "total": 4,
+            "filters": { "line": "line-a", "limit": 1 } } }
+
+GET /api/v1/inspection/board/{boardId}                  no query parameters
+
+{ "record": { "boardId": "BRD-2026-000148", "line": "line-a",
+              "inspectionPoint": "post-reflow",
+              "recordedAt": "2026-09-22T06:12:00Z" },
+  "meta": "fixture" }
+```
+
+`count` is what was returned, `total` is the unfiltered size, and `filters` echoes what was applied —
+so a caller can always tell a narrow filter from an empty dataset.
+
+Records carry **identity and capture metadata only**. There is deliberately no status, disposition,
+verdict, score or defect-ratio field: whether a board passes inspection is a quality determination
+owned by Quality and Manufacturing, and nothing in this phase determines one. Tests assert that no
+such field and no verdict vocabulary appears in the response, with or without filters.
+
+Still unimplemented from FR-9: `/inspection/summary`, `/ingest/images`, `/defects/categories`,
+`/defects/alerts`, `/defects/summary`.
+
+### 6.4 Parameter policy — where parameters are allowed, and why
+
+Task 6 originally shipped with no parameters anywhere, and section 6.1 still says the UI endpoint
+accepts none. That rule has not been relaxed; it has been **scoped**.
+
+| Endpoint | Parameters | Reason |
+| --- | --- | --- |
+| `POST /api/v1/ui/landing-page` | **None.** A query string is ignored, never honoured | This is the endpoint that feeds the controlled renderer. Caller-steered input here is precisely what the approved-input boundary exists to prevent |
+| `GET /api/v1/inspection/queue` | `line` (optional), `limit` (optional) | Read-only domain data. Filtering a list is not generation; no model and no renderer is downstream of it |
+| `GET /api/v1/inspection/board/{boardId}` | path identifier only | Same |
+
+Three properties are enforced on the parameters that do exist, and each has deterministic tests in
+`tests/api/test_inspection_parameters.py`:
+
+1. **Allowed values are derived from the data, not declared in code.** `InspectionService.lines()`
+   reads the distinct line identifiers out of the fixture in first-seen order. Line identifiers are
+   owned by Manufacturing; hard-coding an enum here would make this repository a second, silently
+   stale source of truth. `line=line-z` is a `400`, not an empty list — a typo must be visible, and
+   an empty list would read as "no boards".
+2. **Unknown parameters are rejected.** `?lines=`, `?Line=`, `?offset=`, `?sort=` all return `400`.
+   This matches `extra="forbid"` on the request bodies: a mistyped filter should say so rather than
+   be silently ignored.
+3. **Caller text is never echoed.** The error envelope stays `{"error": {"code", "message"}}` with a
+   fixed message, and the unknown-parameter error names what the endpoint **accepts** rather than what
+   was sent — the allowed set is server-owned, the supplied name is not. `limit` is bounded by
+   FastAPI at `1..50` before the service is reached, and its rejection says so ("Query parameter is
+   missing, out of range or of the wrong type") instead of borrowing the landing-page wording.
+
+The board identifier is matched in memory against records already loaded; it is never joined to a
+path, so a traversal-shaped identifier is just a string that matches nothing. One recorded subtlety:
+a probe containing an unencoded `..` is normalised by the HTTP client before the request is sent, per
+RFC 3986, so `board/../queue` arrives at the sibling public `/queue` route and gets an ordinary
+`200`. That is URL resolution landing on an already-public endpoint, not traversal — the tests assert
+that no filesystem content appears in either case.
 
 ## 7. Developer-Authored UISpec Fixture
 
@@ -142,9 +265,18 @@ FastAPI would be the Domain Runtime, not the AI Runtime. The task would establis
 
 Backend checks should cover agreed health and landing responses, exact fixture/context association, runtime validation before success, invalid fixture rejection, sanitized failure, non-mutation, repeatability, unsupported request inputs and absence of model/domain-data calls. Test the wire payload against the selected schema and existing validator using the matching context.
 
+Parameter checks live in `tests/api/test_inspection_parameters.py` and cover: allowed values
+derived from the fixture rather than declared; a filter narrowing the result while `total` still
+reports the unfiltered size; an unrecognised value and an unknown parameter both rejected with `400`;
+bounds and type rejection on the numeric parameter; `404` for an unknown board; traversal-shaped
+identifiers opening no file; caller text never echoed; repeatability; and — the one that guards the
+boundary — a query string on the UI generation endpoint leaving the returned specification
+unchanged.
+
 UI checks should cover loading/success/error, invalid JSON and response shape, binding/context mismatch, rejected unissued inputs, successful controlled rendering, no stale-response update, inert actions and no silent static fallback. Keep all existing registry, DOM safety, exact-metric, determinism and Python preparation tests.
 
-Root pytest.ini currently discovers only tests/validator and tests/renderer_fixtures. If tests/domain_api is added, explicitly include it in test discovery and verify collection. Do not claim new API tests ran merely because root pytest passed.
+API tests live under `tests/api/`. Confirm actual collection rather than assuming it: run pytest and
+read the collected count. Do not claim new API tests ran merely because root pytest passed.
 
 ## 17. Task 6 Verification Status
 
@@ -164,7 +296,7 @@ No project dependency is added by this document. At future implementation time i
 
 ## 19. What Task 6 Does Not Build
 
-No model gateway or runtime AI, database/persistence, authentication subsystem, camera/edge/PLC/MES integration, image upload/processing, automated classifier, defect-ratio calculation, quality verdict, human approval/override, onboarding/registration/risk scoring, charts/filters, production infrastructure, retry/repair or fallback orchestration. No UISpec vocabulary or schema redesign.
+No model gateway or runtime AI, database/persistence, authentication subsystem, camera/edge/PLC/MES integration, image upload/processing, automated classifier, defect-ratio calculation, quality verdict, human approval/override, onboarding/registration/risk scoring, UI charts or client-side filter controls, production infrastructure, retry/repair or fallback orchestration. No UISpec vocabulary or schema redesign.
 
 ## 20. Adapted Task 6 Implementation Prompt
 
@@ -368,6 +500,39 @@ The board's metadata and action-binding needs require an explicit decision;
 they do not authorize arbitrary new fields or changes to the UISpec.
 
 ==================================================
+READ-ONLY INSPECTION ENDPOINTS AND PARAMETER POLICY
+==================================================
+Expose the FR-9 inspection reads over synthetic fixture records only:
+a queue listing and a single-board lookup by identifier. Identity and
+capture metadata only. No status, disposition, verdict, score, defect
+ratio or any other field that would express a quality determination.
+
+Parameters are permitted here and on no other endpoint. The UI
+generation endpoint feeds the controlled renderer, so caller-steered
+input there is exactly what the approved-input boundary prevents: a
+query string on it must be ignored, never honoured, and must not change
+the specification returned. Pin that with a test.
+
+For the inspection reads:
+1. Allowed filter values are derived from the fixture at load, in
+   first-seen order. Do not declare a line enum in code; line
+   identifiers are owned by Manufacturing and a second copy here would
+   go stale silently.
+2. An unrecognised filter value is a 400, not an empty list. A typo
+   must be visible; an empty list reads as "no boards".
+3. Unknown query parameters are a 400, consistent with extra=forbid on
+   the request bodies. A mistyped filter must say so.
+4. Bound numeric parameters at the framework edge before the service
+   is reached. Keep the existing sanitized error envelope and never
+   echo caller-supplied text into a message.
+5. Report both what was returned and the unfiltered total, and echo the
+   filters that were applied, so a narrow filter is distinguishable
+   from an empty dataset.
+6. Match the board identifier in memory against already-loaded records.
+   Never join it to a filesystem path, construct no path from it, and
+   open no file in the request path.
+
+==================================================
 CORS / LOCAL DEVELOPMENT
 ==================================================
 Use the agreed minimal proxy or explicit local-origin configuration.
@@ -442,14 +607,23 @@ Add deterministic FastAPI/domain tests. At minimum test:
 7. An invalid fixture cannot be returned as an approved success response.
 8. Service and returned-object mutation leave the source spec/context intact.
 9. The same supported request produces the same response.
+10. Allowed filter values match the distinct values present in the fixture.
+11. A filter narrows the result and reports count, total and applied filters.
+12. An unrecognised filter value and any unknown query parameter return 400.
+13. A numeric parameter outside its bounds and a non-numeric one return 400.
+14. An unknown board identifier returns 404 with the sanitized envelope.
+15. Traversal-shaped identifiers open no file and leak no filesystem content.
+16. A query string on the UI generation endpoint does not change its response.
+17. Caller-supplied filter and identifier text is never echoed into an error.
+18. Filtered reads are repeatable and do not mutate the fixture on disk.
 10. No AI/model/external-domain call is made; the intended local API is allowed.
 
 Add React tests for:
-11. Loading state.
-12. Successful API response.
-13. HTTP/API/network failure state.
-14. The accepted response reaches ControlledRenderer through private issuance.
-15. The application does not bypass the controlled renderer.
+19. Loading state.
+20. Successful API response.
+21. HTTP/API/network failure state.
+22. The accepted response reaches ControlledRenderer through private issuance.
+23. The application does not bypass the controlled renderer.
 
 Also cover the board-specific boundaries:
 - Validation-before-success and exact context/action-binding association.
@@ -538,6 +712,8 @@ After implementation, perform and record each check:
 7. Start FastAPI locally with the documented command.
 8. Verify GET /health, HTTP status and exact response body.
 9. Verify the agreed landing endpoint, response and Python validation.
+9a. Verify each inspection read unfiltered, filtered, over-bounded and
+    with an unknown value and an unknown parameter; record every status.
 10. Start the existing React/Vite development server.
 11. Verify in a real browser that page data comes from FastAPI.
 12. Verify backend-unavailable behaviour without static fallback.

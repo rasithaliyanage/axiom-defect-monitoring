@@ -109,6 +109,34 @@ Prop-level contracts are normative in `specs/model-contracts.md`. Summarised her
 Versioned under `/api/v1`. All read-only in this phase. Request and response bodies are Pydantic
 models.
 
+**Implementation status.** Three endpoints exist today; the rest of this surface is specified but
+unbuilt. The implemented paths and shapes differ from the descriptions below where implementation
+resolved an open question — those differences are recorded in
+`specs/TASK-6-IMPLEMENTATION-REPORT.md` and `specs/TASK-6A-IMPLEMENTATION-REPORT.md`.
+
+| Endpoint | Status | As implemented |
+|---|---|---|
+| `POST /api/v1/ui/landing-page` | **Implemented** | Request `{page, view, locale}`, all required, no defaults, unknown fields rejected. Response `{spec, bindings, meta}` — `bindings` carries server-owned action labels, which a bare spec cannot supply |
+| `GET /api/v1/inspection/queue` | **Implemented** | Optional `line` and `limit` query parameters; unknown parameters rejected. Board identity and capture metadata only; no quality determination |
+| `GET /api/v1/inspection/board/{boardId}` | **Implemented** | Single board lookup; `404 BOARD_NOT_FOUND` when absent |
+| `GET /health` | **Implemented** | At `/health`, not `/api/v1/health`. Returns `{"status":"ok"}`. Cannot yet report AI availability, because no AI Runtime exists |
+| `GET /api/v1/inspection/summary` | Not built | |
+| `GET /api/v1/ingest/images` | Not built | |
+| `GET /api/v1/defects/categories` | Not built | |
+| `GET /api/v1/defects/alerts` | Not built | |
+| `GET /api/v1/defects/summary` | Not built | |
+
+Every error response uses one sanitized envelope `{"error": {"code", "message"}}` — `400`
+`BAD_REQUEST`, `404` `NOT_FOUND` or `BOARD_NOT_FOUND`, `405` `METHOD_NOT_ALLOWED`, `500`
+`VALIDATION_FAILED` or `INSPECTION_DATA_UNAVAILABLE`. Validator rejection codes are logged
+server-side and never serialized, and caller-supplied text is never echoed into an error message.
+
+**Parameter policy.** Read-only `/api/v1/inspection/*` endpoints accept validated query and path
+parameters. `POST /api/v1/ui/landing-page` accepts none: it feeds the controlled renderer, and
+caller-steered input there is what the approved-input boundary exists to prevent. Allowed filter
+values are derived from the data rather than declared in code, because line identifiers are owned by
+Manufacturing.
+
 `POST /api/v1/ui/landing-page` — accepts a presentation context descriptor (page identity, locale) and
 returns `{ spec, source, rejections, contextId }`. The only endpoint that invokes the AI Runtime.
 

@@ -67,6 +67,48 @@ class ErrorResponse(TransportModel):
     error: ErrorBody
 
 
+class BoardRecordModel(TransportModel):
+    """One board in the inspection queue.
+
+    Identity and capture metadata only. There is deliberately no status,
+    disposition, verdict or score field — whether a board passes inspection is a
+    quality determination owned by Quality, and out of scope for this phase.
+    """
+
+    boardId: str = Field(min_length=1)
+    line: str = Field(min_length=1)
+    inspectionPoint: str = Field(min_length=1)
+    recordedAt: str = Field(min_length=1)
+
+
+class AppliedFilters(TransportModel):
+    """Which filters were applied. Safe to echo: both are validated."""
+
+    line: str | None = None
+    limit: int | None = None
+
+
+class InspectionQueueMeta(TransportModel):
+    source: Literal["fixture"]
+    count: int = Field(ge=0, description="Records returned after filtering")
+    total: int = Field(ge=0, description="Records before filtering")
+    filters: AppliedFilters
+
+
+class InspectionQueueResponse(TransportModel):
+    """Read-only synthetic inspection queue. Satisfies FR-9 in part."""
+
+    records: list[BoardRecordModel]
+    meta: InspectionQueueMeta
+
+
+class BoardResponse(TransportModel):
+    """A single board record by identifier."""
+
+    record: BoardRecordModel
+    meta: Literal["fixture"] = "fixture"
+
+
 class HealthResponse(TransportModel):
     """Process liveness only. Says nothing about manufacturing readiness."""
 

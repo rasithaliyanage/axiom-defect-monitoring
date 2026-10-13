@@ -1,0 +1,29 @@
+{
+  "_note": "Synthetic developer-authored demonstration data. Not live inspection records. No field here states or implies a board quality outcome.",
+  "records": [
+    {
+      "boardId": "BRD-2026-000148",
+      "line": "line-a",
+      "inspectionPoint": "post-reflow",
+      "recordedAt": "2026-09-22T06:12:00Z"
+    },
+    {
+      "boardId": "BRD-2026-000149",
+      "line": "line-a",
+      "inspectionPoint": "post-reflow",
+      "recordedAt": "2026-09-22T06:12:40Z"
+    },
+    {
+      "boardId": "BRD-2026-000150",
+      "line": "line-b",
+      "inspectionPoint": "pre-conformal",
+      "recordedAt": "2026-09-22T06:13:05Z"
+    },
+    {
+      "boardId": "BRD-2026-000151",
+      "line": "line-b",
+      "inspectionPoint": "post-reflow",
+      "recordedAt": "2026-09-22T06:13:51Z"
+    }
+  ]
+}

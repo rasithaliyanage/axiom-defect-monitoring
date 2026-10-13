@@ -900,7 +900,7 @@ No 8 KiB serialized payload cap is implemented. Bytes, Unicode code points and r
 
 A syntactically legal metricId can still refer to nothing. A legitimate action can still be unavailable in the current context. contextId equality ties the proposal to the supplied context, while membership and value checks enforce individual references.
 
-For overview, contextId is task4-overview and locale is en-US with fixed synthetic timestamps. InfoPanel copies the metric string 0012.50 and unit images exactly. The renderer must not turn it into 12.5, calculate a total, or call it a live production result. No generated_for or onboarding ContextPayload fields exist in this v1 shape.
+For overview, contextId is task4-catalogue and locale is en-US with fixed synthetic timestamps. InfoPanel copies the metric string 0012.50 and unit images exactly. The renderer must not turn it into 12.5, calculate a total, or call it a live production result. No generated_for or onboarding ContextPayload fields exist in this v1 shape.
 
 ## 23. ProgressIndicator Runtime Rule
 
@@ -1954,6 +1954,39 @@ The board's metadata and action-binding needs require an explicit decision;
 they do not authorize arbitrary new fields or changes to the UISpec.
 
 ==================================================
+READ-ONLY INSPECTION ENDPOINTS AND PARAMETER POLICY
+==================================================
+Expose the FR-9 inspection reads over synthetic fixture records only:
+a queue listing and a single-board lookup by identifier. Identity and
+capture metadata only. No status, disposition, verdict, score, defect
+ratio or any other field that would express a quality determination.
+
+Parameters are permitted here and on no other endpoint. The UI
+generation endpoint feeds the controlled renderer, so caller-steered
+input there is exactly what the approved-input boundary prevents: a
+query string on it must be ignored, never honoured, and must not change
+the specification returned. Pin that with a test.
+
+For the inspection reads:
+1. Allowed filter values are derived from the fixture at load, in
+   first-seen order. Do not declare a line enum in code; line
+   identifiers are owned by Manufacturing and a second copy here would
+   go stale silently.
+2. An unrecognised filter value is a 400, not an empty list. A typo
+   must be visible; an empty list reads as "no boards".
+3. Unknown query parameters are a 400, consistent with extra=forbid on
+   the request bodies. A mistyped filter must say so.
+4. Bound numeric parameters at the framework edge before the service
+   is reached. Keep the existing sanitized error envelope and never
+   echo caller-supplied text into a message.
+5. Report both what was returned and the unfiltered total, and echo the
+   filters that were applied, so a narrow filter is distinguishable
+   from an empty dataset.
+6. Match the board identifier in memory against already-loaded records.
+   Never join it to a filesystem path, construct no path from it, and
+   open no file in the request path.
+
+==================================================
 CORS / LOCAL DEVELOPMENT
 ==================================================
 Use the agreed minimal proxy or explicit local-origin configuration.
@@ -2028,14 +2061,23 @@ Add deterministic FastAPI/domain tests. At minimum test:
 7. An invalid fixture cannot be returned as an approved success response.
 8. Service and returned-object mutation leave the source spec/context intact.
 9. The same supported request produces the same response.
+10. Allowed filter values match the distinct values present in the fixture.
+11. A filter narrows the result and reports count, total and applied filters.
+12. An unrecognised filter value and any unknown query parameter return 400.
+13. A numeric parameter outside its bounds and a non-numeric one return 400.
+14. An unknown board identifier returns 404 with the sanitized envelope.
+15. Traversal-shaped identifiers open no file and leak no filesystem content.
+16. A query string on the UI generation endpoint does not change its response.
+17. Caller-supplied filter and identifier text is never echoed into an error.
+18. Filtered reads are repeatable and do not mutate the fixture on disk.
 10. No AI/model/external-domain call is made; the intended local API is allowed.
 
 Add React tests for:
-11. Loading state.
-12. Successful API response.
-13. HTTP/API/network failure state.
-14. The accepted response reaches ControlledRenderer through private issuance.
-15. The application does not bypass the controlled renderer.
+19. Loading state.
+20. Successful API response.
+21. HTTP/API/network failure state.
+22. The accepted response reaches ControlledRenderer through private issuance.
+23. The application does not bypass the controlled renderer.
 
 Also cover the board-specific boundaries:
 - Validation-before-success and exact context/action-binding association.
@@ -2124,6 +2166,8 @@ After implementation, perform and record each check:
 7. Start FastAPI locally with the documented command.
 8. Verify GET /health, HTTP status and exact response body.
 9. Verify the agreed landing endpoint, response and Python validation.
+9a. Verify each inspection read unfiltered, filtered, over-bounded and
+    with an unknown value and an unknown parameter; record every status.
 10. Start the existing React/Vite development server.
 11. Verify in a real browser that page data comes from FastAPI.
 12. Verify backend-unavailable behaviour without static fallback.
@@ -2210,9 +2254,11 @@ specs/task6-browser-evidence/
   wide.png / narrow.png / unavailable.png
 ```
 
-**Request and endpoints.** GET /health returns 200 {"status":"ok"}, process liveness only. POST /api/v1/ui/landing-page requires application/json and exactly {"page":"landing","locale":"en-US"}. Extra fields, query parameters, client grounding, fixture selectors and arbitrary paths reject. The versioned AI-aware health route remains future scope, without an alias.
+**Request and endpoints.** GET /health returns 200 {"status":"ok"}, process liveness only. POST /api/v1/ui/landing-page requires application/json and exactly {"page":"landing","view":"overview","locale":"en-US"}. Extra fields, client grounding, fixture selectors and arbitrary paths reject. The versioned AI-aware health route remains future scope, without an alias.
 
-**Response.** HTTP 200 contains exactly {spec, source, rejections, contextId, actions}; source is "fixture", rejections is [], contextId matches task4-overview, and actions is the full ordered context action list. This explicit reviewed amendment supplies metadata and Hero bindings without changing UISpec. Errors are {"error":"invalid_request"} at 422, landing_unavailable at 500, method_not_allowed at 405 and not_found at 404. No internal stack traces or input echoes are returned.
+**Parameters.** The landing POST takes none: a query string on it is ignored, never honoured, and the specification returned is unchanged. That restriction belongs to this endpoint, not to the API — it is the one endpoint whose output feeds the controlled renderer, so caller-steered input there is what the approved-input boundary prevents. The read-only inspection reads added later do take parameters: GET /api/v1/inspection/queue accepts optional line and limit, and GET /api/v1/inspection/board/{boardId} takes a path identifier. Allowed line values are derived from the fixture rather than declared in code, an unrecognised value or unknown parameter is a 400 rather than an empty list, and caller text is never echoed into the error.
+
+**Response.** HTTP 200 contains exactly {spec, source, rejections, contextId, actions}; source is "fixture", rejections is [], contextId matches task4-catalogue, and actions is the full ordered context action list. This explicit reviewed amendment supplies metadata and Hero bindings without changing UISpec. Errors are {"error":"invalid_request"} at 422, landing_unavailable at 500, method_not_allowed at 405 and not_found at 404. No internal stack traces or input echoes are returned.
 
 **Service ownership.** landing_service.py loads only the canonical overview pair under apps/ui/fixtures. It reads each once into a request-local snapshot, validates raw spec text with complete context and serializes the same accepted data. There is no second fixture copy, arbitrary repository abstraction, database or model call. No concurrent fixture-edit protocol or standalone backend packaging is claimed.
 

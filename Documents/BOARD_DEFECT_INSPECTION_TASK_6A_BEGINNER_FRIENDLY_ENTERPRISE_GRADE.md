@@ -115,26 +115,91 @@ A strict frozen Pydantic model is a viable smaller alternative if inspection jus
 
 ## 6. HTTP API Contract
 
-Retain the already-reviewed board endpoint and request, not the source's GET query API:
+Retain the already-reviewed board endpoint and request, not the source's GET query API.
+
+**Proposed in this guide:**
+
+```text
+POST /api/v1/ui/landing-page
+{"page":"landing","locale":"en-US"}
+
+HTTP 200: {spec, source:"fixture", rejections:[], contextId, actions}
+```
+
+**As implemented**, after the readiness review recorded in `specs/TASK-6A-READINESS.md`:
 
 ```text
 POST /api/v1/ui/landing-page
 Content-Type: application/json
-{"page":"landing","locale":"en-US"}
+
+{ "page": "landing", "view": "overview", "locale": "en-US" }
 
 HTTP 200:
-{spec, source:"fixture", rejections:[], contextId, actions}
+{ "spec": {...}, "bindings": {"actionLabels": {...}}, "meta": {"contextId", "source", "validation"} }
 ```
 
-Keep the response fields exactly as agreed in Task 6. The bare UISpec used by the onboarding tutorial cannot carry our context action bindings and reviewed metadata. GET /health remains 200 {"status":"ok"}, liveness only. Do not change methods, add an alias, allow query context or introduce a request echo field.
+Three differences from the proposal, each deliberate:
+
+| Proposed | Implemented | Why |
+| --- | --- | --- |
+| `{page, locale}` | `{page, view, locale}` | `view` already existed in Task 6 and selects `overview` or `minimal` from the fixed catalogue. Dropping it would have removed working behaviour |
+| `{spec, source, rejections, contextId, actions}` | `{spec, bindings, meta}` | The Task 6 envelope, retained as this guide itself instructs. The proposal describes a different one |
+| Rejection `422` + `{"error":"invalid_request"}` | `400` + `{"error":{code,message}}` | A flat string body would break the single-envelope property established when 404 and 405 were corrected. One shape for every failure |
+
+**Every field is required with no default.** Removing the defaults was the substantive part of this increment: a request now states what it asks for rather than relying on the server to fill gaps. `extra="forbid"` rejects any unknown field, which is how supplied grounding is refused.
+
+`locale` carries one member, `en-US`. The value was not invented — it is the locale already present in every server-owned context. It is compared against that context and **not echoed** in the response, so no locale echo may be claimed. Further locales are a business decision.
+
+GET /health remains 200 `{"status":"ok"}`, liveness only.
 
 If additional presentation values or business selectors are required, record and obtain review of the request and admission amendments before implementation. A schema-preserving transport change is still an API contract change.
+
+### 6.1 Read-only inspection endpoints added after this task
+
+`GET /api/v1/inspection/queue` and `GET /api/v1/inspection/board/{boardId}` take **no request body**
+and return synthetic board records — identity and capture metadata only, with no status, disposition
+or score, because no quality determination exists in this phase. They satisfy part of
+`specs/spec.md` FR-9 and are unrelated to the presentation request seam described here.
+
+### 6.2 Parameter policy — why these endpoints may take parameters and this one may not
+
+The seam described in this document carries **no parameters at all**. That is not a general
+prohibition on parameters in the API; it is a property of this specific endpoint, and the
+distinction is worth stating precisely because the two are easy to conflate.
+
+`POST /api/v1/ui/landing-page` is the one endpoint whose output reaches the controlled renderer. Its
+whole purpose is that the **server** decides what the page may say, from a grounded context the caller
+never supplies. A caller-supplied query parameter there is a caller steering generation — exactly
+what the approved-input boundary exists to prevent. So a query string on this endpoint is **ignored,
+never honoured**: the request succeeds and returns a byte-identical specification, and a test pins
+that it does.
+
+The inspection reads are a different risk class entirely. They return fixture rows. No model reads
+them, no renderer consumes them, and no part of their output becomes page copy. Filtering a
+read-only list is ordinary API design, so `line` and `limit` are accepted there:
+
+| Endpoint | Parameters | Rejection |
+| --- | --- | --- |
+| `GET /api/v1/inspection/queue` | `line` 1-64 chars, `limit` 1-50, both optional | Unrecognised line, out-of-bounds or non-numeric limit, any unknown parameter → `400` |
+| `GET /api/v1/inspection/board/{boardId}` | path identifier only | Any query parameter → `400`; unknown identifier → `404 BOARD_NOT_FOUND` |
+| `POST /api/v1/ui/landing-page` | none | A query string is ignored; the response does not change |
+
+Three properties hold on the parameters that do exist. Allowed `line` values are **derived from the
+fixture at load**, not declared as an enum — line identifiers are owned by Manufacturing, and a
+hard-coded copy here would become a second, silently stale source of truth. An unrecognised value is
+a `400` rather than an empty list, because a typo must be visible and an empty list reads as "no
+boards". And caller text is never echoed into an error message — the unknown-parameter error names
+the allowed set rather than the supplied name — while the sanitized envelope from Task 6 is
+unchanged.
+
+The ContextPayload seam itself is untouched by any of this. It still carries exactly `{page, view,
+locale}`, all required, no defaults, unknown fields rejected.
 
 ## 7. FastAPI Boundary Validation
 
 ```text
 Incoming POST
- -> require application/json; reject query parameters
+ -> require application/json; reject query parameters on this endpoint
  -> parse JSON with duplicate-key rejection
  -> strict LandingRequest: required fields, no extras
       |
@@ -147,7 +212,7 @@ Construct immutable ContextPayload from validated fields
 
 Preserve existing sanitization: no input echo, exception detail or path leaks. Tests must prove a rejected request cannot reach the fixture loader/service. A rejected schema value is not silently coerced. Do not replace the existing parser with a convenient framework default that loses duplicate-key rejection.
 
-Query validation from the tutorial is intentionally not added. In this board API any nonempty query is invalid. URL encoding alone would not establish enum membership, grounding or safety anyway.
+Query validation from the tutorial is intentionally not added **to the UI generation endpoint**. Any nonempty query on `POST /api/v1/ui/landing-page` is invalid: URL encoding alone would not establish enum membership, grounding or safety. This restriction is scoped to the endpoint that feeds the controlled renderer. The read-only `/api/v1/inspection/*` endpoints added later do accept validated query and path parameters, which is a different risk class — see section 6.2.
 
 ## 8. Domain Service Flow
 
@@ -208,7 +273,7 @@ type ContextPayload = Readonly<{
 
 A TypeScript type cannot validate runtime values. The loader should reject unsupported/extra request fields and snapshot the two accepted scalar values before asynchronous work, preventing caller mutation from changing the outgoing request or later association check. This is validation of the transport request, not duplicated UISpec/grounding logic.
 
-No URLSearchParams is needed for a JSON POST. Adding query strings would violate the current contract. Continue unknown response JSON handling, exact full-envelope/spec/action equality with the independently Python-prepared overview, and private issuance from the admitted response itself. Do not issue a local fallback handle.
+No URLSearchParams is needed for a JSON POST. Adding query strings to **this** request would violate the contract; parameters on the read-only inspection endpoints are a separate, reviewed decision and do not touch this path. Continue unknown response JSON handling, exact full-envelope/spec/action equality with the independently Python-prepared overview, and private issuance from the admitted response itself. Do not issue a local fallback handle.
 
 **Request/response association instead of assertContextEcho:** After existing full admission, compare response.spec.page to the captured request.page. contextId and action bindings must still match the prepared pair. Locale is not carried in UISpec or the response envelope; do not claim a locale echo. For the singleton en-US contract, the accepted request value and server-side context comparison establish the limited association. Multiple locales would require a separately reviewed transport/admission design, not an invented response field or a superficial guard.
 
@@ -216,7 +281,7 @@ Keep private issuance inside approved.ts. api/client.ts currently re-exports the
 
 ## 12. React Application Changes
 
-Proposed INITIAL_CONTEXT is a developer-controlled immutable constant with page landing and locale en-US. Pass it to the fixed loader through the existing LandingApplication effect. No query-string reader, form, upload, line filter, context picker or user-generated JSON input is introduced.
+Proposed INITIAL_CONTEXT is a developer-controlled immutable constant with page landing and locale en-US. Pass it to the fixed loader through the existing LandingApplication effect. No query-string reader, form, upload, context picker or user-generated JSON input is introduced **into the presentation request**. Line filtering exists only on the read-only inspection endpoints and never steers what the renderer is given.
 
 ```text
 INITIAL_CONTEXT -> fixed API loader -> approved handle
@@ -276,7 +341,7 @@ Baseline evidence from Task 6: 197 Python tests and 63 UI tests passed, with one
 | Domain association | Request page/locale match server context; mismatch fails without editing source |
 | Full validation | Validator receives raw spec plus complete same server context before success |
 | Fixture ownership | Same exact response, repeatability and unchanged canonical files/inputs |
-| Client request | Fixed POST URL, exact body/headers, no query, unsupported request rejection, captured values |
+| Client request | Fixed POST URL, exact body/headers, no query on the UI endpoint, unsupported request rejection, captured values |
 | Admission | Retain full equality and private issuance; mismatched page/spec/bindings reject |
 | UI | INITIAL_CONTEXT reaches client; unchanged notice/renderer path and inert actions |
 | Async lifecycle | Mutation after invocation cannot alter captured request; stale completion ignored |
@@ -297,7 +362,7 @@ Use isolated test mechanisms for mismatched internal fixtures and malformed resp
 | POST unsupported page | 422 | No defaulting | Not run |
 | POST locale fr-FR or wrong type | 422 | No coercion/localization fallback | Not run |
 | POST supplied contextId/metrics/actions/lineId | 422 | Client grounding/extra fields rejected | Not run |
-| POST with query parameters | 422 | Queries remain unsupported | Not run |
+| POST with query parameters | 200 | Query **ignored, not honoured**: identical spec returned | Not run |
 | Duplicate JSON keys or malformed JSON | 422 | Existing parser protection retained | Not run |
 | GET landing endpoint | 405 | method_not_allowed | Not run |
 | Isolated invalid server fixture/context test | 500 | landing_unavailable; no internal detail | Not run |
@@ -470,7 +535,9 @@ Reject unsupported/extra runtime request fields; TypeScript alone is not
 validation. Snapshot accepted scalar values before asynchronous work.
 Keep fixed relative POST URL, explicit JSON fields and existing headers,
 credentials/redirect/cache rules and AbortSignal handling.
-No URLSearchParams for this JSON POST; do not add query transport.
+No URLSearchParams for this JSON POST; do not add query transport to the
+presentation request. Query parameters belong only on the read-only
+inspection reads, which the renderer does not consume.
 Keep response JSON unknown until complete exact-overview admission.
 Retain independent Python preparation gates and verification evidence.
 After full admission, associate response.spec.page with captured request.page.
@@ -507,7 +574,8 @@ validation-before-success; unchanged exact response; mismatched/invalid server
 fixture failure; repeatability/non-mutation and no outbound model/domain calls.
 Use isolated tests for invalid fixture injection, never a production switch.
 React: initial request reaches client, exact fixed POST/body, runtime invalid
-request rejection, no query/path injection, snapshot unaffected by later caller
+request rejection, no query/path injection into the presentation request,
+snapshot unaffected by later caller
 mutation, full response admission and page association, all error states,
 private issuance, controlled renderer use, inert actions and stale completion.
 Retain registry/DOM safety, copied/unissued handle and fixture-cleanup coverage.

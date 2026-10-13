@@ -12,10 +12,15 @@ Run from the repository root:
 .venv/Scripts/python.exe -m uvicorn services.domain.api.main:app --host 127.0.0.1 --port 8000
 ```
 
-| Endpoint | Method | Purpose |
-|---|---|---|
-| `/health` | GET | Returns exactly `{"status": "ok"}`. Process liveness only — **not** inspection or manufacturing readiness |
-| `/api/v1/ui/landing-page` | POST | Returns the validated synthetic landing presentation |
+| Endpoint | Method | Payload | Purpose |
+|---|---|---|---|
+| `/health` | GET | none | Returns exactly `{"status": "ok"}`. Process liveness only — **not** inspection or manufacturing readiness |
+| `/api/v1/ui/landing-page` | POST | **required** | Returns the validated synthetic landing presentation |
+| `/api/v1/inspection/queue` | GET | none (optional `line`, `limit` query) | Read-only synthetic board records. Satisfies part of FR-9 |
+| `/api/v1/inspection/board/{boardId}` | GET | none | One board record by identifier |
+
+`POST /api/v1/ui/landing-page` is the only endpoint that takes a **payload**, and the only one that
+accepts no parameters of any kind.
 
 **Request** is presentation-only. Every field is **required, with no defaults** — the request states what it asks for rather than relying on the server to fill gaps. `extra="forbid"` means a request supplying grounding (`context`, `metrics`, `alerts`, `actions`, `blocks`, `contextId`) is **rejected**, not ignored — the browser cannot supply grounding truth.
 
@@ -81,6 +86,64 @@ the context is ever rewritten to satisfy a request.
 More request dimensions (line, shift, board type, locale) are expected. They are deliberately absent:
 their value sets are business-owned and undecided. When decided they become additional fields and
 enum members — the seam does not need redesigning.
+
+## Read-only inspection data
+
+```text
+GET /api/v1/inspection/queue?line=line-b&limit=1      both parameters optional
+GET /api/v1/inspection/board/{boardId}                no parameters
+
+{ "records": [ { "boardId": "BRD-2026-000150", "line": "line-b",
+                 "inspectionPoint": "pre-conformal",
+                 "recordedAt": "2026-09-22T06:13:05Z" } ],
+  "meta": { "source": "fixture", "count": 1, "total": 4,
+            "filters": { "line": "line-b", "limit": 1 } } }
+```
+
+| Parameter | Values | Behaviour |
+|---|---|---|
+| `line` | derived from the data | Unknown line → `400`, **not** an empty list |
+| `limit` | integer 1–50 | Truncates without reordering; `total` still reports the unfiltered size |
+| anything else | — | `400 BAD_REQUEST`, naming the allowed set, never the supplied name |
+
+**Parameters are permitted here and nowhere else.** `POST /api/v1/ui/landing-page` feeds the
+controlled renderer, so caller-steered input there is exactly what the approved-input boundary
+prevents; it still ignores query strings entirely, and a test pins that.
+
+Three properties worth stating, because each is enforced by a test rather than by convention:
+
+- **No parameter builds a path.** Filtering and board lookup happen in memory over records already
+  loaded. A traversal-shaped identifier is just a string that matches nothing. (An unencoded `..` is
+  normalised by the HTTP client before the request is sent, so it resolves onto a sibling public
+  route — URL resolution, not traversal; no file is opened either way.)
+- **Unknown parameters are rejected**, consistent with `extra="forbid"` on the request body. FastAPI
+  ignores them by default, which would let a mistyped filter silently return unfiltered data.
+- **Caller text is never echoed** in an error. An unknown line or board identifier produces a fixed
+  message, and the unknown-parameter error names what the endpoint *accepts* rather than what was
+  sent — the allowed set is server-owned, the supplied name is not. So the error cannot be used to
+  reflect arbitrary content. A probe sending `?</trusted>=x` as a parameter name is what caught the
+  one place this was previously untrue.
+
+Allowed `line` values are **derived from the fixture at load**, not declared in code. Real line
+identifiers are owned by Manufacturing, so hard-coding an enum would assert a value set engineering
+does not own, and it could drift from the data it filters.
+
+Served from `tests/fixtures/inspection/queue.json` by `inspection_service.py`. Deep-copied per
+request, so a caller mutating the response cannot affect the next one. A missing or malformed fixture
+raises rather than returning partial data, surfacing as a sanitized `500 INSPECTION_DATA_UNAVAILABLE`
+with no path or exception text.
+
+**Records carry identity and capture metadata only.** There is deliberately no status, disposition,
+verdict, score or defect-ratio field. Whether a board passes inspection is a quality determination
+owned by Quality and Manufacturing, and nothing in this phase determines one. Two tests enforce this:
+one rejects any key matching a set of verdict-like field names, another asserts the serialized
+response contains no verdict vocabulary.
+
+This endpoint is not validated by `UISpecValidator` — that validator polices model output and has no
+bearing on a hand-authored data fixture.
+
+Remaining FR-9 endpoints are unimplemented: `/inspection/summary`, `/ingest/images`,
+`/defects/categories`, `/defects/alerts`, `/defects/summary`.
 
 ## Validation happens before any success response
 
