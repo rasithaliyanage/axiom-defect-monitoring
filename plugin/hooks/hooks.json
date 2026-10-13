@@ -1,0 +1,21 @@
+{
+  "description": "Re-checks the UI specification schema after it is edited. PostToolUse runs after a successful tool call, so this reports a validation failure back for correction; it does not undo the completed edit.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/check_uispec_schema.py"
+            ],
+            "timeout": 30,
+            "statusMessage": "Re-checking the UI specification schema"
+          }
+        ]
+      }
+    ]
+  }
+}

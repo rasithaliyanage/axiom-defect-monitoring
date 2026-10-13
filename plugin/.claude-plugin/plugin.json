@@ -1,0 +1,14 @@
+{
+  "name": "board-defect-inspection-engineering",
+  "description": "Engineering-time controls for the AI-Based Automated Board Defect Inspection System: project verification, UI specification contract review, checkpoint review, and an automatic schema check after the UI specification schema is edited. Engineering-time only — it is not part of the application runtime and performs no model inference.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Board Defect Inspection engineering"
+  },
+  "keywords": [
+    "verification",
+    "schema",
+    "review",
+    "engineering-time"
+  ]
+}

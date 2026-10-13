@@ -27,8 +27,8 @@ system.
    ├── .claude/rules/     present                 ├── controlled renderer
    ├── .claude/skills/    present                 └── component registry
    ├── .claude/hooks/     present            Domain Runtime        FastAPI + Python
-   ├── .claude/agents/    dir only, empty        ├── grounded context assembly
-   ├── Plugins            not present            └── validation pipeline  ← authoritative
+   ├── plugin/            present                ├── grounded context assembly
+   ├── .claude/agents/    dir only, empty        └── validation pipeline  ← authoritative
    └── Agent SDK          not present        AI Runtime            not present
 ```
 
@@ -37,13 +37,21 @@ before anything ships. They bind by being read: a rule is advice a reviewer can 
 mechanism. Their failure mode is a bad change getting written, which review and tests are there to
 catch.
 
-Three kinds exist today, and they divide by the question they answer. **Rules** (`.claude/rules/`)
+Four kinds exist today, and they divide by the question they answer. **Rules** (`.claude/rules/`)
 answer *how should Claude Code behave* — do not weaken a test, do not bypass validation. **Skills**
 (`.claude/skills/`) answer *what task can be performed, and how is it performed here* — run the
 verification suites, review a contract change, review a proposed checkpoint. **Hooks**
 (`.claude/hooks/`) answer *what should happen automatically, on an event* — when the UI
-specification schema is edited, re-check it. The rule governs; the skill performs; the hook fires
-on its own.
+specification schema is edited, re-check it. **Plugins** (`plugin/`) answer *how are those
+capabilities packaged and distributed* — a plugin is a container, so it changes where a capability
+is available, never what it does. The rule governs; the skill performs; the hook fires on its own;
+the plugin ships them somewhere else.
+
+Because a plugin only redistributes, it adds no control of its own. `plugin/` is a generated mirror
+of `.claude/`, with byte-identity asserted by `tests/plugin/`, so packaging cannot quietly become a
+second implementation that drifts from the one the repository actually uses. Rules are deliberately
+not packaged: they are behavioural guidance specific to this architecture, and the plugin model has
+no rules concept.
 
 Rules and skills are not mechanisms. A skill looks more like machinery than a rule does, which
 makes this worth saying twice: a skill's `allowed-tools` list is coarse, so a skill that must run
@@ -63,9 +71,14 @@ post-action validation and reports a failure back to Claude Code for corrective 
 undo the edit that already completed. `PreToolUse` is the event for preventing an action before it
 executes; no such hook exists in this repository.
 
-It is still not runtime enforcement. A hook runs on a developer's machine while software is being
-written. Delete it and the application's guarantees are unchanged — which is the clearest way to
-see that the two columns are genuinely different things.
+None of this is runtime enforcement. A hook runs on a developer's machine while software is being
+written, and a plugin only decides which machines have it. Delete every primitive in the left-hand
+column and the application's guarantees are unchanged — which is the clearest way to see that the
+two columns are genuinely different things.
+
+Specifically, plugins do not replace the model contract, the JSON Schema, deterministic validation,
+runtime security or controlled rendering. Those live in the right-hand column and run for every
+user on every request.
 
 **Runtime controls govern how probabilistic model output is allowed to affect the application.**
 They act on data, while the system runs. They bind by executing: the schema, the validator and the
@@ -83,8 +96,9 @@ boundary from the other side, and `CLAUDE.md` is explicit that it is guidance, n
 boundary.
 
 **Current status, stated plainly:** of the engineering-time primitives, `CLAUDE.md`,
-`.claude/rules/`, `.claude/skills/` and one hook in `.claude/hooks/` exist. `.claude/agents/` holds
-a README describing candidates and nothing executable. No Plugin or Agent SDK integration exists.
+`.claude/rules/`, `.claude/skills/`, one hook in `.claude/hooks/` and one plugin in `plugin/`
+exist. `.claude/agents/` holds a README describing candidates and nothing executable. No Agent SDK
+integration exists, and the plugin carries no agent, command or MCP configuration.
 Of the runtime column, the AI Runtime does not exist either — the specifications served today are
 developer-authored fixtures that passed the validator offline.
 
@@ -267,8 +281,9 @@ grounded context makes fabricated or drifted figures mechanically detectable.
 
 AD-8. Engineering-time guidance is kept separate from runtime enforcement, and is never described as
 enforcement. `.claude/rules/` carries focused behavioural guidance, `.claude/skills/` reusable
-engineering-time capabilities, and `.claude/hooks/` automatic event-driven checks; the schema, the
-validator, the registry and the tests carry what the system actually enforces. A hook is executed
+engineering-time capabilities, `.claude/hooks/` automatic event-driven checks, and `plugin/` their
+packaging for distribution; the schema, the validator, the registry and the tests carry what the
+system actually enforces. A hook is executed
 rather than read, which makes it the most reliable of the three — automatic, though for a
 `PostToolUse` hook automatic means post-action validation and feedback, not prevention. It is still
 not a runtime control, because it runs while the software is written rather than while it serves a

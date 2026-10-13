@@ -51,7 +51,7 @@ Read `.claude/rules/README.md` first: it explains what a rule can and cannot bin
 
 ## Engineering-time layers
 
-Six distinct things, easiest to keep straight by what each one answers:
+Seven distinct things, easiest to keep straight by what each one answers:
 
 | | Answers | Binds by |
 |---|---|---|
@@ -59,13 +59,15 @@ Six distinct things, easiest to keep straight by what each one answers:
 | **Rules** (`.claude/rules/`) | How should Claude Code behave? | being read |
 | **Skills** (`.claude/skills/`) | What task can it perform, and how is it performed here? | being read |
 | **Hooks** (`.claude/hooks/`) | What should happen automatically, on an event? | **being executed** |
+| **Plugins** (`plugin/`) | How are those capabilities packaged and distributed? | being installed |
 | **Specifications** (`specs/`, `docs/`) | What is the system required to do? | review |
 | **Runtime code + tests** | What does the application actually enforce? | executing, and failing |
 
 A rule governs behaviour, a skill performs a task and defers the behavioural question to the rule
 that owns it, and a hook runs on its own whether or not anyone remembered. Hooks are the first of
-these that is executed rather than read — but a hook is still engineering-time. Only the last row
-is what the running application enforces for a user.
+these that is executed rather than read — but a hook is still engineering-time. A plugin is a
+reusable, installable package of Claude Code capabilities: it changes distribution, not behaviour.
+Only the last row is what the running application enforces for a user.
 
 Three skills exist:
 
@@ -81,6 +83,12 @@ whenever it is edited, reusing the existing validator rather than adding a secon
 `PostToolUse` runs after a successful tool call, it reports a failure back for correction; it does
 not undo the edit. `.claude/hooks/README.md` covers what it does, what it refuses to do, and why
 it is safe to run automatically.
+
+One plugin exists, in `plugin/`, packaging those three skills and that hook for installation
+elsewhere. **`.claude/` stays authoritative; `plugin/` is a generated mirror** produced by
+`scripts/package_plugin.py`, with `tests/plugin/` asserting byte-identity so a divergent copy is a
+failing test rather than something a reviewer must spot. Edit `.claude/`, never `plugin/`.
+`plugin/README.md` has the packaging rationale and the portability limits.
 
 ## Repository layout
 
@@ -102,6 +110,8 @@ policies/                    BUSINESS-OWNED placeholders — Quality and Manufac
 plans/                       implementation plan
 tasks/                       task breakdown
 apps/ui/                     UI Runtime — React, TypeScript, renderer, component registry
+plugin/                      GENERATED MIRROR — Claude Code plugin package; edit .claude/ instead
+scripts/                     repository-level tooling, e.g. the plugin packaging script
 services/domain/             Domain Runtime — validation pipeline today; board inspection API to come
 simulators/capture/          harness — recorded inspection fixtures, so slices need no factory
 tests/                       deterministic tests and shared fixtures
