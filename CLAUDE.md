@@ -44,6 +44,11 @@ a change that violates one — raise the conflict instead.
 7. No authentication subsystem. Internal application, network-level access control, this phase only.
    Do not add login pages, token issuance, session management, or user tables.
 
+The seven above are the architectural constraints. How to act on them day to day is in
+`.claude/rules/` — runtime boundaries, business data integrity, testing and security, one file each.
+Those files are behavioural guidance and cite this one; where they disagree with it, this file wins.
+Read `.claude/rules/README.md` first: it explains what a rule can and cannot bind.
+
 ## Repository layout
 
 **This section is the authoritative repository layout.** Where it differs from

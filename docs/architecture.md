@@ -11,6 +11,53 @@ This document describes structure and control points. Requirements live in
 `docs/business-problem.md`, testable behaviour in `specs/spec.md`, and the model's input and output
 contract in `specs/model-contracts.md`.
 
+## Two kinds of control
+
+AI appears twice in this project, in two places that are easy to conflate and must not be. One is a
+model helping engineers build the software. The other is a model influencing what a supervisor sees
+on a factory floor. They need different controls, and only one of them is part of the running
+system.
+
+```
+  ENGINEERING TIME                          RUNTIME
+  guides how the software is built          governs what the software does
+
+  Claude Code                               Browser
+   ├── CLAUDE.md          present            └── UI Runtime        React + TypeScript
+   ├── .claude/rules/     present                 ├── controlled renderer
+   ├── .claude/hooks/     dir only, empty         └── component registry
+   ├── .claude/agents/    dir only, empty    Domain Runtime        FastAPI + Python
+   ├── Skills             not present            ├── grounded context assembly
+   ├── Plugins            not present            └── validation pipeline  ← authoritative
+   └── Agent SDK          not present        AI Runtime            not present
+```
+
+**Engineering-time controls guide how AI-assisted software is built.** They act on the repository,
+before anything ships. They bind by being read: a rule is advice a reviewer can check, not a
+mechanism. Their failure mode is a bad change getting written, which review and tests are there to
+catch.
+
+**Runtime controls govern how probabilistic model output is allowed to affect the application.**
+They act on data, while the system runs. They bind by executing: the schema, the validator and the
+registry reject what does not conform, whatever anyone intended. Their failure mode is a wrong
+figure or an unapproved component reaching a user, which is why they are mechanical rather than
+advisory.
+
+The distinction matters because latitude does not transfer. A coding agent may reasonably be trusted
+to restructure a module; that implies nothing about how much a runtime model should be trusted over
+a production line. Confusing the two would let a judgement made about engineering convenience leak
+into a decision about manufacturing quality.
+
+Only the runtime column stops anything at runtime. `.claude/rules/README.md` states the same
+boundary from the other side, and `CLAUDE.md` is explicit that it is guidance, not a security
+boundary.
+
+**Current status, stated plainly:** of the engineering-time primitives, only `CLAUDE.md` and
+`.claude/rules/` exist. `.claude/hooks/` and `.claude/agents/` hold READMEs describing candidates
+and nothing executable. No Skill, Plugin or Agent SDK integration exists. Of the runtime column, the
+AI Runtime does not exist either — the specifications served today are developer-authored fixtures
+that passed the validator offline.
+
 ## Runtime topology
 
 ```
@@ -183,6 +230,13 @@ network level. Recorded explicitly so the omission reads as a decision rather th
 
 AD-7. Metric values are copied, never computed, by the model. Exact-match validation against the
 grounded context makes fabricated or drifted figures mechanically detectable.
+
+AD-8. Engineering-time guidance is kept separate from runtime enforcement, and is never described as
+enforcement. `.claude/rules/` carries focused behavioural guidance for Claude Code; the schema, the
+validator, the registry and the tests carry what the system actually enforces. A rule that matters
+enough to be mechanical should become a test or a hook rather than stay prose. Keeping the two
+columns visibly distinct is what stops "the rules say not to" from being mistaken for "the system
+will not let you".
 
 ## Deferred concerns
 
