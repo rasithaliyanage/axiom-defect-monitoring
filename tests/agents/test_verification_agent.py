@@ -35,6 +35,7 @@ from agents.verification.tools import (
     CheckResult,
     Command,
     commands,
+    run_command,
     verify_project,
 )
 
@@ -253,6 +254,78 @@ def test_a_single_failing_check_fails_the_whole_verification():
     result = verify_project(mixed)
     assert result.status == "fail"
     assert result.counts["failed"] == 1
+
+
+# --- run_command: the error branches, exercised for real -------------------
+
+def test_missing_executable_is_an_error_not_a_failure(tmp_path):
+    """A tool that cannot run has not proved the project wrong.
+
+    `error` and `fail` are different answers and the verdict treats them
+    differently, so the distinction has to hold at the point it is produced.
+    """
+    missing = Command("probe", ("definitely-not-a-real-binary-xyz",), tmp_path, 10, "probe")
+    result = run_command(missing)
+    assert result.status == "error"
+    assert result.exit_code is None
+    assert "not found" in result.detail
+
+
+def test_a_timeout_is_an_error_and_names_the_bound():
+    """Bounded means bounded: a hanging command must not hang the agent."""
+    slow = Command(
+        "probe",
+        (sys.executable, "-c", "import time; time.sleep(30)"),
+        ROOT, 1, "deliberately slower than its timeout",
+    )
+    result = run_command(slow)
+    assert result.status == "error"
+    assert "timed out" in result.detail
+    assert "1s" in result.detail
+
+
+def test_a_nonzero_exit_is_a_failure_not_an_error():
+    failing = Command("probe", (sys.executable, "-c", "raise SystemExit(3)"),
+                      ROOT, 60, "exits non-zero")
+    result = run_command(failing)
+    assert result.status == "fail"
+    assert result.exit_code == 3
+
+
+def test_a_zero_exit_is_a_pass_and_keeps_the_last_output_line():
+    ok = Command("probe", (sys.executable, "-c", "print('first'); print('last line')"),
+                 ROOT, 60, "exits zero")
+    result = run_command(ok)
+    assert result.status == "pass"
+    assert result.exit_code == 0
+    assert result.detail == "last line"
+
+
+def test_command_output_is_truncated_before_it_reaches_the_report():
+    """Tool output crosses into a structured artifact; it must stay bounded."""
+    noisy = Command("probe", (sys.executable, "-c", "print('x' * 5000)"), ROOT, 60, "noisy")
+    assert len(run_command(noisy).detail) <= 300
+
+
+def test_an_errored_check_makes_the_whole_verification_an_error():
+    def one_errors(command: Command) -> CheckResult:
+        return CheckResult("error" if command.key == "react_tests" else "pass", "", None)
+
+    result = verify_project(one_errors)
+    assert result.status == "error"
+    assert result.counts["errored"] == 1
+
+
+def test_error_outranks_failure_in_the_overall_status():
+    """A run with both must not be reported as a mere failure."""
+    def both(command: Command) -> CheckResult:
+        if command.key == "react_tests":
+            return CheckResult("error", "", None)
+        if command.key == "react_build":
+            return CheckResult("fail", "", 1)
+        return CheckResult("pass", "", 0)
+
+    assert verify_project(both).status == "error"
 
 
 # --- security: static checks over the agent source --------------------------

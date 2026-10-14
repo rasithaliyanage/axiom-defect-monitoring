@@ -59,8 +59,9 @@ metacharacter.
 
 ## What it verifies
 
-`verify_project()` runs the same four checks `.claude/skills/verify-project/SKILL.md` documents —
-Python suite, React suite, schema validation, React production build — and returns structured data:
+`verify_project()` runs the checks `.claude/skills/verify-project/SKILL.md` documents — Python
+suite, React suite, schema validation, the render-path safety lint, and the React production build
+— and returns structured data:
 
 ```json
 {"status": "pass", "summary": "all 4 checks passed",
@@ -68,7 +69,16 @@ Python suite, React suite, schema validation, React production build — and ret
  "counts": {"total": 4, "passed": 4, "failed": 0, "errored": 0}}
 ```
 
-It deliberately reuses the project's existing verification rather than inventing a second one.
+It deliberately reuses the project's existing verification rather than inventing a second one, and
+that reuse is now **enforced**: `tests/agents/test_skill_tool_parity.py` parses the Skill's command
+block and fails if the tool stops running something the Skill documents.
+
+The test is fail-closed on addition. A command added to the Skill and not to the tool fails. A
+command deliberately not automated must be named in `EXEMPT` with a reason, so silence is not an
+option. Two exemptions exist today: `pip check` (an environment question, not a repository one) and
+`npm run typecheck` (covered transitively — `build` is
+`prepare:fixtures && tsc --noEmit && vite build`). `npm run lint` is explicitly non-exemptible, with
+its own test, because that is the omission this file exists to prevent recurring.
 
 It also applies the `--basetemp` workaround that skill records, because without it a sandboxed
 shell produces `PermissionError`s that look like failures but are not. That mattered in practice:
@@ -142,5 +152,10 @@ the model is not.
 need a live run. The loop's own allow-list is what the tests actually prove, and it is the layer
 that holds regardless.
 
-**`verify_project` is slow by design** — about 22 seconds, because it runs real suites. It is not
+**`verify_project` is slow by design** — about 25 seconds, because it runs real suites. It is not
 suitable for a tight loop, which is part of why `max_iterations` is 3.
+
+**What is now covered that previously was not.** The tool's error branches are exercised for real: a
+missing executable, a command that outruns its timeout, a non-zero exit, and output truncation. The
+distinction between `error` and `fail` holds at the point it is produced, because the verdict treats
+them differently — a tool that could not run has not proved the project wrong.
