@@ -119,6 +119,7 @@ resolved an open question — those differences are recorded in
 | `POST /api/v1/ui/landing-page` | **Implemented** | Request `{page, view, locale}`, all required, no defaults, unknown fields rejected. Response `{spec, bindings, meta}` — `bindings` carries server-owned action labels, which a bare spec cannot supply |
 | `GET /api/v1/inspection/queue` | **Implemented** | Optional `line` and `limit` query parameters; unknown parameters rejected. Board identity and capture metadata only; no quality determination |
 | `GET /api/v1/inspection/board/{boardId}` | **Implemented** | Single board lookup; `404 BOARD_NOT_FOUND` when absent |
+| `GET /api/v1/inspection/lines` | **Implemented** | The line identifiers accepted by the `line` filter, derived from the data in first-seen order. Makes the filter's allowed values discoverable instead of guessable |
 | `GET /health` | **Implemented** | At `/health`, not `/api/v1/health`. Returns `{"status":"ok"}`. Cannot yet report AI availability, because no AI Runtime exists |
 | `GET /api/v1/inspection/summary` | Not built | |
 | `GET /api/v1/ingest/images` | Not built | |
@@ -130,6 +131,10 @@ Every error response uses one sanitized envelope `{"error": {"code", "message"}}
 `BAD_REQUEST`, `404` `NOT_FOUND` or `BOARD_NOT_FOUND`, `405` `METHOD_NOT_ALLOWED`, `500`
 `VALIDATION_FAILED` or `INSPECTION_DATA_UNAVAILABLE`. Validator rejection codes are logged
 server-side and never serialized, and caller-supplied text is never echoed into an error message.
+
+**Discoverability.** Where a parameter has a closed set of accepted values, that set is reachable
+over the API rather than only documented: `GET /api/v1/inspection/lines` answers "what may I pass to
+`line`?". Rejecting an unknown value without saying what is known makes a caller guess.
 
 **Parameter policy.** Read-only `/api/v1/inspection/*` endpoints accept validated query and path
 parameters. `POST /api/v1/ui/landing-page` accepts none: it feeds the controlled renderer, and
@@ -143,6 +148,11 @@ returns `{ spec, source, rejections, contextId }`. The only endpoint that invoke
 `GET /api/v1/inspection/summary` — current inspection summary metrics.
 
 `GET /api/v1/inspection/queue` — current inspection queue state.
+
+`GET /api/v1/inspection/lines` — the line identifiers the `line` filter accepts. Values are derived
+from the inspection data at load, never declared in code: line identifiers are owned by
+Manufacturing, and a second copy here would become a silently stale source of truth. The response
+carries identifiers only — no counts, no rates, and nothing that could read as a quality outcome.
 
 `GET /api/v1/ingest/images` — image ingest metadata records. Metadata only; no image content.
 

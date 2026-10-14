@@ -106,6 +106,11 @@ GET /api/v1/inspection/board/{boardId}                no parameters
 | `limit` | integer 1–50 | Truncates without reordering; `total` still reports the unfiltered size |
 | anything else | — | `400 BAD_REQUEST`, naming the allowed set, never the supplied name |
 
+`GET /api/v1/inspection/lines` returns the values `line` accepts — `{"lines": [...], "meta":
+"fixture"}`, identifiers only. It exists because rejecting an unknown line without saying what is
+known makes a caller guess. Like the filter itself, the values are derived from the data at load
+rather than declared, and a test asserts no line identifier is hard-coded in the route or model.
+
 **Parameters are permitted here and nowhere else.** `POST /api/v1/ui/landing-page` feeds the
 controlled renderer, so caller-steered input there is exactly what the approved-input boundary
 prevents; it still ignores query strings entirely, and a test pins that.

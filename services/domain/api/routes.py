@@ -27,6 +27,7 @@ from .models import (
     BoardRecordModel,
     BoardResponse,
     HealthResponse,
+    InspectionLinesResponse,
     InspectionQueueMeta,
     InspectionQueueResponse,
     LandingPageRequest,
@@ -134,6 +135,31 @@ def inspection_queue(
             filters=AppliedFilters(line=line, limit=limit),
         ),
     )
+
+
+@router.get("/api/v1/inspection/lines", response_model=InspectionLinesResponse)
+def inspection_lines(request: Request) -> InspectionLinesResponse:
+    """The line identifiers the queue's `line` filter accepts.
+
+    Exists because rejecting an unknown line without saying what is known makes
+    a caller guess. `?line=line-z` returns 400; this says what would not.
+
+    The values are derived from the inspection data at load, in first-seen
+    order — never declared here. Line identifiers are owned by Manufacturing,
+    and a hard-coded copy in this repository would be a second source of truth
+    that goes stale without anyone noticing.
+
+    Identifiers only: no counts, no rates, nothing that expresses a quality
+    determination, because none is determined in this phase.
+    """
+    _reject_unknown_query(request, set())
+
+    try:
+        lines = _inspection.lines()
+    except InspectionDataUnavailable as unavailable:
+        raise _unavailable(unavailable) from None
+
+    return InspectionLinesResponse(lines=list(lines))
 
 
 @router.get("/api/v1/inspection/board/{board_id}", response_model=BoardResponse)

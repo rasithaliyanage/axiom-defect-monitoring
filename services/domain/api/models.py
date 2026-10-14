@@ -102,6 +102,18 @@ class InspectionQueueResponse(TransportModel):
     meta: InspectionQueueMeta
 
 
+class InspectionLinesResponse(TransportModel):
+    """The values the `line` filter accepts.
+
+    Identifiers only. No count, rate or any field that could read as a quality
+    outcome — the same boundary `BoardRecordModel` holds. `source` records that
+    these were derived from the inspection data, not declared in code.
+    """
+
+    lines: list[str]
+    meta: Literal["fixture"] = "fixture"
+
+
 class BoardResponse(TransportModel):
     """A single board record by identifier."""
 

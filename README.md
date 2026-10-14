@@ -64,6 +64,7 @@ Each document has one job. Read the one that matches your question.
 | How do we measure non-deterministic model behaviour? | `evals/README.md` |
 | How should Claude Code work in this repository? | `CLAUDE.md` |
 | What focused behaviours should Claude Code follow when making a change? | `.claude/rules/` |
+| How do those primitives compose into a controlled engineering system? | `docs/harness-demonstration.md` |
 
 Two numbering schemes share a word and are unrelated: validation pipeline **Gates 1–4** apply to a UI
 specification and are implemented; inspection **QG-1…QG-6** apply to a board and are not. See
