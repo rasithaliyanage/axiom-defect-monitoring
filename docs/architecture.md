@@ -28,8 +28,8 @@ system.
    ├── .claude/skills/    present                 └── component registry
    ├── .claude/hooks/     present            Domain Runtime        FastAPI + Python
    ├── plugin/            present                ├── grounded context assembly
-   ├── .claude/agents/    dir only, empty        └── validation pipeline  ← authoritative
-   └── Agent SDK          not present        AI Runtime            not present
+   ├── agents/            present (SDK)          └── validation pipeline  ← authoritative
+   └── .claude/agents/    dir only, empty    AI Runtime            not present
 ```
 
 **Engineering-time controls guide how AI-assisted software is built.** They act on the repository,
@@ -37,15 +37,22 @@ before anything ships. They bind by being read: a rule is advice a reviewer can 
 mechanism. Their failure mode is a bad change getting written, which review and tests are there to
 catch.
 
-Four kinds exist today, and they divide by the question they answer. **Rules** (`.claude/rules/`)
+Five kinds exist today, and they divide by the question they answer. **Rules** (`.claude/rules/`)
 answer *how should Claude Code behave* — do not weaken a test, do not bypass validation. **Skills**
 (`.claude/skills/`) answer *what task can be performed, and how is it performed here* — run the
 verification suites, review a contract change, review a proposed checkpoint. **Hooks**
 (`.claude/hooks/`) answer *what should happen automatically, on an event* — when the UI
 specification schema is edited, re-check it. **Plugins** (`plugin/<name>/`) answer *how are those
 capabilities packaged and distributed* — a plugin is a container, so it changes where a capability
-is available, never what it does. The rule governs; the skill performs; the hook fires on its own;
-the plugin ships them somewhere else.
+is available, never what it does. **Agents** (`agents/`) answer *what can a model decide and do on its own* — one bounded loop whose
+only tool verifies the project. The rule governs; the skill performs; the hook fires on its own;
+the plugin ships them somewhere else; the agent chooses, inside a closed set.
+
+The agent is the first engineering-time primitive that runs a model, which is why its bound is
+structural rather than advisory: a closed allow-list, static dispatch naming one literal tool, fixed
+argv commands with `shell=False`, and a hard iteration limit. It uses the real Claude Agent SDK,
+imported lazily so the deterministic tests need no credentials. It is still engineering time — it
+reasons about whether the repository passes its own checks, never about a board.
 
 Because a plugin only redistributes, it adds no control of its own. The package is a generated mirror
 of `.claude/`, with byte-identity asserted by `tests/plugin/`, so packaging cannot quietly become a
@@ -96,7 +103,7 @@ boundary from the other side, and `CLAUDE.md` is explicit that it is guidance, n
 boundary.
 
 **Current status, stated plainly:** of the engineering-time primitives, `CLAUDE.md`,
-`.claude/rules/`, `.claude/skills/`, one hook in `.claude/hooks/` and one plugin at `plugin/board-defect-inspection-engineering/`
+`.claude/rules/`, `.claude/skills/`, one hook in `.claude/hooks/`, one agent in `agents/`, and one plugin at `plugin/board-defect-inspection-engineering/`
 exist. `.claude/agents/` holds a README describing candidates and nothing executable. No Agent SDK
 integration exists, and the plugin carries no agent, command or MCP configuration.
 Of the runtime column, the AI Runtime does not exist either — the specifications served today are

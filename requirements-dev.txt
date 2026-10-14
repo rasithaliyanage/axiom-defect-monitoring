@@ -1,3 +1,8 @@
 -r requirements.txt
 pytest==9.1.1
 httpx==0.28.1
+
+# Task 11 — engineering-time agent only. Never imported by the application
+# runtime: agents/verification/sdk.py imports it lazily, inside functions, so
+# the deterministic tests run with no SDK, no API key and no network.
+claude-agent-sdk==0.2.165

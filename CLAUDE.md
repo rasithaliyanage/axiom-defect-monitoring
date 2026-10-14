@@ -51,7 +51,7 @@ Read `.claude/rules/README.md` first: it explains what a rule can and cannot bin
 
 ## Engineering-time layers
 
-Seven distinct things, easiest to keep straight by what each one answers:
+Eight distinct things, easiest to keep straight by what each one answers:
 
 | | Answers | Binds by |
 |---|---|---|
@@ -60,6 +60,7 @@ Seven distinct things, easiest to keep straight by what each one answers:
 | **Skills** (`.claude/skills/`) | What task can it perform, and how is it performed here? | being read |
 | **Hooks** (`.claude/hooks/`) | What should happen automatically, on an event? | **being executed** |
 | **Plugins** (`plugin/<name>/`) | How are those capabilities packaged and distributed? | being installed |
+| **Agents** (`agents/`) | What can a model decide and do on its own, within a bound? | running a loop |
 | **Specifications** (`specs/`, `docs/`) | What is the system required to do? | review |
 | **Runtime code + tests** | What does the application actually enforce? | executing, and failing |
 
@@ -93,6 +94,11 @@ the named directory inside it, which is where `.claude-plugin/plugin.json` lives
 failing test rather than something a reviewer must spot. Edit `.claude/`, never the package.
 Its `README.md` has the packaging rationale and the portability limits.
 
+One agent exists, in `agents/verification/`: a bounded loop whose only tool is `verify_project`.
+It uses the real `claude-agent-sdk`, imported lazily so the deterministic tests need no API key
+and no network. Engineering-time only — no runtime file imports it, and `requirements.txt` does
+not carry the SDK. `agents/README.md` explains the loop, the allow-list and what is unverified.
+
 ## Repository layout
 
 **This section is the authoritative repository layout.** Where it differs from
@@ -113,6 +119,7 @@ policies/                    BUSINESS-OWNED placeholders — Quality and Manufac
 plans/                       implementation plan
 tasks/                       task breakdown
 apps/ui/                     UI Runtime — React, TypeScript, renderer, component registry
+agents/                      engineering-time agents — bounded verification loop, never runtime
 plugin/<name>/               GENERATED MIRROR — Claude Code plugin package; edit .claude/ instead
 scripts/                     repository-level tooling, e.g. the plugin packaging script
 services/domain/             Domain Runtime — validation pipeline today; board inspection API to come
