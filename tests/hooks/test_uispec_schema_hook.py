@@ -266,6 +266,39 @@ def test_hostile_paths_are_inert(hostile):
     assert hostile not in result.stderr
 
 
+# --- the repository root is found, not assumed -------------------------------
+
+def test_hook_finds_the_repository_at_any_nesting_depth():
+    """The packaged copy sits one level deeper than the authoritative one.
+
+    A fixed parents[n] resolves to the wrong directory there, and the failure
+    is silent: the hook matches nothing and reports nothing. So the depth must
+    not be assumed.
+    """
+    packaged = (ROOT / "plugin" / "board-defect-inspection-engineering"
+                / "hooks" / "check_uispec_schema.py")
+    assert packaged.is_file(), "packaged hook missing"
+    for location in (HOOK, packaged):
+        context = context_of(run(location, edit_of(SCHEMA)))
+        assert context.startswith("PASS"), f"{location} did not resolve the repository"
+
+
+def test_hook_does_not_hard_code_a_parent_depth_for_the_root():
+    assert "parents[2]" not in SOURCE.replace("here.parents[2]", "")
+    assert "_repository_root" in SOURCE
+
+
+def test_hook_outside_any_repository_exits_silently(tmp_path):
+    """No schema above it means nothing matches -- not a crash, not a false PASS."""
+    stranded = tmp_path / "cache" / "plugin" / "hooks"
+    stranded.mkdir(parents=True)
+    copy = stranded / "check_uispec_schema.py"
+    copy.write_bytes(HOOK.read_bytes())
+    result = run(copy, edit_of(tmp_path / "specs" / "schemas" / "ui-spec.schema.json"))
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
 # --- the configuration itself ------------------------------------------------
 
 def test_hook_is_registered_as_posttooluse_in_exec_form():

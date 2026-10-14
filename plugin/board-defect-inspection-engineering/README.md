@@ -36,7 +36,10 @@ hook.
 
 ## Source of truth
 
-**`.claude/` in this repository is authoritative. `plugin/` is a generated mirror.**
+**`.claude/` in this repository is authoritative. This package is a generated mirror.**
+
+`plugin/` is a container directory; this plugin's root is the named directory inside it, which
+is where `.claude-plugin/plugin.json` lives.
 
 ```
 .claude/skills/<name>/SKILL.md   ──┐
@@ -60,8 +63,8 @@ what the repository already does for `apps/ui/src/generated/fixtures.ts`: genera
 verified rather than hand-maintained.
 
 **To change a skill or the hook, edit `.claude/` and re-run the packaging script.** Editing
-anything under `plugin/skills/` or `plugin/hooks/*.py` directly will be reverted by the next build
-and caught by the suite in the meantime. `plugin/hooks/hooks.json` is the one authored file in the
+anything under this package's `skills/` or `hooks/*.py` directly will be reverted by the next build
+and caught by the suite in the meantime. `hooks/hooks.json` is the one authored file in the
 package — it is the plugin-form hook configuration, which has no equivalent in `.claude/settings.json`.
 
 ## How this relates to the other layers
@@ -102,10 +105,14 @@ root, `skills/<name>/SKILL.md`, and `hooks/hooks.json` whose command resolves th
 discovery/installation was not independently verified.** The package has not been installed, and
 `plugin.json` parsing is not evidence that it would be.
 
-**One real portability limit, stated plainly.** The packaged hook resolves the repository root
-relative to its own location — two directories up, which is correct at `<repo>/plugin/hooks/` and
-also at `<repo>/.claude/hooks/`. Installed into a plugin cache elsewhere, that resolution points
-somewhere meaningless and the hook will find no schema to check. It is a project-shaped hook, so the
-package is useful to a checkout with this layout rather than to any project at all. Making it
-genuinely portable would mean teaching it to locate the repository another way — a change to the
-hook, which Task 10 deliberately does not make.
+**How the hook finds the repository.** It walks up from its own location until it sees
+`specs/schemas/ui-spec.schema.json`, rather than assuming a fixed depth. That matters because this
+package nests the hook one level deeper than `.claude/hooks/` does, and a hard-coded depth would
+resolve to the wrong directory — the hook would then match nothing and silently do nothing, which
+is the worst way for a check to fail. Both locations are exercised.
+
+**The remaining limit, stated plainly.** The search still needs the schema to be somewhere above
+the hook. Installed into a plugin cache outside this repository, nothing matches and the hook exits
+silently every time — correct behaviour for an unrelated checkout, but it means the hook does real
+work only for a checkout that actually contains the UI specification schema. It is a
+project-shaped hook; packaging makes it portable to a sibling checkout, not to any project.

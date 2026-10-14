@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-PLUGIN = ROOT / "plugin"
+PLUGIN = ROOT / "plugin" / "board-defect-inspection-engineering"
 MANIFEST = PLUGIN / ".claude-plugin" / "plugin.json"
 SKILLS = ("verify-project", "review-uispec", "checkpoint-review")
 
@@ -202,7 +202,7 @@ def test_plugin_package_lives_outside_every_runtime_directory():
         found = list((ROOT / runtime).rglob(".claude-plugin"))
         assert not found, f"plugin package inside runtime tree: {found}"
     assert MANIFEST.parent.parent == PLUGIN
-    assert PLUGIN.parent == ROOT
+    assert PLUGIN.parent == ROOT / "plugin"
 
 
 def test_readme_documents_the_source_of_truth():

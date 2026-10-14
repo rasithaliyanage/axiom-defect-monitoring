@@ -2,8 +2,12 @@
 """Materialise the Claude Code plugin package from the authoritative sources.
 
 Source of truth is `.claude/` — the skills and hook that this repository
-actually uses. This script copies them into `plugin/`, which is the installable
-package. Nothing is authored in `plugin/skills/` or `plugin/hooks/*.py`.
+actually uses. This script copies them into
+`plugin/board-defect-inspection-engineering/`, which is the installable
+package. Nothing under its `skills/` or `hooks/*.py` is authored by hand.
+
+`plugin/` is a container directory: the plugin root is the named directory
+inside it, which is where `.claude-plugin/plugin.json` lives.
 
 Why a copy rather than a reference
 ----------------------------------
@@ -32,7 +36,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGIN = ROOT / "plugin"
+PLUGIN_NAME = "board-defect-inspection-engineering"
+PLUGIN = ROOT / "plugin" / PLUGIN_NAME
 
 SKILLS = ("verify-project", "review-uispec", "checkpoint-review")
 HOOK = "check_uispec_schema.py"
@@ -93,7 +98,7 @@ def build() -> int:
         shutil.copyfile(src, dst)
         copied += 1
     print(f"packaged {copied} files into {PLUGIN.relative_to(ROOT).as_posix()}/")
-    print("plugin/hooks/hooks.json is authored, not mirrored — it is the "
+    print("The package's hooks/hooks.json is authored, not mirrored — it is the "
           "plugin-form hook configuration.")
     return 0
 

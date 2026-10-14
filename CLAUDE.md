@@ -59,7 +59,7 @@ Seven distinct things, easiest to keep straight by what each one answers:
 | **Rules** (`.claude/rules/`) | How should Claude Code behave? | being read |
 | **Skills** (`.claude/skills/`) | What task can it perform, and how is it performed here? | being read |
 | **Hooks** (`.claude/hooks/`) | What should happen automatically, on an event? | **being executed** |
-| **Plugins** (`plugin/`) | How are those capabilities packaged and distributed? | being installed |
+| **Plugins** (`plugin/<name>/`) | How are those capabilities packaged and distributed? | being installed |
 | **Specifications** (`specs/`, `docs/`) | What is the system required to do? | review |
 | **Runtime code + tests** | What does the application actually enforce? | executing, and failing |
 
@@ -84,11 +84,14 @@ whenever it is edited, reusing the existing validator rather than adding a secon
 not undo the edit. `.claude/hooks/README.md` covers what it does, what it refuses to do, and why
 it is safe to run automatically.
 
-One plugin exists, in `plugin/`, packaging those three skills and that hook for installation
-elsewhere. **`.claude/` stays authoritative; `plugin/` is a generated mirror** produced by
+One plugin exists, at `plugin/board-defect-inspection-engineering/`, packaging those three skills
+and that hook for installation elsewhere. `plugin/` is a container directory; the plugin root is
+the named directory inside it, which is where `.claude-plugin/plugin.json` lives.
+
+**`.claude/` stays authoritative; the package is a generated mirror** produced by
 `scripts/package_plugin.py`, with `tests/plugin/` asserting byte-identity so a divergent copy is a
-failing test rather than something a reviewer must spot. Edit `.claude/`, never `plugin/`.
-`plugin/README.md` has the packaging rationale and the portability limits.
+failing test rather than something a reviewer must spot. Edit `.claude/`, never the package.
+Its `README.md` has the packaging rationale and the portability limits.
 
 ## Repository layout
 
@@ -110,7 +113,7 @@ policies/                    BUSINESS-OWNED placeholders — Quality and Manufac
 plans/                       implementation plan
 tasks/                       task breakdown
 apps/ui/                     UI Runtime — React, TypeScript, renderer, component registry
-plugin/                      GENERATED MIRROR — Claude Code plugin package; edit .claude/ instead
+plugin/<name>/               GENERATED MIRROR — Claude Code plugin package; edit .claude/ instead
 scripts/                     repository-level tooling, e.g. the plugin packaging script
 services/domain/             Domain Runtime — validation pipeline today; board inspection API to come
 simulators/capture/          harness — recorded inspection fixtures, so slices need no factory

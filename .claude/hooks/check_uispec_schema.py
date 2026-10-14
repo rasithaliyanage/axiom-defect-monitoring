@@ -33,9 +33,30 @@ import json
 import sys
 from pathlib import Path
 
-# .claude/hooks/this_file.py -> repository root
-ROOT = Path(__file__).resolve().parents[2]
-SCHEMA = ROOT / "specs" / "schemas" / "ui-spec.schema.json"
+SCHEMA_RELATIVE = Path("specs") / "schemas" / "ui-spec.schema.json"
+
+
+def _repository_root() -> Path:
+    """Find the repository by walking up until the schema is in view.
+
+    Depth is not assumed. This file is copied into the plugin package, which
+    nests it one level deeper than `.claude/hooks/`, and a fixed `parents[n]`
+    silently resolves to the wrong directory there — the hook would then match
+    nothing and quietly do nothing, which is the worst way for a check to fail.
+
+    Falls back to the grandparent so SCHEMA is always a concrete path; when the
+    schema genuinely is not there, nothing matches and the hook exits silently,
+    which is the correct behaviour for an unrelated checkout.
+    """
+    here = Path(__file__).resolve()
+    for candidate in here.parents:
+        if (candidate / SCHEMA_RELATIVE).is_file():
+            return candidate
+    return here.parents[2] if len(here.parents) > 2 else here.parent
+
+
+ROOT = _repository_root()
+SCHEMA = ROOT / SCHEMA_RELATIVE
 FIXTURES = ROOT / "tests" / "fixtures" / "ui-spec"
 
 

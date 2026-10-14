@@ -42,12 +42,12 @@ answer *how should Claude Code behave* — do not weaken a test, do not bypass v
 (`.claude/skills/`) answer *what task can be performed, and how is it performed here* — run the
 verification suites, review a contract change, review a proposed checkpoint. **Hooks**
 (`.claude/hooks/`) answer *what should happen automatically, on an event* — when the UI
-specification schema is edited, re-check it. **Plugins** (`plugin/`) answer *how are those
+specification schema is edited, re-check it. **Plugins** (`plugin/<name>/`) answer *how are those
 capabilities packaged and distributed* — a plugin is a container, so it changes where a capability
 is available, never what it does. The rule governs; the skill performs; the hook fires on its own;
 the plugin ships them somewhere else.
 
-Because a plugin only redistributes, it adds no control of its own. `plugin/` is a generated mirror
+Because a plugin only redistributes, it adds no control of its own. The package is a generated mirror
 of `.claude/`, with byte-identity asserted by `tests/plugin/`, so packaging cannot quietly become a
 second implementation that drifts from the one the repository actually uses. Rules are deliberately
 not packaged: they are behavioural guidance specific to this architecture, and the plugin model has
@@ -96,7 +96,7 @@ boundary from the other side, and `CLAUDE.md` is explicit that it is guidance, n
 boundary.
 
 **Current status, stated plainly:** of the engineering-time primitives, `CLAUDE.md`,
-`.claude/rules/`, `.claude/skills/`, one hook in `.claude/hooks/` and one plugin in `plugin/`
+`.claude/rules/`, `.claude/skills/`, one hook in `.claude/hooks/` and one plugin at `plugin/board-defect-inspection-engineering/`
 exist. `.claude/agents/` holds a README describing candidates and nothing executable. No Agent SDK
 integration exists, and the plugin carries no agent, command or MCP configuration.
 Of the runtime column, the AI Runtime does not exist either — the specifications served today are
@@ -281,7 +281,7 @@ grounded context makes fabricated or drifted figures mechanically detectable.
 
 AD-8. Engineering-time guidance is kept separate from runtime enforcement, and is never described as
 enforcement. `.claude/rules/` carries focused behavioural guidance, `.claude/skills/` reusable
-engineering-time capabilities, `.claude/hooks/` automatic event-driven checks, and `plugin/` their
+engineering-time capabilities, `.claude/hooks/` automatic event-driven checks, and `plugin/<name>/` their
 packaging for distribution; the schema, the validator, the registry and the tests carry what the
 system actually enforces. A hook is executed
 rather than read, which makes it the most reliable of the three — automatic, though for a
